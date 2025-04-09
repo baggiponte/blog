@@ -42,3 +42,10 @@ cp -r themes/blowfish/config .
 
 Now you can run `hugo server` and see your site at `localhost:1313`.
 
+
+## References
+
+* [Hugo](https://gohugo.io/)
+* [Blowfish](https://blowfish.page/)
+* [GitHub Pages Custom Domain](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-a-subdomain)
+* [porkbun GitHub Pages Guide](https://kb.porkbun.com/article/64-how-to-connect-your-domain-to-github-pages)
