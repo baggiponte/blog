@@ -1,9 +1,9 @@
 ---
-title: "PyTorch Model Visualisation"
+title: "The Secret Sauce behind PyTorch Models Repr"
 date: 2025-04-09
 draft: false
-description: "a description"
-tags: ["example", "tag"]
+description: "How are PyTorch Neural Networks so nicely represented?"
+tags: ["pytorch"]
 ---
 
 When we load a model from HuggingFace, we might do something like this:
