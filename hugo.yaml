@@ -9,6 +9,9 @@ module:
 params:
   theme:
     default: light
+    displayToggle: true
+
+  dateFormat: "January 2, 2006"
 
   blog:
     list:
@@ -17,6 +20,11 @@ params:
       order: "desc"
     article:
       displayPagination: true
+
+  footer:
+    enable: false
+    # displayCopyright: true
+    # displayPoweredBy: true
 
 menu:
   main:
@@ -32,22 +40,22 @@ menu:
       name: Talks
       url: /talks/
       weight: 3
-    - identifier: about
-      name: About
-      url: /about/
-      weight: 4
+    - name: Search
+      weight: 7
+      params:
+        type: search
     - identifier: github
       name: GitHub
       url: https://github.com/baggiponte
-      weight: 5
+      weight: 4
     - identifier: twitter
       name: Twitter
       url: https://twitter.com/baggiponte
-      weight: 6
+      weight: 5
     - identifier: linkedin
       name: LinkedIn
       url: https://www.linkedin.com/in/lucabaggi/
-      weight: 7
+      weight: 6
 
 taxonomies:
   tag: tags
