@@ -71,7 +71,7 @@ jobs:
   # Deployment job
   deploy:
     # Only deploy to GitHub Pages on main branch pushes, not PRs
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
