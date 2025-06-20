@@ -12,10 +12,16 @@ This Hugo blog uses [just](https://github.com/casey/just) for task automation:
 Follow these Git best practices when implementing features:
 
 ### Branch Management
-* Create feature branches from `main` using conventional naming:
-  - `feature/description` for new features
-  - `bugfix/description` for bug fixes
-  - `hotfix/description` for urgent fixes
+* Create feature branches from `main` using conventional commit prefixes:
+  - `feat/short-description` for new features
+  - `fix/short-description` for bug fixes
+  - `docs/short-description` for documentation changes
+  - `refactor/short-description` for code refactoring
+  - `test/short-description` for adding tests
+  - `chore/short-description` for maintenance tasks
+  - `ci/short-description` for CI/CD changes
+  - `hotfix/short-description` for urgent fixes
+
 * Work on feature branches, never directly on `main`
 * Delete branches after merging
 
@@ -36,8 +42,11 @@ Follow these Git best practices when implementing features:
 * **DON'T commit**: API keys, secrets, build artifacts, dependencies, large binaries
 
 ### Pull Request Workflow
+* **Never push directly to `main` branch** - Always create PRs for all changes
 * Use `gh pr create` for creating pull requests
 * Include summary and test plan in PR description
+* Provide PR link for user review - DO NOT auto-merge unless explicitly requested
+* Only use auto-merge when all checks pass and user has approved
 
 ## Self-Improvement
 At the end of each conversation, review the exchange for any mistakes or corrections made by the user. Suggest specific additions or improvements to these rules in CLAUDE.md to prevent similar mistakes in future conversations.
