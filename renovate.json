@@ -1,0 +1,40 @@
+{
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "timezone": "Europe/Rome",
+  "labels": ["dependencies"],
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "prTitle": "chore(deps): update {{depName}} to {{newVersion}}",
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 1,
+  "automerge": false,
+  "platformAutomerge": false,
+  "rebaseWhen": "conflicted",
+  "golang": {
+    "enabled": true
+  },
+  "gomod": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchDatasources": ["go"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "platformAutomerge": true
+    },
+    {
+      "matchDatasources": ["go"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["breaking-change"]
+    }
+  ]
+}
