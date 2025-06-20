@@ -2,7 +2,7 @@
 
 ## Preview
 
-With [Just](https://github.com/casey/just)
+With [just](https://github.com/casey/just)
 
 ```bash
 just start
