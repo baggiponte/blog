@@ -33,9 +33,10 @@ Follow these Git best practices when implementing features:
   - `docs:` for documentation
   - `refactor:` for code refactoring
   - `chore:` for maintenance tasks
-
-* Make atomic commits (one logical change per commit)
-* Include descriptive commit messages
+* **Commit frequently and atomically** - Each commit should represent one logical change
+* **Commit each subtask separately** - For features with multiple subtasks, commit after completing each subtask
+* Include descriptive commit messages that explain the change
+* Allow time for user review between commits before pushing
 
 ### What to Commit
 * **DO commit**: Source code, configuration files, tests, documentation
@@ -43,6 +44,7 @@ Follow these Git best practices when implementing features:
 
 ### Pull Request Workflow
 * **Never push directly to `main` branch** - Always create PRs for all changes
+* **Always ask for permission before pushing** - Never push without explicit approval
 * Use `gh pr create` for creating pull requests
 * Include summary and test plan in PR description
 * Provide PR link for user review - DO NOT auto-merge unless explicitly requested
