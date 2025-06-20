@@ -2,14 +2,16 @@
 
 ## Preview
 
+With [Just](https://github.com/casey/just)
+
 ```bash
-hugo server --buildDrafts --disableFastRender
+just start
 ```
 
 ## Update
 
-```bash
-hugo mod get -u
+With [Just](https://github.com/casey/just)
 
-hugo mod get -u github.com/imfing/hextra
+```bash
+just update
 ```
