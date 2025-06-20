@@ -21,6 +21,7 @@ Follow these Git best practices when implementing features:
   - `chore/short-description` for maintenance tasks
   - `ci/short-description` for CI/CD changes
   - `hotfix/short-description` for urgent fixes
+
 * Work on feature branches, never directly on `main`
 * Delete branches after merging
 
@@ -41,7 +42,7 @@ Follow these Git best practices when implementing features:
 * **DON'T commit**: API keys, secrets, build artifacts, dependencies, large binaries
 
 ### Pull Request Workflow
-* **NEVER push directly to `main` branch** - Always create PRs for all changes
+* **Never push directly to `main` branch** - Always create PRs for all changes
 * Use `gh pr create` for creating pull requests
 * Include summary and test plan in PR description
 * Provide PR link for user review - DO NOT auto-merge unless explicitly requested
