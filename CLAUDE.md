@@ -12,10 +12,15 @@ This Hugo blog uses [just](https://github.com/casey/just) for task automation:
 Follow these Git best practices when implementing features:
 
 ### Branch Management
-* Create feature branches from `main` using conventional naming:
-  - `feature/description` for new features
-  - `bugfix/description` for bug fixes
-  - `hotfix/description` for urgent fixes
+* Create feature branches from `main` using conventional commit prefixes:
+  - `feat/short-description` for new features
+  - `fix/short-description` for bug fixes
+  - `docs/short-description` for documentation changes
+  - `refactor/short-description` for code refactoring
+  - `test/short-description` for adding tests
+  - `chore/short-description` for maintenance tasks
+  - `ci/short-description` for CI/CD changes
+  - `hotfix/short-description` for urgent fixes
 * Work on feature branches, never directly on `main`
 * Delete branches after merging
 
