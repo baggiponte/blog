@@ -1,6 +1,6 @@
 ---
 date: '2025-06-13T19:59:59+02:00'
-draft: true
+draft: false
 title: 'TIL'
 ---
 
