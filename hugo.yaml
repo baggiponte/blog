@@ -38,7 +38,7 @@ menu:
       weight: 2
     - identifier: talks
       name: Talks
-      url: /talks/
+      url: https://sessionize.com/lucabaggi/
       weight: 3
     - name: Search
       weight: 7
