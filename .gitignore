@@ -7,6 +7,7 @@
 /resources/_gen/
 /assets/jsconfig.json
 hugo_stats.json
+data/talks.json
 
 # Executable may be added to repository
 hugo.exe
@@ -17,4 +18,3 @@ hugo.linux
 /.hugo_build.lock
 
 # End of https://www.toptal.com/developers/gitignore/api/hugo
-
