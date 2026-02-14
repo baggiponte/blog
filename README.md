@@ -15,3 +15,38 @@ With [Just](https://github.com/casey/just)
 ```bash
 just update
 ```
+
+## Marimo Notebook Posts
+
+Notebook-backed posts are stored as Hugo page bundles under `content/blog/<slug>/`.
+
+Expected bundle layout:
+
+```text
+content/blog/<slug>/
+  index.md                 # Hugo front matter and include shortcode
+  <notebook_name>.py       # Marimo notebook source
+  <notebook_name>.md       # Generated Markdown from marimo export
+```
+
+`index.md` owns metadata (`title`, `date`, `tags`, `draft`, etc.) and includes the generated body:
+
+```md
+{{< include-md "<notebook_name>.md" >}}
+```
+
+The shortcode implementation is in `layouts/shortcodes/include-md.html`.
+It reads the sibling generated Markdown, strips its front matter, and renders the rest in the page.
+
+### Export Commands
+
+```bash
+just marimo-export <slug>   # export one bundle
+just marimo-export-all      # export all bundles under content/blog
+just marimo-watch <slug>    # watch and re-export one bundle
+```
+
+Notes:
+
+- Keep one notebook `*.py` file per bundle if using `just marimo-export <slug>`.
+- Treat generated `*.md` files as build outputs from marimo; regenerate instead of hand-editing.

@@ -1,0 +1,13 @@
+{{- $rel := .Get 0 -}}
+{{- if not .Page.File -}}
+Include error: page has no file context.
+{{- else -}}
+  {{- $full := path.Join "content" .Page.File.Dir $rel -}}
+  {{- if not (fileExists $full) -}}
+Include error: missing file {{ $rel }}
+  {{- else -}}
+    {{- $raw := readFile $full -}}
+    {{- $body := replaceRE `(?s)^---\n.*?\n---\n?` "" $raw -}}
+    {{- $body | .Page.RenderString -}}
+  {{- end -}}
+{{- end -}}
