@@ -1,3 +1,5 @@
+data/talks.json
+
 # Created by https://www.toptal.com/developers/gitignore/api/hugo
 # Edit at https://www.toptal.com/developers/gitignore?templates=hugo
 
@@ -7,7 +9,6 @@
 /resources/_gen/
 /assets/jsconfig.json
 hugo_stats.json
-data/talks.json
 
 # Executable may be added to repository
 hugo.exe
