@@ -5,7 +5,7 @@
 With [just](https://github.com/casey/just)
 
 ```bash
-just start
+just serve
 ```
 
 ## Update
@@ -41,12 +41,12 @@ It reads the sibling generated Markdown, strips its front matter, and renders th
 ### Export Commands
 
 ```bash
-just marimo-export <slug>   # export one bundle
-just marimo-export-all      # export all bundles under content/blog
-just marimo-watch <slug>    # watch and re-export one bundle
+just marimo-export content/blog/<slug>/<notebook_name>.py  # export one notebook bundle
+just marimo-export content/blog/*/*.py                      # export many bundles
+just marimo-export                                          # export all bundles under content/blog
 ```
 
 Notes:
 
-- Keep one notebook `*.py` file per bundle if using `just marimo-export <slug>`.
+- Keep one notebook `*.py` file per bundle directory.
 - Treat generated `*.md` files as build outputs from marimo; regenerate instead of hand-editing.
