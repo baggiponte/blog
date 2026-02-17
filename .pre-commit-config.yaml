@@ -12,3 +12,11 @@ repos:
     rev: v1.22.0
     hooks:
     -   id: zizmor
+-   repo: local
+    hooks:
+    -   id: marimo-export-notebooks
+        name: Export marimo notebooks to markdown
+        language: system
+        files: ^content/blog/[^/]+/[^/]+\.py$
+        pass_filenames: true
+        entry: just marimo-export
