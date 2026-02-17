@@ -17,15 +17,9 @@ new slug:
 til slug:
     hugo new content/til/{{ slug }}.md && nvim $_
 
-# Export a single marimo notebook page bundle to Markdown
-marimo-export slug:
-    notebook=$(fd -e py --max-depth 1 --type f . content/blog/{{ slug }} | head -n 1) && \
-      test -n "$notebook" && out="${notebook%.py}.md" && \
-      uvx marimo export md "$notebook" -o "$out" -f
-
-# Export all marimo notebook page bundles under content/blog
-marimo-export-all:
-    fd -e py --min-depth 2 --max-depth 2 --type f . content/blog | while read -r notebook; do \
+# Export one or more marimo notebooks to Markdown in-place
+marimo-export +notebooks:
+    for notebook in {{ notebooks }}; do \
       out="${notebook%.py}.md"; \
       uvx marimo export md "$notebook" -o "$out" -f; \
     done
