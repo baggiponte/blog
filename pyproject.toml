@@ -1,5 +1,5 @@
 [project]
-name = "baggiponte-blog"
+name = "blog"
 version = "0.1.0"
 description = "Tooling for marimo-backed blog content."
 requires-python = ">=3.11"
@@ -11,3 +11,9 @@ dependencies = [
 
 [tool.uv]
 package = false
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.1",
+    "rust-just>=1.46.0",
+]
