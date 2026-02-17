@@ -6,6 +6,8 @@ start:
 update:
     hugo mod get -u
     hugo mod get -u github.com/imfing/hextra
+    uv sync --upgrade
+    uv run prek autoupdate
 
 # Create a new blog post
 new slug:
