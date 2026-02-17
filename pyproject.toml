@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "Tooling for marimo-backed blog content."
 requires-python = ">=3.11"
 dependencies = [
-    "marimo>=0.19.11",
     "numpy>=2.3.5",
     "torch>=2.9.1",
 ]
@@ -14,6 +13,7 @@ package = false
 
 [dependency-groups]
 dev = [
+    "marimo>=0.19.11",
     "ruff>=0.15.1",
     "rust-just>=1.46.0",
 ]
