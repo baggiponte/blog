@@ -1,11 +1,13 @@
-# Launch a local hugo server
-start:
+# Run marimo notebook export hook, then launch a local hugo server
+serve:
+    uv run prek run marimo-export-notebooks
     hugo server --buildDrafts --disableFastRender
 
 # Update hugo modules
 update:
     hugo mod get -u
     hugo mod get -u github.com/imfing/hextra
+
     uv sync --upgrade
     uv run prek autoupdate
 
@@ -17,15 +19,21 @@ new slug:
 til slug:
     hugo new content/til/{{ slug }}.md && nvim $_
 
-# Export one or more marimo notebooks to Markdown in-place
-marimo-export +notebooks:
-    for notebook in {{ notebooks }}; do \
-      out="${notebook%.py}.md"; \
-      uvx marimo export md "$notebook" -o "$out" -f; \
-    done
+# Export marimo notebooks to Markdown in-place; defaults to all blog notebooks
+marimo-export *notebooks:
+    #!/usr/bin/env zsh
+    notebooks="{{ notebooks }}"
 
-# Watch and continuously export one marimo notebook bundle
-marimo-watch slug:
-    notebook=$(fd -e py --max-depth 1 --type f . content/blog/{{ slug }} | head -n 1) && \
-      test -n "$notebook" && out="${notebook%.py}.md" && \
-      uvx marimo export md "$notebook" -o "$out" --watch -f
+    if [ -z "$notebooks" ]; then
+      notebooks="$(fd --extension py --min-depth 2 --max-depth 2 --type f . content/blog)";
+    fi
+
+    if [ -z "$notebooks" ]; then
+      echo "No notebooks found under content/blog";
+      exit 0;
+    fi
+
+    for notebook in $notebooks; do
+      out="${notebook%.py}.md";
+      uvx marimo export md "$notebook" -o "$out" -f;
+    done
