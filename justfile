@@ -25,7 +25,7 @@ marimo-export *notebooks:
     notebooks="{{ notebooks }}"
 
     if [ -z "$notebooks" ]; then
-      notebooks="$(fd --extension py --min-depth 2 --max-depth 2 --type f . content/blog)";
+      notebooks="$(fd --extension py --min-depth 2 --max-depth 2 --type f . content/blog)"
     fi
 
     if [ -z "$notebooks" ]; then
