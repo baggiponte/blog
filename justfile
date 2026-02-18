@@ -33,7 +33,7 @@ marimo-export *notebooks:
       exit 0;
     fi
 
-    for notebook in $notebooks; do
+    for notebook in ${(z)notebooks}; do
       out="${notebook%.py}.md";
       uvx marimo export md "$notebook" -o "$out" -f;
     done
