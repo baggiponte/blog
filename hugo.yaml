@@ -48,3 +48,7 @@ menu:
 taxonomies:
   tag: tags
   category: categories
+
+markup:
+  highlight:
+    noClasses: false
