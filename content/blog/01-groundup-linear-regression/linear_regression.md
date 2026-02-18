@@ -14,11 +14,13 @@ import marimo as mo
 from torch import nn
 ```
 
+"From the ground up" is a series of short, technical blog posts about deep learning. This looks like "yet another deep learning from scratch" series, and partly it is - but it has a narrower focus on the abstractions (from `DataLoader`s to `Trainer`s) and performance. The goal of the series is, in other words, to understand the API design and how things are implemented, more so than the maths. This is chapter one, were we train a linear regression using stochastic gradient descent.
+<!---->
 # Linear Regression
 <!---->
-We implement a naive linear regression in PyTorch, introducing a couple of abstractions while making some simplifications.
-<!---->
 ## Generate Data
+<!---->
+We start with a simple function to generate random data, sampling from a multivariate gaussian distribution.
 
 ```python {.marimo name="make_regression"}
 def make_regression(
@@ -51,20 +53,24 @@ X, y = make_regression(NUM_SAMPLES, NUM_FEATURES, generator=gen)
 ```
 
 ## The simplest, "imperative" implementation
+<!---->
+Before we even start subclassing `torch.nn.Module`, let's get down to the basics of linear regression one more time.
+
+We initialise a set of weights and the bias. The shape of the weights is the same as the number of features (or covariates, or exogenous regressors, depending on where you come from). The bias has just one.
 
 ```python {.marimo}
 w = torch.randn(size=(NUM_FEATURES, 1), requires_grad=True)
 b = torch.randn(size=(1,), requires_grad=True)
 ```
 
-To operate on the whole set of parameters, we can use the following trick. This allows us to operate on the whole set of parameters at once.
+We wrap the parameters in a tuple to operate on them at once, for example to count them:
 
 ```python {.marimo}
 params = (w, b)
 sum(p.numel() for p in params)
 ```
 
-We then implement the prediction function and the loss
+We then implement the prediction function and the loss:
 
 ```python {.marimo}
 def predict(X, w, b):
@@ -77,7 +83,7 @@ def mean_squared_error(y_pred, y_true):
 
 And finally the training loop. It is comprised of four steps:
 
-1. Set the gradients to zero. So gradients don't accumulate.
+1. Set the gradients to zero. In this way, gradients don't accumulate (i.e., add up epoch after epoch).
 2. Compute the predictions.
 3. Compute the loss.
 4. Compute the gradients on the whole model graph.
@@ -114,9 +120,11 @@ for i in range(EPOCHS):
 
 # Let's add some abstractions
 <!---->
-This code works, but we would like to make it a bit modular. Classes are of great help: if we can provide a unified API (i.e., interface) for models, we can also try to standardise the training loop.
+This code works just fine. But, as soon as you change the model, you need to make changes to other parts of the code. For example, say you want to add a second layer to the linear regression (and thus make it a proper multi-layer perceptron, or MLP): now you have to change the signature of `predict`, to accept more parameters. Are you going to pass more parameters? Make the function accept variadic (`*args`) weights? Or are you going to shove all weights in a list?
 
-Fortunately for us, PyTorch already offers a primitive for models: the `nn.Module`. We should only write a minimal abstraction for the `Trainer`.
+This isn't wrong, per se, but you wouldn't want to spend more time thinking of these details. Enter classes, as a way to provide a unified API (i.e., interface) for models. In this way, we can also standardise the training loop in an interface, the `Trainer`.
+
+The `Trainer` interface was first used at scale with PyTorch Lightning, and made popular (or, rather, a standard) with HuggingFace's `transformers`. Fortunately for us, PyTorch already offers a primitive for models: the `nn.Module`. We should only write a minimal abstraction for the `Trainer`.
 
 ```python {.marimo name="LinearRegression"}
 class LinearRegression(nn.Module):
@@ -138,6 +146,10 @@ class LinearRegression(nn.Module):
         return X @ self.weights + self.bias
 ```
 
+PyTorch `Module`s can magically track the parameters (so you can see them in the `__repr__`, or get them with `model.parameters()`). This is achieved by wrapping the tensor that represents the parameter in a `nn.Parameter` class.
+<!---->
+Another modern API pattern is using a (data)class to represent a set of arguments. The purpose of this interface is to basically give a namespace for a set of parameters, perhaps to make them easiser to understand, and make function signatures shorter.
+
 ```python {.marimo name="NaiveTrainerConfig"}
 @dataclass
 class NaiveTrainerConfig:
@@ -146,6 +158,8 @@ class NaiveTrainerConfig:
     epochs: int
     learning_rate: float
 ```
+
+This is quite shallow, but we are going to add mini-batch size, decay, checkpointing, and more. Another abstraction that HuggingFace's `transformers` provides is the `TrainOutput`, which is simply a `NamedTuple` for the current training step, loss and metrics. We make it a bit different (storing losses and parameters, currently) just to display the results.
 
 ```python {.marimo name="NaiveTrainerResult"}
 @dataclass
