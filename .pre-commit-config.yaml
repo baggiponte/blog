@@ -1,20 +1,13 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
-    -   id: check-added-large-files
--   repo: https://github.com/zizmorcore/zizmor-pre-commit
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
     rev: v1.22.0
     hooks:
-    -   id: zizmor
--   repo: local
+      - id: zizmor
+  - repo: local
     hooks:
-    -   id: marimo-export-notebooks
+      - id: marimo-export-notebooks
         name: Export marimo notebooks to markdown
         language: system
         files: ^content/blog/[^/]+/[^/]+\.py$
