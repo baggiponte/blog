@@ -148,7 +148,7 @@ body {
 
 .post-row a {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) 8.5rem;
   gap: 2rem;
   padding: 1.15rem 0;
   border-bottom: 1px solid var(--site-border);
@@ -176,6 +176,7 @@ body {
 }
 
 .post-row time {
+  justify-self: end;
   white-space: nowrap;
 }
 
@@ -199,8 +200,8 @@ body {
 
 .article-frame {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 18rem;
-  gap: clamp(2rem, 5vw, 5rem);
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem);
+  gap: clamp(1.5rem, 4vw, 4.5rem);
   padding: 4.5rem 0 7rem;
 }
 
@@ -335,14 +336,29 @@ body {
 .hextra-code-block {
   margin: 1.8rem 0;
   font-size: 0.92rem;
+  position: relative;
 }
 
 .hextra-code-block pre,
 .content pre {
   border: 1px solid var(--site-border) !important;
   border-radius: 1rem !important;
-  background: var(--site-code-bg) !important;
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.14);
+}
+
+.hextra-code-copy-btn-container {
+  margin: 0 !important;
+  opacity: 1 !important;
+  right: 0.65rem !important;
+  top: 0.65rem !important;
+  z-index: 2;
+}
+
+.hextra-code-copy-btn {
+  background: var(--site-surface) !important;
+  border-color: var(--site-border) !important;
+  color: var(--site-ink) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .hextra-code-block code,
@@ -360,81 +376,9 @@ body {
 .hextra-code-filename {
   border-bottom: 1px solid var(--site-border);
   border-radius: 1rem 1rem 0 0 !important;
-  background: color-mix(in srgb, var(--site-code-bg) 92%, white) !important;
 }
 
-.highlight .chroma {
-  background: transparent !important;
-  color: #f0f6fc;
-}
-
-.hextra-code-block .highlight .chroma .n {
-  color: #f0f6fc;
-}
-
-.hextra-code-block .highlight .chroma .nf,
-.hextra-code-block .highlight .chroma .fm {
-  color: #d2a8ff;
-  font-weight: 650;
-}
-
-.hextra-code-block .highlight .chroma .nc {
-  color: #ffa657;
-  font-weight: 650;
-}
-
-.hextra-code-block .highlight .chroma .k,
-.hextra-code-block .highlight .chroma .kn,
-.hextra-code-block .highlight .chroma .kc,
-.hextra-code-block .highlight .chroma .ow {
-  color: #ff7b72;
-  font-weight: 650;
-}
-
-.hextra-code-block .highlight .chroma .nb,
-.hextra-code-block .highlight .chroma .bp {
-  color: #79c0ff;
-}
-
-.hextra-code-block .highlight .chroma .nn {
-  color: #a5d6ff;
-}
-
-.hextra-code-block .highlight .chroma .o,
-.hextra-code-block .highlight .chroma .p {
-  color: #c9d1d9;
-}
-
-.hextra-code-block .highlight .chroma .s,
-.hextra-code-block .highlight .chroma .s1,
-.hextra-code-block .highlight .chroma .s2,
-.hextra-code-block .highlight .chroma .sd {
-  color: #a5d6ff;
-}
-
-.hextra-code-block .highlight .chroma .m,
-.hextra-code-block .highlight .chroma .mi,
-.hextra-code-block .highlight .chroma .mf {
-  color: #79c0ff;
-}
-
-.hextra-code-block .highlight .chroma .c,
-.hextra-code-block .highlight .chroma .c1,
-.hextra-code-block .highlight .chroma .cm {
-  color: #8b949e;
-  font-style: italic;
-}
-
-.hextra-code-block .highlight .chroma .nd {
-  color: #d2a8ff;
-  font-weight: 600;
-}
-
-.hextra-code-block .highlight .chroma .o + .n {
-  color: #79c0ff;
-}
-
-@media (max-width: 72rem) {
+@media (max-width: 56rem) {
   .article-frame {
     grid-template-columns: 1fr;
   }
