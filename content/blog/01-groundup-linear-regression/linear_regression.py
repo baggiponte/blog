@@ -184,7 +184,7 @@ def _(X, b, mean_squared_error, params, predict, w, y):
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    # Let's add some abstractions
+    ## Let's add some abstractions
     """)
     return
 
