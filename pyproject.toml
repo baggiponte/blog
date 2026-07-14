@@ -13,7 +13,7 @@ package = false
 
 [dependency-groups]
 dev = [
-    "marimo>=0.19.11",
+    "marimo>=0.23.9",
     "prek>=0.3.3",
     "ruff>=0.15.1",
     "rust-just>=1.46.0",
