@@ -6,7 +6,7 @@
   <nav id="TableOfContents">
     <ul>
       {{- range $included -}}
-        {{- if ge .level 2 -}}
+        {{- if ge .level 1 -}}
           <li class="toc-level-{{ .level }}"><a href="#{{ .id }}">{{ .text }}</a></li>
         {{- end -}}
       {{- end -}}

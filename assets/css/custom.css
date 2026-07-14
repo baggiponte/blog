@@ -307,8 +307,12 @@ body {
   margin: 0.5rem 0;
 }
 
-.article-toc .toc-level-3 {
+.article-toc .toc-level-2 {
   margin-left: 0.8rem;
+}
+
+.article-toc .toc-level-3 {
+  margin-left: 1.6rem;
 }
 
 .article-toc a {
