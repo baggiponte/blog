@@ -1,0 +1,9 @@
+<article class="post-row">
+  <a href="{{ .RelPermalink }}" aria-label="Read {{ .Title }}">
+    <span class="post-row-main">
+      <span class="post-row-title">{{ .Title }}</span>
+      <span class="post-row-description">{{ partial "utils/page-description" . }}</span>
+    </span>
+    {{ with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ .Format "Jan 2, 2006" }}</time>{{ end }}
+  </a>
+</article>

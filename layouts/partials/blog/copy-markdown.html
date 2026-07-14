@@ -1,0 +1,15 @@
+{{- $markdown := .RawContent -}}
+{{- with findRESubmatch `\{\{<\s*include-md\s+"([^"]+)"\s*>\}\}` .RawContent 1 -}}
+  {{- with index . 0 -}}
+    {{- $include := index . 1 -}}
+    {{- with $.File -}}
+      {{- $path := path.Join "content" .Dir $include -}}
+      {{- if fileExists $path -}}
+        {{- $markdown = readFile $path -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $markdown = replaceRE `(?s)^---\n.*?\n---\n?` "" $markdown -}}
+{{- $title := printf "# %s\n\n" .Title -}}
+<textarea hidden readonly data-markdown-source>{{ printf "%s%s" $title $markdown }}</textarea>

@@ -4,7 +4,4 @@ draft: false
 title: ''
 ---
 
-
-# 👋 Welcome!
-
-I am an AI Engineer an open source enthusiast.
+I am an AI engineer and open source enthusiast.

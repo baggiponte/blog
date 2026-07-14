@@ -8,6 +8,15 @@ Include error: missing file {{ $rel }}
   {{- else -}}
     {{- $raw := readFile $full -}}
     {{- $body := replaceRE `(?s)^---\n.*?\n---\n?` "" $raw -}}
+    {{- $headings := slice -}}
+    {{- range findRESubmatch `(?m)^(#{1,3})\s+(.+?)\s*$` $body -}}
+      {{- $marker := index . 1 -}}
+      {{- $text := index . 2 | replaceRE `\s+#+$` "" | replaceRE `<[^>]+>` "" | strings.TrimSpace -}}
+      {{- if $text -}}
+        {{- $headings = $headings | append (dict "level" (len $marker) "text" $text "id" (anchorize $text)) -}}
+      {{- end -}}
+    {{- end -}}
+    {{- .Page.Store.Set "includedHeadings" $headings -}}
     {{- $body | .Page.RenderString -}}
   {{- end -}}
 {{- end -}}
