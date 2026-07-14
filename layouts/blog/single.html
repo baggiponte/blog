@@ -7,8 +7,10 @@
           {{ if .Params.tags }}{{ partial "tags.html" (dict "context" .) }}{{ end }}
         </div>
         {{ if .Title }}<h1>{{ .Title }}</h1>{{ end }}
-        {{ with .Description }}<p>{{ . }}</p>{{ end }}
-        <button class="copy-markdown-button" type="button" data-copy-markdown aria-live="polite">Copy as Markdown</button>
+        <div class="article-subtitle-row">
+          {{ with .Description }}<p>{{ . }}</p>{{ end }}
+          <button class="copy-markdown-button" type="button" data-copy-markdown aria-live="polite">Copy as Markdown</button>
+        </div>
       </header>
 
       {{ partial "blog/copy-markdown.html" . }}
