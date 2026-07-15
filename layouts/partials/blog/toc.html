@@ -1,0 +1,15 @@
+{{- $native := .TableOfContents -}}
+{{- $included := .Store.Get "includedHeadings" -}}
+{{- if and $native (not (eq $native `<nav id="TableOfContents"></nav>`)) -}}
+  {{- $native -}}
+{{- else if $included -}}
+  <nav id="TableOfContents">
+    <ul>
+      {{- range $included -}}
+        {{- if ge .level 1 -}}
+          <li class="toc-level-{{ .level }}"><a href="#{{ .id }}">{{ .text }}</a></li>
+        {{- end -}}
+      {{- end -}}
+    </ul>
+  </nav>
+{{- end -}}

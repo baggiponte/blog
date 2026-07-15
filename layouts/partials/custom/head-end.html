@@ -1,0 +1,7 @@
+{{- $copyMarkdown := resources.Get "js/copy-markdown.js" -}}
+{{- if $copyMarkdown -}}
+  {{- if hugo.IsProduction -}}
+    {{- $copyMarkdown = $copyMarkdown | minify | fingerprint -}}
+  {{- end -}}
+  <script defer src="{{ $copyMarkdown.RelPermalink }}"{{ with $copyMarkdown.Data.Integrity }} integrity="{{ . }}"{{ end }}></script>
+{{- end -}}

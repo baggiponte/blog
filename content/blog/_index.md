@@ -4,4 +4,4 @@ draft: false
 title: 'Blog'
 ---
 
-Long form contents
+Long-form notes on machine learning, tools, and the engineering details around them.

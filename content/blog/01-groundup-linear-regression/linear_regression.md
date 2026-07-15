@@ -1,6 +1,6 @@
 ---
 title: Linear Regression
-marimo-version: 0.19.11
+marimo-version: 0.23.14
 width: full
 sql_output: native
 ---
@@ -118,7 +118,7 @@ for i in range(EPOCHS):
     result["params"].append(params)
 ```
 
-# Let's add some abstractions
+## Let's add some abstractions
 <!---->
 This code works just fine. But, as soon as you change the model, you need to make changes to other parts of the code. For example, say you want to add a second layer to the linear regression (and thus make it a proper multi-layer perceptron, or MLP): now you have to change the signature of `predict`, to accept more parameters. Are you going to pass more parameters? Make the function accept variadic (`*args`) weights? Or are you going to shove all weights in a list?
 

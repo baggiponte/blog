@@ -1,0 +1,30 @@
+{{ define "main" }}
+  <div class="article-frame">
+    <article class="article-main">
+      <header class="article-header">
+        <div class="article-meta">
+          {{ with .Date }}<time datetime="{{ .Format "2006-01-02" }}">{{ partial "utils/format-date" . }}</time>{{ end }}
+          {{ if .Params.tags }}{{ partial "tags.html" (dict "context" .) }}{{ end }}
+        </div>
+        {{ if .Title }}<h1>{{ .Title }}</h1>{{ end }}
+        <div class="article-subtitle-row">
+          {{ with .Description }}<p>{{ . }}</p>{{ end }}
+          <button class="copy-markdown-button" type="button" data-copy-markdown aria-live="polite">Copy as Markdown</button>
+        </div>
+      </header>
+
+      {{ partial "blog/copy-markdown.html" . }}
+
+      <div class="content article-content">
+        {{ .Content }}
+      </div>
+    </article>
+
+    <aside class="article-toc" aria-label="Table of contents">
+      <div class="article-toc-inner">
+        <p>Index</p>
+        {{ partial "blog/toc.html" . }}
+      </div>
+    </aside>
+  </div>
+{{ end }}
