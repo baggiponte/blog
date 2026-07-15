@@ -24,6 +24,17 @@
   "gomod": {
     "enabled": true
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^\\.github/workflows/.*\\.ya?ml$"],
+      "matchStrings": [
+        "HUGO_VERSION:\\s*(?<currentValue>\\S+)"
+      ],
+      "depNameTemplate": "gohugoio/hugo",
+      "datasourceTemplate": "github-releases"
+    }
+  ],
   "packageRules": [
     {
       "matchDatasources": ["go"],
@@ -36,6 +47,13 @@
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "addLabels": ["breaking-change"]
+    },
+    {
+      "matchDepNames": ["gohugoio/hugo", "github.com/imfing/hextra"],
+      "groupName": "hugo",
+      "automerge": true,
+      "platformAutomerge": true,
+      "addLabels": ["hugo"]
     }
   ]
 }
