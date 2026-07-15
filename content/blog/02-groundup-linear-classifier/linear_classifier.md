@@ -1,6 +1,6 @@
 ---
-title: Linear Classifier
-marimo-version: 0.19.11
+title: linear classification
+marimo-version: 0.23.14
 width: full
 sql_output: native
 ---
@@ -20,7 +20,7 @@ import torch.nn as nn
 import marimo as mo
 ```
 
-# Linear classification
+# linear classification
 <!---->
 Here we move from linear regression to classification. We implement a simple logistic regression using the same PyTorch and our own primitives.
 <!---->
