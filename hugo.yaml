@@ -39,9 +39,9 @@ params:
 
 menu:
   main:
-    - identifier: blog
-      name: Blog
-      url: /blog/
+    - identifier: about
+      name: About
+      url: /about/
       weight: 1
     - identifier: talks
       name: Talks

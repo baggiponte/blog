@@ -1,0 +1,10 @@
+{{ define "main" }}
+  <main class="site-shell about-page" aria-labelledby="about-title">
+    <header class="list-header">
+      {{ if .Title }}<h1 id="about-title">{{ .Title }}</h1>{{ end }}
+    </header>
+    <div class="content about-copy">
+      {{ .Content }}
+    </div>
+  </main>
+{{ end }}
