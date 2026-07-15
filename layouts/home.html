@@ -1,26 +1,16 @@
 {{ define "main" }}
-  {{- $posts := where .Site.RegularPages "Section" "blog" -}}
-  {{- $posts = where $posts "Draft" false -}}
   <main class="site-shell blog-home" aria-labelledby="home-title">
     <section class="home-hero">
-      <p class="eyebrow">baggiponte</p>
-      <h1 id="home-title">Readable notes on practical machine learning.</h1>
-      <div class="home-copy content">
-        {{ .Content }}
-      </div>
+      <h1 id="home-title">AI Field Notes</h1>
+      <p class="home-copy">Plus the hard-won lessons, ramblings, and (hot) takes in between</p>
     </section>
 
-    <section class="post-section" aria-labelledby="latest-posts">
+    <section class="about-section" aria-labelledby="about-heading">
       <div class="section-heading">
-        <h2 id="latest-posts">Latest writing</h2>
-        <a href="{{ "blog/" | relURL }}">All posts</a>
+        <h2 id="about-heading">About</h2>
       </div>
-      <div class="post-list compact-post-list">
-        {{ range first 5 $posts.ByDate.Reverse }}
-          {{ partial "blog/post-row.html" . }}
-        {{ else }}
-          <p>No posts yet.</p>
-        {{ end }}
+      <div class="about-copy content">
+        {{ .Content }}
       </div>
     </section>
   </main>
