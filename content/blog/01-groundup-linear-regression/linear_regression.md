@@ -1,5 +1,5 @@
 ---
-title: Linear Regression
+title: linear regression
 marimo-version: 0.23.14
 width: full
 sql_output: native
@@ -16,7 +16,7 @@ from torch import nn
 
 "From the ground up" is a series of short, technical blog posts about deep learning. This looks like "yet another deep learning from scratch" series, and partly it is - but it has a narrower focus on the abstractions (from `DataLoader`s to `Trainer`s) and performance. The goal of the series is, in other words, to understand the API design and how things are implemented, more so than the maths. This is chapter one, were we train a linear regression using stochastic gradient descent.
 <!---->
-# Linear Regression
+# linear regression
 <!---->
 ## Generate Data
 <!---->

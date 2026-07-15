@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.19.9"
-app = marimo.App(width="full", sql_output="native")
+app = marimo.App(width="full", sql_output="native", app_title="linear classification")
 
 with app.setup:
     import itertools
@@ -21,7 +21,7 @@ with app.setup:
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    # Linear classification
+    # linear classification
     """)
     return
 

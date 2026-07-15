@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.19.11"
-app = marimo.App(width="full", sql_output="native")
+app = marimo.App(width="full", sql_output="native", app_title="linear regression")
 
 with app.setup:
     from dataclasses import dataclass
@@ -23,7 +23,7 @@ def _():
 @app.cell(hide_code=True)
 def _():
     mo.md(r"""
-    # Linear Regression
+    # linear regression
     """)
     return
 
