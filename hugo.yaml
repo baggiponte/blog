@@ -1,6 +1,6 @@
 baseURL: https://baggiponte.com/
 languageCode: en-us
-title: AI Field Notes
+title: ai field notes
 
 author:
   name: baggiponte
@@ -40,11 +40,11 @@ params:
 menu:
   main:
     - identifier: about
-      name: About
+      name: about
       url: /about/
       weight: 1
     - identifier: talks
-      name: Talks
+      name: talks
       url: https://sessionize.com/lucabaggi/
       weight: 3
     - name: Search

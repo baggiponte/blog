@@ -3,13 +3,13 @@
   {{- $posts = where $posts "Draft" false -}}
   <main class="site-shell blog-home" aria-labelledby="home-title">
     <section class="home-hero">
-      <h1 id="home-title">AI Field Notes</h1>
+      <h1 id="home-title">ai field notes</h1>
       <p class="home-copy">Plus the hard-won lessons, ramblings, and (hot) takes in between</p>
     </section>
 
     <section class="post-section" aria-labelledby="writing-heading">
       <div class="section-heading">
-        <h2 id="writing-heading">Writing</h2>
+        <h2 id="writing-heading">writing</h2>
       </div>
       <div class="post-list compact-post-list">
         {{ range $posts.ByDate.Reverse }}
