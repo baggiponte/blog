@@ -1,3 +1,4 @@
+# Checks only: production is deployed by Cloudflare Workers Builds (see README).
 name: Check talks
 on:
   push:
@@ -31,5 +32,7 @@ jobs:
         run: uvx zizmor==1.31.1 --pedantic .
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
-      - run: pnpm exec playwright install --with-deps chromium
+      # The runner image already ships Chromium's libraries; --with-deps only adds a
+      # ~1 min apt run. Tests use full Chromium, so skip the headless shell too.
+      - run: pnpm exec playwright install --no-shell chromium
       - run: pnpm test

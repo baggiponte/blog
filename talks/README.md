@@ -39,8 +39,23 @@ its `given` list. The build fails if a deck is missing from `talks.json` or a
 
 ## deploy
 
-CI checks every PR and push to `main` (Zizmor, frozen install, dry-run, browser
-tests) with read-only permissions and no deploy job. Deployment is manual:
+Production is the Cloudflare Worker `talks` on `talks.baggiponte.com`, deployed
+by Workers Builds on every push to `main`. Its build settings live in the
+Cloudflare dashboard:
+
+| setting | value |
+| --- | --- |
+| Git repository | `baggiponte/talks`, production branch `main` |
+| Build command | `pnpm build` |
+| Deploy command | `pnpm exec cf deploy` |
+| Non-production branch builds | off (GitHub CI checks PRs) |
+
+Node and pnpm come from `package.json`; only `dist/` is uploaded. CI checks
+every PR and push to `main` (Zizmor, frozen install, dry-run, browser tests)
+with read-only permissions and no deploy job. Roll back by restoring a previous
+Worker version in Cloudflare.
+
+To deploy by hand, or to smoke-test production after a build:
 
 ```sh
 pnpm exec cf auth login
@@ -49,4 +64,3 @@ TALKS_BASE_URL=https://talks.baggiponte.com pnpm test
 ```
 
 The custom domain is attached by the deploy; do not pre-create a DNS record.
-Roll back by restoring a previous Worker version in Cloudflare.
