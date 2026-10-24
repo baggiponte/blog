@@ -1,8 +1,9 @@
 # talks
 
-Slides-only home for Luca Baggi's Python Milano talks. Intended repository:
-`baggiponte/talks`; intended production URL: <https://talks.baggiponte.com/>.
-The new deployment and legacy redirects have **not** been published.
+Slides-only home for Luca Baggi's Python Milano talks, maintained in the public
+[baggiponte/talks](https://github.com/baggiponte/talks) repository and published at
+<https://talks.baggiponte.com/> using Cloudflare Workers Static Assets.
+The three legacy GitHub Pages sites now publish dependency-free redirects.
 
 ## contents
 
@@ -14,7 +15,10 @@ The new deployment and legacy redirects have **not** been published.
 - `scripts/redirects.mjs`: prepares, but never publishes, legacy redirect sites.
 
 No example projects, historical dependency manifests, full repositories or Git
-history were imported. The catalog links to the original repositories for those.
+history were imported. The catalog links to immutable original source snapshots.
+Each legacy repository retains its complete history and the original slides and
+examples in the `slides-before-migration-2026-10-24` tag; its maintained branch
+contains only the redirect site, README and manual publication workflow.
 Imported slides are historical material, not updated tutorials; original external
 fonts, images, favicons and embeds still require network access.
 
@@ -32,6 +36,9 @@ are pinned too; commit the lockfile and use frozen installs in CI.
 
 ```sh
 pnpm install --frozen-lockfile
+prek install            # install the Zizmor and Gitleaks pre-commit hooks
+prek run --all-files
+pnpm audit
 pnpm build              # slides + Cloudflare build output; no upload
 pnpm check              # slides + cf deploy --dry-run; no upload/API requests
 pnpm exec playwright install chromium
@@ -52,14 +59,28 @@ out-of-range slides and missing assets return HTTP 404. Deck assets remain
 isolated even when their filenames match. The tests exercise the real local
 Cloudflare asset runtime, not a generic SPA development server.
 
-GitHub Actions runs frozen installation, upload dry-run and browser tests on
-pushes/PRs. It has read-only repository permissions and **no deploy job**.
+GitHub Actions runs frozen installation, upload dry-run, browser tests and
+pedantic Zizmor auditing on pushes/PRs. Generated legacy workflows are audited
+explicitly because they are ignored files. Actions and hooks are pinned to
+verified commit SHAs; the check job has read-only repository permissions and
+**no deploy job**. Gitleaks scans staged changes before commits; a full-history
+scan can be run with:
+
+```sh
+mise exec aqua:gitleaks/gitleaks@8.30.1 -- gitleaks git --redact --log-opts=--all .
+```
+
+GitHub secret scanning and push protection are enabled for this public repository.
+The workspace overrides compatible security patches for upstream exact pins.
+PptxGenJS 4.0.1's unused `image-size` dependency is removed rather than forcing an
+incompatible major version; its distributed JavaScript never imports the parser.
+Reassess these scoped overrides when updating the upstream packages.
 
 ## production deployment — approval required
 
-1. Review and create the GitHub repository `baggiponte/talks`, then push the
-   reviewed branch only with explicit approval. The local `origin` URL alone
-   does not create a GitHub repository.
+1. Merge reviewed changes to `main` only after checks pass and publication is
+   authorized. Require full-length Action SHA pinning in repository Actions
+   settings; this is separate from Zizmor's workflow checks.
 2. Review `cloudflare.config.ts`: correct account, Worker `talks`, public
    `talks.baggiponte.com`, no Access gate. `workers.dev` and preview URLs are off.
 3. Run `pnpm check` and `pnpm test`. With separate authorization to deploy and
@@ -82,7 +103,7 @@ Manual deployment is the initial owner. Do not also connect an automatic
 Cloudflare Builds pipeline without explicitly deciding which pipeline owns
 production. A Cloudflare version rollback restores the static site, not DNS.
 
-## legacy redirects — a separate approval gate
+## legacy redirects
 
 Prepare and test redirect artifacts locally at any time:
 
@@ -94,16 +115,23 @@ This prepares `redirect-sites/<slug>/site/{index.html,404.html,.nojekyll}` and
 `.github/workflows/pages.yaml` outside the published `dist/`. It changes no
 legacy repository. The generator and redirect pages use no npm dependencies.
 
-Copy or publish these artifacts only after production destination verification
-**and explicit approval to switch**.
+The initial migration was authorized and published only after production
+destination verification. Future changes still require explicit approval to
+publish to legacy repositories.
 
 For each existing `baggiponte/pymi-…` repository, stage the corresponding `site/`
 and workflow in a reviewed branch. Replace its old slide-build deployment
 workflow so it cannot overwrite the redirects later. Keep the repository name,
-history and original examples; do not delete/rename the repository or disable
-Pages. Keep/configure Pages to use GitHub Actions. The prepared workflow has
+history and original examples in the pre-migration tag; do not delete/rename the
+repository or disable Pages. Keep/configure Pages to use GitHub Actions. The workflow has
 **manual dispatch only** and publishes `site/`, not the repository contents.
-Publish only after reviewing its diff and separately authorizing the switch.
+Publish only after reviewing its diff and authorizing the switch:
+
+```sh
+gh workflow run pages.yaml --repo baggiponte/pymi-pyo3 --ref main
+gh workflow run pages.yaml --repo baggiponte/pymi-polars --ref main
+gh workflow run pages.yaml --repo baggiponte/pymi-cookiecutter --ref main
+```
 
 Mappings preserve paths and query/fragment state, for example:
 
@@ -122,6 +150,13 @@ GitHub Pages cannot provide true HTTP 301s here: deep paths still respond HTTP
 GitHub-owned hostname.
 
 After publication, test old roots and direct slide links in a browser, including
-query/hash and JavaScript-disabled fallback. Retain the previously published
-artifact/commit for rollback. Original deploy workflows use retired Pages
-artifact actions and must not be relied on to rebuild a rollback unmodified.
+query/hash and JavaScript-disabled fallback. These checks passed for all three
+live legacy sites at migration. Historical manifests and old deploy workflows
+were removed from their default branches, not from their history. Obsolete
+dependency-update pull requests are closed rather than merged into redirect sites.
+
+For rollback, prefer restoring a known-good talks Worker version or reverting a
+redirect-only commit. The pre-migration tag preserves sources, not a guaranteed
+reproducible deployment artifact: original deploy workflows use retired Pages
+actions and must not be relied on to rebuild a rollback unmodified. Historical
+examples are unmaintained and may contain vulnerable dependencies.
