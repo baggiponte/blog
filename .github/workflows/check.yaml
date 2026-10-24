@@ -48,7 +48,8 @@ jobs:
 
   # Build job
   build:
-    name: Build Hugo site
+    # Same commands as Workers Builds, so a red check means Cloudflare would fail too.
+    name: Build site and dry-run deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -58,8 +59,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
-          submodules: recursive
           persist-credentials: false
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
@@ -71,10 +70,13 @@ jobs:
             "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
           printf '%s  %s\n' "$HUGO_DEB_SHA256" "$RUNNER_TEMP/hugo.deb" | sha256sum --check --strict
           sudo dpkg -i "$RUNNER_TEMP/hugo.deb"
-      - name: Build with Hugo
-        env:
-          # For maximum backward compatibility with Hugo modules
-          HUGO_ENVIRONMENT: production
-          HUGO_ENV: production
-        # hugo.yaml owns the canonical production baseURL.
-        run: hugo --gc --minify
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+      - name: Build site and dry-run Cloudflare deploy
+        run: pnpm check
