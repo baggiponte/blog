@@ -50,9 +50,17 @@ Active branch and tag rulesets restrict creation, updates, and deletion to the
 repository admin role (the owner). Separate rulesets prohibit force pushes even
 for the owner: use new branches instead of force-pushing rebased branches. Bots
 have no bypass, so dependency updates require owner-managed branches and merges.
-Actions remains enabled for Pages with read-only default token permissions and
-only GitHub-owned actions allowed. Enable mandatory SHA pinning only after the
+Actions remains enabled for Pages with read-only default token permissions.
+Allowed actions are GitHub-owned actions and the exact pinned revision of
+`astral-sh/setup-uv` used by CI. Enable mandatory SHA pinning only after the
 pinned Pages workflow reaches `main`, so rollback deployments remain runnable.
+
+Install local hooks with `uvx --from prek==0.5.7 prek install`. The pinned Zizmor
+hook audits workflows without suppressions; the pinned Gitleaks hook scans staged
+changes before commits. CI also scans the complete Git history with Gitleaks and
+requires both security checks and the Hugo build before deploying Pages. Hugo's
+downloaded installer is checksum-verified before installation. Only main-branch
+pushes or main-branch manual dispatches can deploy; PRs cannot publish.
 
 ## Update
 
