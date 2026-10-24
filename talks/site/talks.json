@@ -18,6 +18,13 @@
         "venue": "PyCon Italia 2026",
         "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm",
         "recording": "https://www.youtube.com/watch?v=LGNnG7nnlzg"
+      },
+      {
+        "date": "2026-04-10",
+        "venue": "PyCon Lithuania 2026",
+        "title": "reading the mind of an llm, with gabriele orlandi",
+        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm",
+        "recording": "https://www.youtube.com/watch?v=cUqNrpxxajU"
       }
     ]
   },
@@ -26,7 +33,7 @@
     "description": "How reasoning models shift scaling from train-time to test-time compute, and what that costs.",
     "given": [
       {
-        "date": "2026-04-09",
+        "date": "2026-04-10",
         "venue": "PyCon Lithuania 2026",
         "slides": "https://speakerdeck.com/baggiponte/from-o1-to-deepseek-the-new-scaling-laws-for-llms-that-can-reason"
       },
@@ -84,6 +91,12 @@
         "date": "2024-12-04",
         "venue": "PyData Global 2024",
         "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet"
+      },
+      {
+        "date": "2024-11-19",
+        "venue": "PyData Milano at Spotify",
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet",
+        "recording": "https://www.youtube.com/watch?v=bWXOwC7h5C0"
       }
     ]
   },
