@@ -67,6 +67,34 @@
     :focus-visible { outline: 2px solid var(--link); outline-offset: 5px; }
     @media (max-width: 480px) { body { padding-top: 24px; } header { margin-top: 48px; } }
     @media (max-width: 640px) { article { grid-template-columns: 1fr; } article > time { grid-column: 1; grid-row: auto; justify-self: start; } .editions li { grid-template-columns: 1fr; padding: 6px 0; } .editions .links { justify-content: start; } }
+    /* Timeline view: every appearance as a dot on one time axis, stacked where dates are close, then listed by year. */
+    .views { display: flex; justify-content: start; gap: 20px; margin: -12px 0 12px; font-size: .95rem; }
+    .views a { color: var(--muted); text-decoration: none; padding-bottom: 4px; border-bottom: 2px solid transparent; }
+    .views a:hover { color: var(--ink); }
+    .views a[aria-current] { color: var(--ink); border-color: var(--link); }
+    main:not([data-view=timeline]) > .timeline, main[data-view=timeline] > article { display: none; }
+    .timeline { padding-top: 32px; border-top: 1px solid var(--border); }
+    .axis { position: relative; height: calc(var(--rows) * 16px + 40px); margin: 0 6px; }
+    .axis::before { content: ""; position: absolute; left: -6px; right: -6px; bottom: 22px; height: 1px; background: var(--muted); opacity: .35; }
+    .axis span { position: absolute; bottom: 0; padding-left: 4px; font-size: .8rem; line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .axis span::before { content: ""; position: absolute; left: 0; bottom: 14px; height: 12px; width: 1px; background: var(--muted); opacity: .35; }
+    .axis button { position: absolute; bottom: calc(28px + var(--row) * 16px); width: 12px; height: 12px; padding: 0; translate: -50%; border-radius: 50%; border: 1.5px solid var(--muted); background: var(--bg); cursor: pointer; }
+    .axis button::before { content: ""; position: absolute; inset: -4px; }
+    .timeline [data-talk] { transition: opacity .15s; }
+    .timeline.active [data-talk]:not(.on) { opacity: .25; }
+    .timeline li.on::before, .axis .on { border-color: var(--link); background: var(--link); box-shadow: 0 0 0 4px color-mix(in srgb, var(--link) 18%, transparent); }
+    .caption { margin: 12px 0 0; min-height: 3.2em; color: var(--muted); }
+    .caption strong { color: var(--ink); }
+    .timeline h2 { margin: 28px 0 4px; font-size: 1rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .timeline ol { list-style: none; margin: 0; padding: 0; }
+    .timeline li { position: relative; display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0 16px; padding: 8px 0 8px 28px; border-top: 1px solid var(--border); cursor: pointer; }
+    .timeline li::before { content: ""; position: absolute; left: 4px; top: 15px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--muted); background: var(--bg); }
+    .timeline li time { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .timeline li > span { color: var(--muted); }
+    .timeline .talk { display: block; color: var(--ink); font-weight: 600; }
+    .timeline .talk a { color: inherit; text-decoration: none; }
+    .timeline .talk a:hover { color: var(--link); }
+    @media (max-width: 640px) { .timeline li { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -90,7 +118,14 @@
       <h1>talks</h1>
       <p>Slides, code and conversations from Luca Baggi's talks.</p>
     </header>
+    <nav class="views" aria-label="View">
+      <a href="#" data-view="talks">by talk</a>
+      <a href="#timeline" data-view="timeline">timeline</a>
+    </nav>
     <!-- talks -->
+    <section class="timeline" aria-label="Timeline">
+    <!-- timeline -->
+    </section>
   </main>
   <footer>These are historical talks; examples reflect the tools available when presented.</footer>
   <script>
@@ -116,6 +151,42 @@
     document.addEventListener("click", event => { if (!toggle.contains(event.target)) open(false); });
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", apply);
     apply();
+  </script>
+  <script>
+    // "#timeline" switches views; it matches no element id, so the page does not scroll.
+    const main = document.querySelector("main");
+    const route = () => {
+      main.dataset.view = location.hash === "#timeline" ? "timeline" : "talks";
+      for (const view of document.querySelectorAll(".views a")) view.toggleAttribute("aria-current", view.dataset.view === main.dataset.view);
+    };
+    addEventListener("hashchange", route);
+    route();
+
+    // Lights up every appearance of one talk: hovering or focusing previews it, a click or tap keeps it.
+    const timeline = main.querySelector(".timeline");
+    const caption = timeline.querySelector(".caption");
+    const hint = caption.textContent;
+    let selected = null;
+    const show = talk => {
+      timeline.classList.toggle("active", talk !== null);
+      for (const mark of timeline.querySelectorAll("[data-talk]")) mark.classList.toggle("on", mark.dataset.talk === talk);
+      if (talk === null) return void (caption.textContent = hint);
+      const count = timeline.querySelectorAll(`button[data-talk="${talk}"]`).length;
+      const title = document.createElement("strong");
+      title.textContent = timeline.querySelector(`li[data-talk="${talk}"] .talk`).textContent;
+      caption.replaceChildren(title, `, given ${["once", "twice"][count - 1] || `${count} times`}`);
+    };
+    const talkOf = event => event.target.closest("[data-talk]")?.dataset.talk ?? null;
+    timeline.addEventListener("pointerover", event => show(talkOf(event) ?? selected));
+    timeline.addEventListener("pointerleave", () => show(selected));
+    timeline.addEventListener("focusin", event => show(talkOf(event) ?? selected));
+    timeline.addEventListener("focusout", () => show(selected));
+    timeline.addEventListener("click", event => {
+      if (event.target.closest("a")) return;
+      const talk = talkOf(event);
+      show(selected = talk === selected ? null : talk);
+    });
+    addEventListener("keydown", event => event.key === "Escape" && show(selected = null));
   </script>
 </body>
 </html>

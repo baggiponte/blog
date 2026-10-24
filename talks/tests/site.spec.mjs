@@ -18,6 +18,17 @@ test("catalog links every deck and unknown paths are real 404s", async ({ page, 
   expect((await request.get("/not-a-talk")).status()).toBe(404);
 });
 
+test("timeline lights up every appearance of the talk under the pointer", async ({ page }) => {
+  await page.goto("/#timeline");
+  const dot = page.locator('.axis button[data-talk="0"]').first();
+  const count = await page.locator('.axis button[data-talk="0"]').count();
+  await dot.hover();
+  await expect(page.locator(".axis .on")).toHaveCount(count);
+  await expect(page.locator(".timeline li.on")).toHaveCount(count);
+  await expect(page.locator(".timeline > article")).toHaveCount(0);
+  await expect(page.locator("main > article").first()).toBeHidden();
+});
+
 for (const { slug, count } of decks) {
   test(`${slug}: cover, direct slides, final slide and 404s`, async ({ page, request }) => {
     const errors = [];

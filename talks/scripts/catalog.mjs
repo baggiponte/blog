@@ -51,5 +51,43 @@ export async function renderCatalog(root, decks) {
     </article>`;
   });
   const page = await readFile(new URL("site/index.html", root), "utf8");
-  return page.replace("    <!-- talks -->", articles.join("").slice(1));
+  return page.replace("    <!-- talks -->", articles.join("").slice(1)).replace("    <!-- timeline -->", renderTimeline(talks));
+}
+
+// Every appearance on one time axis, plus the same appearances listed by year.
+// data-talk ties each dot and row to its talk, so the page script can light up all of them at once.
+function renderTimeline(talks) {
+  const appearances = talks.flatMap(({ title, given }, talk) => given.map(given => ({ ...given, talk, title })));
+  appearances.sort((a, b) => b.date.localeCompare(a.date));
+  const first = Number(appearances.at(-1).date.slice(0, 4));
+  const last = Number(appearances[0].date.slice(0, 4)) + 1;
+  const start = Date.UTC(first, 0, 1);
+  const x = iso => (Date.parse(iso) - start) / (Date.UTC(last, 0, 1) - start) * 100;
+
+  // Dots closer than this (in % of the axis) stack: each takes the lowest free row at its date.
+  const gap = 3.5;
+  const rows = [];
+  const dots = appearances.toReversed().map(given => {
+    const left = x(given.date);
+    let row = rows.findIndex(end => left - end >= gap);
+    if (row < 0) row = rows.length;
+    rows[row] = left;
+    const label = `${given.title}, ${given.venue}, ${date(given.date)}`;
+    return `
+        <button type="button" data-talk="${given.talk}" style="left: ${left.toFixed(2)}%; --row: ${row}" aria-label="${escape(label)}"></button>`;
+  });
+  const years = Array.from({ length: last - first }, (_, i) => first + i);
+  const ticks = years.map(year => `
+        <span style="left: ${x(`${year}-01-01`).toFixed(2)}%">${year}</span>`);
+  const lists = years.toReversed().map(year => {
+    const items = appearances.filter(given => given.date.startsWith(year)).map(given => `
+          <li data-talk="${given.talk}">${time(given.date)}<span><span class="talk">${given.slides ? link(given.slides, given.title) : escape(given.title)}</span>${escape(given.venue)}</span></li>`);
+    return `
+      <h2>${year}</h2>
+      <ol>${items.join("")}
+      </ol>`;
+  });
+  return `    <div class="axis" style="--rows: ${rows.length}">${dots.join("")}${ticks.join("")}
+      </div>
+      <p class="caption" aria-live="polite">Hover or tap a talk to see every time it was given.</p>${lists.join("")}`;
 }
