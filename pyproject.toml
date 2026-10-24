@@ -3,10 +3,7 @@ name = "blog"
 version = "0.1.0"
 description = "Tooling for marimo-backed blog content."
 requires-python = ">=3.11"
-dependencies = [
-    "numpy>=2.3.5",
-    "torch>=2.9.1",
-]
+dependencies = []
 
 [tool.uv]
 package = false
@@ -18,4 +15,10 @@ dev = [
     "ruff>=0.15.1",
     "rust-just>=1.46.0",
     "watchdog>=6.0.0",
+]
+# Only for editing notebooks: Workers Builds runs a plain `uv sync`, which skips this
+# group instead of pulling ~2.5 GB of torch and CUDA wheels. Use `uv sync --all-groups`.
+notebooks = [
+    "numpy>=2.3.5",
+    "torch>=2.9.1",
 ]
