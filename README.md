@@ -11,20 +11,28 @@ just serve
 ## Deploy
 
 Production is the Cloudflare Worker `blog` on `baggiponte.com` and
-`www.baggiponte.com`. Deployment is manual, from a clean checkout of `main`.
-Use Hugo Extended 0.164.0 (matching CI), Node >=22.18, and pnpm 12.15.0:
+`www.baggiponte.com`, deployed by Workers Builds on every push to `main`.
+Its build settings live in the Cloudflare dashboard:
+
+| setting | value |
+| --- | --- |
+| Git repository | `baggiponte/blog`, production branch `main` |
+| Build command | `node scripts/build.mjs` |
+| Deploy command | `pnpm exec cf deploy` |
+| Non-production branch builds | off (GitHub CI checks PRs) |
+| Build variable `HUGO_VERSION` | `0.164.0`, matching `.github/workflows/check.yaml` |
+
+Node and pnpm come from `package.json`. The build generates permanent redirects
+for directory URLs and serves Hugo's 404 page; only `public/` is uploaded. Roll
+back by restoring a previous Worker version in Cloudflare.
+
+To build or deploy locally (Hugo 0.164.0, Node >=22.18, pnpm 12.15.0):
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm check     # clean production Hugo build and Cloudflare dry-run
 pnpm dev       # serve the static assets locally
-pnpm exec cf auth login
-pnpm deploy
 ```
-
-The build generates permanent redirects for directory URLs and serves Hugo's
-404 page; only `public/` is uploaded. Roll back by restoring a previous Worker
-version in Cloudflare.
 
 ## Checks
 
