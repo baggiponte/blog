@@ -8,7 +8,7 @@ update:
     hugo mod get -u
     hugo mod get -u github.com/imfing/hextra
 
-    uv sync --upgrade
+    uv sync --upgrade --all-groups
     uv run prek autoupdate
 
 # Create a new blog post
