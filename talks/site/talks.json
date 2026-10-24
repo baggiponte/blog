@@ -62,6 +62,12 @@
         "date": "2025-06-07",
         "venue": "PyData London 2025",
         "slides": "https://speakerdeck.com/baggiponte/llm-inference-arithmetics-the-theory-behind-model-serving"
+      },
+      {
+        "date": "2025-04-23",
+        "venue": "PyCon DE & PyData 2025",
+        "slides": "https://speakerdeck.com/baggiponte/llm-inference-arithmetics-the-theory-behind-model-serving",
+        "recording": "https://www.youtube.com/watch?v=y3tag45TX9M"
       }
     ]
   },
@@ -241,6 +247,19 @@
         "recording": "https://www.youtube.com/watch?v=XESObnka5Nc",
         "source": "https://github.com/baggiponte/pymi-cookiecutter/tree/84031f379b245b9e994675687e8aca968acc582b",
         "sourceLabel": "original source & template"
+      }
+    ]
+  },
+  {
+    "title": "rust is easy",
+    "description": "Start from Python-like code in a Rust program and fix compiler errors one at a time until it is valid Rust.",
+    "given": [
+      {
+        "date": "2023-05-27",
+        "venue": "PyCon Italia 2023",
+        "slides": "https://github.com/baggiponte/pyconit-rust-is-easy/blob/502627c1fdb5dbd848d1026ff521445ba5a505c5/pyconit-rust-is-easy.pdf",
+        "recording": "https://www.youtube.com/watch?v=09drs_8PJJM",
+        "source": "https://github.com/baggiponte/pyconit-rust-is-easy/tree/502627c1fdb5dbd848d1026ff521445ba5a505c5"
       }
     ]
   }
