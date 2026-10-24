@@ -13,7 +13,7 @@ for (const slug of (await readdir("decks")).sort()) {
 test("catalog links every deck and unknown paths are real 404s", async ({ page, request }) => {
   expect((await page.goto("/")).status()).toBe(200);
   for (const { slug } of decks) {
-    await expect(page.locator(`h2 a[href="/${slug}/"]`)).toBeVisible();
+    await expect(page.locator(`main a[href="/${slug}/"]`).first()).toBeVisible();
   }
   expect((await request.get("/not-a-talk")).status()).toBe(404);
 });

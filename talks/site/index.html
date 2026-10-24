@@ -45,15 +45,28 @@
     h2 a { color: inherit; text-decoration: none; }
     h2 a:hover { color: var(--link); }
     article p { margin: 8px 0 16px; color: var(--muted); }
+    article .meta { margin: 0; font-size: .95rem; }
+    /* Every edition of a talk given more than once, newest first, as a timeline: a dot per edition on a thin line. */
+    .editions { list-style: none; margin: 4px 0 0; padding: 0 0 0 28px; font-size: .9rem; }
+    .editions li { position: relative; display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) auto; gap: 0 16px; padding: 7px 0; }
+    .editions li::before { content: ""; position: absolute; left: -24px; top: 14px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--muted); background: var(--bg); z-index: 1; }
+    .editions li:first-child::before { border-color: var(--link); background: var(--link); box-shadow: 0 0 0 4px color-mix(in srgb, var(--link) 18%, transparent); }
+    .editions li:not(:last-child)::after { content: ""; position: absolute; left: -19.5px; top: 19px; height: 100%; width: 1px; background: var(--muted); opacity: .35; }
+    .editions time { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .editions li:first-child > span:first-of-type { font-weight: 600; }
+    .editions em { display: block; color: var(--muted); }
+    .editions .links { gap: 12px; font-size: inherit; justify-content: end; }
+    .editions .links a { color: var(--muted); text-decoration-color: var(--border); }
+    .editions .links a:hover { color: var(--link); text-decoration-color: currentColor; }
     .links { display: flex; flex-wrap: wrap; gap: 24px; font-size: .95rem; }
     /* Date column as in the blog's post list. */
     article { display: grid; grid-template-columns: minmax(0, 1fr) 8.5rem; column-gap: 2rem; }
     article > * { grid-column: 1; }
-    article time { grid-column: 2; grid-row: 1; justify-self: end; white-space: nowrap; color: var(--muted); font-size: .95rem; line-height: 1.5; }
+    article > time { grid-column: 2; grid-row: 1; justify-self: end; white-space: nowrap; color: var(--muted); font-size: .95rem; line-height: 1.5; }
     footer { margin-top: 48px; }
     :focus-visible { outline: 2px solid var(--link); outline-offset: 5px; }
     @media (max-width: 480px) { body { padding-top: 24px; } header { margin-top: 48px; } }
-    @media (max-width: 640px) { article { grid-template-columns: 1fr; } article time { grid-column: 1; grid-row: auto; justify-self: start; } }
+    @media (max-width: 640px) { article { grid-template-columns: 1fr; } article > time { grid-column: 1; grid-row: auto; justify-self: start; } .editions li { grid-template-columns: 1fr; padding: 6px 0; } .editions .links { justify-content: start; } }
   </style>
 </head>
 <body>
@@ -77,66 +90,7 @@
       <h1>talks</h1>
       <p>Slides, code and conversations from Luca Baggi's talks.</p>
     </header>
-    <article>
-      <h2><a href="/dealroom-2024-polars/">polars: zero to hero</a></h2>
-      <time datetime="2024-10-25">Oct 25, 2024</time>
-      <p>What Polars is, when to use it and how to get started. Dealroom, 2024.</p>
-      <div class="links"><a href="/dealroom-2024-polars/">slides →</a><a href="https://github.com/baggiponte/dealroom-2024-polars/tree/b79d66ce1abef28507a9f5521e7d82d78579fd8a">original source</a></div>
-    </article>
-    <article>
-      <h2><a href="/agilelab-2024-polars/">polars: zero to hero</a></h2>
-      <time datetime="2024-07-26">Jul 26, 2024</time>
-      <p>An introduction to Polars and functime. Agile Lab, 2024.</p>
-      <div class="links"><a href="/agilelab-2024-polars/">slides →</a><a href="https://github.com/baggiponte/agilelab-2024-polars/tree/e56397ceff9dba3114989c7b5ec1a06fc2984650">original source</a></div>
-    </article>
-    <article>
-      <h2><a href="/pydata-global-2023-functime/">how we used polars to build functime</a></h2>
-      <time datetime="2023-12-06">Dec 6, 2023</time>
-      <p>A next-generation ML forecasting library built on Polars and global models. PyData Global 2023.</p>
-      <div class="links"><a href="/pydata-global-2023-functime/">slides →</a><a href="https://github.com/baggiponte/pydata-global-2023-functime/tree/7c3b105759d18a0e41f3cb789cac2309659e64db">original source</a></div>
-    </article>
-    <article>
-      <h2><a href="/pbg-polars/">polars: the definitive dataframe library</a></h2>
-      <time datetime="2023-10-27">Oct 27, 2023</time>
-      <p>Polars fundamentals, contexts and expressions. Python Biella Group, 2023.</p>
-      <div class="links"><a href="/pbg-polars/">slides →</a><a href="https://www.youtube.com/watch?v=_63lctyG2U8">recording</a><a href="https://github.com/baggiponte/pbg-polars/tree/9866ffed31d513fa6016c899b457f2b6b224843f">original source</a></div>
-    </article>
-    <article>
-      <h2><a href="/kaggledays-functime/">polars and functime: how to innovate time series forecasting</a></h2>
-      <time datetime="2023-10-18">Oct 18, 2023</time>
-      <p>Scalable forecasting with Polars and global models. Kaggle Days Milan, 2023.</p>
-      <div class="links"><a href="/kaggledays-functime/">slides →</a><a href="https://www.youtube.com/live/W2jiOODzjU0?t=125">recording</a><a href="https://github.com/baggiponte/kaggledays-functime/tree/0a0e498f02d8f8f33db15927bd7d3eb2ca950c85">original source</a></div>
-    </article>
-    <article>
-      <h2><a href="/pyconpt-polars/">i know polars is fast, but my data pipelines are written in pandas!</a></h2>
-      <time datetime="2023-09-08">Sep 8, 2023</time>
-      <p>Rewriting pandas pipelines with Polars. PyCon Portugal 2023.</p>
-      <div class="links"><a href="/pyconpt-polars/">slides →</a><a href="https://www.youtube.com/watch?v=OlvEtR6365A">recording</a><a href="https://github.com/baggiponte/pyconpt-polars/tree/a793ec9a85d39dc55c893cf022260e9e8a057fad">original source</a></div>
-    </article>
-    <article>
-      <h2><a href="/pyconit-polars/">polars: is the great dataframe showdown finally over?</a></h2>
-      <time datetime="2023-05-28">May 28, 2023</time>
-      <p>Why Polars is fast and how it compares to pandas. PyCon Italia 2023.</p>
-      <div class="links"><a href="/pyconit-polars/">slides →</a><a href="https://www.youtube.com/watch?v=XsxrhGlkyk0">recording</a><a href="https://github.com/baggiponte/pyconit-polars/tree/fd22dbf66143967ccdc0806ae434198b425e0117">original source</a></div>
-    </article>
-    <article>
-      <h2><a href="/pymi-pyo3/">use rust in your python package</a></h2>
-      <time datetime="2023-03-09">Mar 9, 2023</time>
-      <p>Getting started with PyO3 and maturin: Python packaging meets Rust. Python Milano.</p>
-      <div class="links"><a href="/pymi-pyo3/">slides →</a><a href="https://www.youtube.com/watch?v=jp2EQiU9RxA">recording</a><a href="https://github.com/baggiponte/pymi-pyo3/tree/49d9618d0be4a2297e1cdd9bf3c16bc4df6ecdef">original source &amp; examples</a></div>
-    </article>
-    <article>
-      <h2><a href="/pymi-polars/">a lightning-fast dataframe library</a></h2>
-      <time datetime="2023-01-17">Jan 17, 2023</time>
-      <p>Polars fundamentals, expressions and lazy execution in Rust and Python. Python Milano.</p>
-      <div class="links"><a href="/pymi-polars/">slides →</a><a href="https://www.youtube.com/watch?v=ujodUwEj5L4&amp;t=210">recording</a><a href="https://github.com/baggiponte/pymi-polars/tree/81f08f263e53e1feddd00ae713c29541daf14b09">original source</a></div>
-    </article>
-    <article>
-      <h2><a href="/pymi-cookiecutter/">coding project templates with cookiecutter</a></h2>
-      <time datetime="2022-10-19">Oct 19, 2022</time>
-      <p>A recipe for reusable scaffolding, variables and generation hooks. Python Milano.</p>
-      <div class="links"><a href="/pymi-cookiecutter/">slides →</a><a href="https://www.youtube.com/watch?v=XESObnka5Nc">recording</a><a href="https://github.com/baggiponte/pymi-cookiecutter/tree/84031f379b245b9e994675687e8aca968acc582b">original source &amp; template</a></div>
-    </article>
+    <!-- talks -->
   </main>
   <footer>These are historical talks; examples reflect the tools available when presented.</footer>
   <script>

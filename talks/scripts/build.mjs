@@ -3,16 +3,18 @@ import { copyFile, mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parser } from "@slidev/cli";
+import { renderCatalog } from "./catalog.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const dist = resolve(root, "dist");
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist);
-await copyFile(resolve(root, "site/index.html"), resolve(dist, "index.html"));
+const decks = (await readdir(resolve(root, "decks"))).sort();
+await writeFile(resolve(dist, "index.html"), await renderCatalog(new URL("../", import.meta.url), decks));
 await copyFile(resolve(root, "site/404.html"), resolve(dist, "404.html"));
 
 const rewrites = [];
-for (const slug of (await readdir(resolve(root, "decks"))).sort()) {
+for (const slug of decks) {
   const directory = resolve(root, "decks", slug);
   const entry = resolve(directory, "slides.md");
   const data = await parser.load({ roots: [directory], userRoot: directory }, entry);

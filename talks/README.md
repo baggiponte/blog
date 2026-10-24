@@ -4,7 +4,9 @@ Slides for Luca Baggi's talks, published at <https://talks.baggiponte.com/>
 with Cloudflare Workers Static Assets.
 
 - `decks/<slug>/`: slide Markdown, CSS and referenced local assets.
-- `site/`: catalog and 404 page.
+- `site/talks.json`: every talk and each time it was given; the build renders it
+  into `site/index.html`, newest first, with repeats collapsed into one entry.
+- `site/`: catalog template and 404 page.
 - `scripts/build.mjs`: builds every deck with one pinned Slidev into `dist/<slug>/`.
 - `cloudflare.config.ts`: Worker `talks` on `talks.baggiponte.com`.
 
@@ -28,8 +30,12 @@ pnpm test                              # browser tests against local Workers run
 The build generates exact rewrites for slide, presenter, overview and notes routes.
 There is no SPA fallback: unknown paths and out-of-range slides return 404.
 
-To add a deck, copy it to `decks/<slug>/` and add an entry to `site/index.html`.
-The tests pick up new decks automatically.
+To add a talk, add it to `site/talks.json`: `title`, `description` and a `given`
+list of `{date, venue, slides}` with optional `title` (if that edition was named
+differently), `recording`, `source` and `sourceLabel`. `slides` is `/<slug>/` for a
+deck in `decks/` or any external URL. Another edition of an existing talk goes in
+its `given` list. The build fails if a deck is missing from `talks.json` or a
+`/<slug>/` link has no deck. The tests pick up new decks automatically.
 
 ## deploy
 

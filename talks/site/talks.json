@@ -1,0 +1,100 @@
+[
+  {
+    "title": "polars: zero to hero",
+    "description": "What Polars is, why it is fast, when to use it instead of pandas and how to get started.",
+    "given": [
+      {
+        "date": "2024-10-25",
+        "venue": "Dealroom",
+        "slides": "/dealroom-2024-polars/",
+        "source": "https://github.com/baggiponte/dealroom-2024-polars/tree/b79d66ce1abef28507a9f5521e7d82d78579fd8a"
+      },
+      {
+        "date": "2024-07-26",
+        "venue": "Agile Lab",
+        "slides": "/agilelab-2024-polars/",
+        "source": "https://github.com/baggiponte/agilelab-2024-polars/tree/e56397ceff9dba3114989c7b5ec1a06fc2984650"
+      },
+      {
+        "date": "2023-10-27",
+        "venue": "Python Biella Group",
+        "title": "polars: the definitive dataframe library",
+        "slides": "/pbg-polars/",
+        "recording": "https://www.youtube.com/watch?v=_63lctyG2U8",
+        "source": "https://github.com/baggiponte/pbg-polars/tree/9866ffed31d513fa6016c899b457f2b6b224843f"
+      },
+      {
+        "date": "2023-09-08",
+        "venue": "PyCon Portugal 2023",
+        "title": "i know polars is fast, but my data pipelines are written in pandas!",
+        "slides": "/pyconpt-polars/",
+        "recording": "https://www.youtube.com/watch?v=OlvEtR6365A",
+        "source": "https://github.com/baggiponte/pyconpt-polars/tree/a793ec9a85d39dc55c893cf022260e9e8a057fad"
+      },
+      {
+        "date": "2023-05-28",
+        "venue": "PyCon Italia 2023",
+        "title": "polars: is the great dataframe showdown finally over?",
+        "slides": "/pyconit-polars/",
+        "recording": "https://www.youtube.com/watch?v=XsxrhGlkyk0",
+        "source": "https://github.com/baggiponte/pyconit-polars/tree/fd22dbf66143967ccdc0806ae434198b425e0117"
+      },
+      {
+        "date": "2023-01-17",
+        "venue": "Python Milano",
+        "title": "a lightning-fast dataframe library",
+        "slides": "/pymi-polars/",
+        "recording": "https://www.youtube.com/watch?v=ujodUwEj5L4&t=210",
+        "source": "https://github.com/baggiponte/pymi-polars/tree/81f08f263e53e1feddd00ae713c29541daf14b09"
+      }
+    ]
+  },
+  {
+    "title": "how we used polars to build functime",
+    "description": "A next-generation ML forecasting library built on Polars and global models.",
+    "given": [
+      {
+        "date": "2023-12-06",
+        "venue": "PyData Global 2023",
+        "slides": "/pydata-global-2023-functime/",
+        "source": "https://github.com/baggiponte/pydata-global-2023-functime/tree/7c3b105759d18a0e41f3cb789cac2309659e64db"
+      },
+      {
+        "date": "2023-10-18",
+        "venue": "Kaggle Days Milan 2023",
+        "title": "polars and functime: how to innovate time series forecasting",
+        "slides": "/kaggledays-functime/",
+        "recording": "https://www.youtube.com/live/W2jiOODzjU0?t=125",
+        "source": "https://github.com/baggiponte/kaggledays-functime/tree/0a0e498f02d8f8f33db15927bd7d3eb2ca950c85"
+      }
+    ]
+  },
+  {
+    "title": "use rust in your python package",
+    "description": "Getting started with PyO3 and maturin: Python packaging meets Rust.",
+    "given": [
+      {
+        "date": "2023-03-09",
+        "venue": "Python Milano",
+        "slides": "/pymi-pyo3/",
+        "recording": "https://www.youtube.com/watch?v=jp2EQiU9RxA",
+        "source": "https://github.com/baggiponte/pymi-pyo3/tree/49d9618d0be4a2297e1cdd9bf3c16bc4df6ecdef",
+        "sourceLabel": "original source & examples"
+      }
+    ]
+  },
+  {
+    "title": "coding project templates with cookiecutter",
+    "description": "A recipe for reusable scaffolding, variables and generation hooks.",
+    "given": [
+      {
+        "date": "2022-10-19",
+        "venue": "Python Milano",
+        "slides": "/pymi-cookiecutter/",
+        "recording": "https://www.youtube.com/watch?v=XESObnka5Nc",
+        "source": "https://github.com/baggiponte/pymi-cookiecutter/tree/84031f379b245b9e994675687e8aca968acc582b",
+        "sourceLabel": "original source & template"
+      }
+    ]
+  }
+]
