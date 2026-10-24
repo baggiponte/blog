@@ -6,10 +6,16 @@ const date = iso => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { m
 const time = iso => `<time datetime="${iso}">${date(iso)}</time>`;
 const link = (href, label) => `<a href="${escape(href)}">${escape(label)}</a>`;
 const links = (given, [slides, recording, source]) => [
-  link(given.slides, slides),
+  given.slides && link(given.slides, slides),
   given.recording && link(given.recording, recording),
   given.source && link(given.source, source),
 ].filter(Boolean).join("");
+
+const linksOf = given => {
+  const html = links(given, ["slides →", "recording", given.sourceLabel || "original source"]);
+  return html && `
+      <div class="links">${html}</div>`;
+};
 
 export async function renderCatalog(root, decks) {
   const talks = JSON.parse(await readFile(new URL("site/talks.json", root), "utf8"));
@@ -17,7 +23,7 @@ export async function renderCatalog(root, decks) {
   for (const talk of talks) {
     talk.given.sort((a, b) => b.date.localeCompare(a.date));
     for (const { slides } of talk.given) {
-      if (!slides.startsWith("/")) continue;
+      if (!slides?.startsWith("/")) continue;
       const slug = slides.slice(1, -1);
       if (!decks.includes(slug)) throw new Error(`site/talks.json: no deck for ${slides}`);
       linked.add(slug);
@@ -33,11 +39,12 @@ export async function renderCatalog(root, decks) {
     const more = rest.length ? `
       <ol class="editions">${[latest, ...rest].map(given => `
         <li>${time(given.date)}<span>${escape(given.venue)}${given.title ? `<em>${escape(given.title)}</em>` : ""}</span><span class="links">${links(given, ["slides", "video", "code"])}</span></li>`).join("")}
-      </ol>` : `
-      <div class="links">${links(latest, ["slides →", "recording", latest.sourceLabel || "original source"])}</div>`;
+      </ol>` : linksOf(latest);
+    // Not every edition has slides online: the heading links the newest one that does.
+    const slides = [latest, ...rest].find(given => given.slides)?.slides;
     return `
     <article>
-      <h2>${link(latest.slides, title)}</h2>
+      <h2>${slides ? link(slides, title) : escape(title)}</h2>
       ${time(latest.date)}
       <p class="meta">${meta}</p>
       <p>${escape(description)}</p>${more}

@@ -4,9 +4,20 @@
     "description": "Mechanistic interpretability: how we are starting to see what happens inside neural networks.",
     "given": [
       {
+        "date": "2026-09-10",
+        "venue": "PyData Amsterdam 2026",
+        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm"
+      },
+      {
         "date": "2026-06-06",
         "venue": "PyData London 2026",
         "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm"
+      },
+      {
+        "date": "2026-05-28",
+        "venue": "PyCon Italia 2026",
+        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm",
+        "recording": "https://www.youtube.com/watch?v=LGNnG7nnlzg"
       }
     ]
   },
@@ -62,17 +73,11 @@
         "date": "2025-05-30",
         "venue": "PyCon Italia 2025",
         "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet"
-      }
-    ]
-  },
-  {
-    "title": "bigger models or more data? the new scaling laws for llms",
-    "description": "The Chinchilla scaling laws: balancing parameters and training tokens under a compute budget.",
-    "given": [
+      },
       {
-        "date": "2024-06-17",
-        "venue": "AIConf 2024",
-        "slides": "https://speakerdeck.com/baggiponte/bigger-models-or-more-data-the-new-scaling-laws-for-llms"
+        "date": "2024-12-04",
+        "venue": "PyData Global 2024",
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet"
       }
     ]
   },
@@ -127,9 +132,58 @@
     ]
   },
   {
+    "title": "bigger models or more data? the new scaling laws for llms",
+    "description": "The Chinchilla scaling laws: balancing parameters and training tokens under a compute budget.",
+    "given": [
+      {
+        "date": "2024-06-17",
+        "venue": "AIConf 2024",
+        "slides": "https://speakerdeck.com/baggiponte/bigger-models-or-more-data-the-new-scaling-laws-for-llms"
+      }
+    ]
+  },
+  {
+    "title": "uncertainty estimation at scale with functime, polars and conformal predictions",
+    "description": "Fast prediction intervals for thousands of time series with functime and EnBPI conformal prediction.",
+    "given": [
+      {
+        "date": "2024-06-15",
+        "venue": "PyData London 2024"
+      }
+    ]
+  },
+  {
+    "title": "embeddings, transformers, rlhf: three key ideas to understand chatgpt",
+    "description": "The three ideas behind ChatGPT: word embeddings, the transformer architecture and reinforcement learning from human feedback.",
+    "given": [
+      {
+        "date": "2024-05-25",
+        "venue": "PyCon Italia 2024",
+        "recording": "https://www.youtube.com/watch?v=Isv9K_7YRw0&t=67"
+      },
+      {
+        "date": "2024-04-05",
+        "venue": "PyCon Lithuania 2024",
+        "title": "lightning talk",
+        "recording": "https://www.youtube.com/watch?v=91Bbn0TYSoM"
+      }
+    ]
+  },
+  {
     "title": "how we used polars to build functime",
     "description": "A next-generation ML forecasting library built on Polars and global models.",
     "given": [
+      {
+        "date": "2024-05-23",
+        "venue": "PyCon Italia 2024",
+        "title": "functime: a next generation ml forecasting library powered by polars",
+        "recording": "https://www.youtube.com/watch?v=1ise06L3pDw"
+      },
+      {
+        "date": "2024-04-05",
+        "venue": "PyCon Lithuania 2024",
+        "title": "functime: a next generation ml forecasting library powered by polars"
+      },
       {
         "date": "2023-12-06",
         "venue": "PyData Global 2023",
