@@ -87,17 +87,20 @@ function renderTimeline(talks) {
         <button type="button" data-talk="${given.talk}" style="left: ${left.toFixed(2)}%; --row: ${row}" aria-label="${escape(label)}"></button>`;
   });
   const years = Array.from({ length: last - first }, (_, i) => first + i);
+  const given = year => appearances.filter(given => given.date.startsWith(year));
+  const count = n => `${n} ${n === 1 ? "talk" : "talks"}`;
   const ticks = years.map(year => `
-        <span style="left: ${x(`${year}-01-01`).toFixed(2)}%">${year}</span>`);
+        <span style="left: ${x(`${year}-01-01`).toFixed(2)}%">${year}<b>${given(year).length}</b></span>`);
   const lists = years.toReversed().map(year => {
-    const items = appearances.filter(given => given.date.startsWith(year)).map(given => `
+    const items = given(year).map(given => `
           <li data-talk="${given.talk}">${time(given.date)}<span><span class="talk">${given.slides ? link(given.slides, given.title) : escape(given.title)}</span>${venueLabel(given.venue, true)}</span></li>`);
     return `
-      <h2>${year}</h2>
+      <h2>${year}<span>${count(given(year).length)}</span></h2>
       <ol>${items.join("")}
       </ol>`;
   });
-  return `    <div class="axis" style="--rows: ${rows.length}">${dots.join("")}${ticks.join("")}
+  return `    <p class="total"><strong>${count(appearances.length)}</strong> given since ${first}, ${talks.length} different ones</p>
+      <div class="axis" style="--rows: ${rows.length}">${dots.join("")}${ticks.join("")}
       </div>
       <p class="caption" aria-live="polite">Hover or tap a talk to see every time it was given.</p>${lists.join("")}`;
 }

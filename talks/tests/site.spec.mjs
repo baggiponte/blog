@@ -30,6 +30,8 @@ test("timeline lights up every appearance of the talk under the pointer", async 
   await expect(page.locator(".timeline li.on")).toHaveCount(count);
   await expect(page.locator(".timeline > article")).toHaveCount(0);
   await expect(page.locator("main > article").first()).toBeHidden();
+  const total = await page.locator(".axis button").count();
+  await expect(page.locator(".total strong")).toHaveText(`${total} talks`);
 });
 
 for (const { slug, count } of decks) {
