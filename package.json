@@ -8,7 +8,7 @@
     "build": "node scripts/build.mjs && cf build",
     "check": "node scripts/build.mjs && cf deploy --dry-run",
     "dev": "node scripts/build.mjs && cf dev",
-    "deploy:preview": "node scripts/build.mjs && cf deploy"
+    "deploy": "node scripts/build.mjs && cf deploy"
   },
   "devDependencies": {
     "cf": "1.0.0-beta.18",
