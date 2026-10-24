@@ -12,7 +12,6 @@
     "dev": "node scripts/build.mjs && cf dev",
     "preview": "cf dev",
     "test": "playwright test",
-    "redirects": "node scripts/redirects.mjs",
     "deploy": "node scripts/build.mjs && cf deploy"
   },
   "devDependencies": {
