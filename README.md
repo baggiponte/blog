@@ -48,7 +48,10 @@ Cutover order (DNS and redirect rules are separate from the application config):
 
 1. Snapshot all DNS, Worker routes/domains, redirects, and SSL settings. Confirm
    no competing apex route, active Universal SSL for apex/www, and valid TLS
-   using forced-edge requests before changing DNS. Verify Pages is healthy.
+   using forced-edge requests before changing DNS. Verify Pages is healthy
+   through the edge while the route is absent. Effective origin SSL must be
+   Full or Full (strict), never Flexible, to avoid a Pages HTTPS redirect loop
+   during fallback. Do not change sibling hosts' SSL configuration.
 2. Deploy the production Worker while the eight apex GitHub records remain
    DNS-only. Test its route using `curl --resolve baggiponte.com:443:<edge-ip>`:
    compare content/assets, RSS, sitemap, search, real404s, redirects, and canonical
