@@ -1,26 +1,19 @@
-# Sample workflow for building and deploying a Hugo site to GitHub Pages
-name: Deploy Hugo site to Pages
+# Checks only: production is deployed manually to Cloudflare (see README).
+name: Check blog
 
 on:
-  # Audit every push, including documentation-only changes.
   push:
     branches: ["main"]
-
-  # Runs on pull requests for dev preview
   pull_request:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Builds only need to read source; deployment permissions are scoped below.
 permissions:
   contents: read
 
-# PR checks do not queue behind production; never cancel an active deployment.
 concurrency:
-  group: pages-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 # Default to bash
 defaults:
@@ -55,7 +48,8 @@ jobs:
 
   # Build job
   build:
-    name: Build Hugo site
+    # Same commands as Workers Builds, so a red check means Cloudflare would fail too.
+    name: Build site and dry-run deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -65,8 +59,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
-          submodules: recursive
           persist-credentials: false
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
@@ -78,33 +70,13 @@ jobs:
             "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
           printf '%s  %s\n' "$HUGO_DEB_SHA256" "$RUNNER_TEMP/hugo.deb" | sha256sum --check --strict
           sudo dpkg -i "$RUNNER_TEMP/hugo.deb"
-      - name: Build with Hugo
-        env:
-          # For maximum backward compatibility with Hugo modules
-          HUGO_ENVIRONMENT: production
-          HUGO_ENV: production
-        # hugo.yaml owns the canonical production baseURL for both hosts.
-        run: hugo --gc --minify
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          path: ./public
-
-  # Deployment job
-  deploy:
-    name: Deploy GitHub Pages
-    # Manual dispatches from feature branches must not deploy production either.
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [build, security]
-    permissions:
-      pages: write # Publish the Pages artifact; no repository write permission.
-      id-token: write # Authenticate this deployment to Pages with OIDC.
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+          node-version: 24
+      - name: Install dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+      - name: Build site and dry-run Cloudflare deploy
+        run: pnpm check
