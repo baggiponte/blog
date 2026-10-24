@@ -6,34 +6,48 @@
   <meta name="description" content="Slides and recordings from Luca Baggi's talks.">
   <link rel="canonical" href="https://talks.baggiponte.com/">
   <title>talks · luca baggi</title>
+  <script>
+    // Same "color-theme" values as the blog's toggle: light (default), dark or system.
+    const theme = localStorage.getItem("color-theme") || "light";
+    const dark = theme === "dark" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.classList.toggle("dark", dark);
+  </script>
   <style>
-    :root { color-scheme: light dark; font-family: system-ui, sans-serif; color: #202124; background: #fff; }
+    :root {
+      --bg: #f7f5f0; --ink: #151922; --muted: #687083; --border: rgba(18, 24, 38, .1); --link: hsl(212, 80%, 45%);
+      color-scheme: light; font-family: system-ui, sans-serif; color: var(--ink);
+      background: radial-gradient(circle at top left, rgba(99, 102, 241, .08), transparent 26rem), var(--bg) fixed;
+    }
+    :root.dark {
+      --bg: #0e1014; --ink: #edf0f6; --muted: #9aa3b5; --border: rgba(229, 231, 235, .12); --link: hsl(212, 100%, 72%);
+      color-scheme: dark;
+    }
     body { max-width: 760px; margin: 0 auto; padding: 48px 24px; line-height: 1.6; }
-    nav, footer { font-size: .9rem; color: #64676d; }
-    a { color: #2563eb; text-underline-offset: 3px; }
+    nav { display: flex; justify-content: space-between; align-items: center; }
+    nav, footer { font-size: .9rem; color: var(--muted); }
+    a { color: var(--link); text-underline-offset: 3px; }
     nav a { color: inherit; }
+    nav button { font: inherit; color: inherit; background: none; border: 1px solid var(--border); border-radius: 999px; padding: 2px 12px; cursor: pointer; }
+    nav button:hover { color: var(--ink); }
     header { margin: 64px 0 40px; }
     h1 { font-size: clamp(2.5rem, 8vw, 4rem); line-height: 1.1; letter-spacing: -.04em; margin: 0; }
-    header p { color: #64676d; font-size: 1.1rem; }
-    article { padding: 26px 0; border-top: 1px solid #e5e7eb; }
-    h2 { font-size: 1.35rem; line-height: 1.3; margin: 0 0 8px; }
+    header p { color: var(--muted); font-size: 1.1rem; }
+    article { padding: 26px 0; border-top: 1px solid var(--border); }
+    h2 { font-size: 1.35rem; line-height: 1.3; letter-spacing: -.025em; margin: 0 0 8px; }
     h2 a { color: inherit; text-decoration: none; }
-    h2 a:hover { text-decoration: underline; }
-    article p { margin: 8px 0 16px; color: #64676d; }
+    h2 a:hover { color: var(--link); }
+    article p { margin: 8px 0 16px; color: var(--muted); }
     .links { display: flex; flex-wrap: wrap; gap: 24px; font-size: .95rem; }
     footer { margin-top: 48px; }
-    a:focus-visible { outline: 2px solid #2563eb; outline-offset: 5px; }
-    @media (prefers-color-scheme: dark) {
-      :root { color: #eee; background: #111; }
-      nav, header p, article p, footer { color: #a1a1aa; }
-      article { border-color: #333; }
-      a { color: #93b4ff; }
-    }
+    :focus-visible { outline: 2px solid var(--link); outline-offset: 5px; }
     @media (max-width: 480px) { body { padding-top: 24px; } header { margin-top: 48px; } }
   </style>
 </head>
 <body>
-  <nav aria-label="Main"><a href="https://baggiponte.com/">← ai field notes</a></nav>
+  <nav aria-label="Main">
+    <a href="https://baggiponte.com/">← ai field notes</a>
+    <button type="button" id="theme" aria-label="Change theme"></button>
+  </nav>
   <main>
     <header>
       <h1>talks</h1>
@@ -91,5 +105,22 @@
     </article>
   </main>
   <footer>These are historical talks; examples reflect the tools available when presented.</footer>
+  <script>
+    const button = document.getElementById("theme");
+    const themes = ["light", "dark", "system"];
+    const apply = () => {
+      const current = localStorage.getItem("color-theme") || "light";
+      const dark = current === "dark" || (current === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.classList.toggle("dark", dark);
+      button.textContent = current;
+    };
+    button.addEventListener("click", () => {
+      const current = localStorage.getItem("color-theme") || "light";
+      localStorage.setItem("color-theme", themes[(themes.indexOf(current) + 1) % themes.length]);
+      apply();
+    });
+    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", apply);
+    apply();
+  </script>
 </body>
 </html>
