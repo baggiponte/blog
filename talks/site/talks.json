@@ -1,5 +1,82 @@
 [
   {
+    "title": "inside the mind of an llm",
+    "description": "Mechanistic interpretability: how we are starting to see what happens inside neural networks.",
+    "given": [
+      {
+        "date": "2026-06-06",
+        "venue": "PyData London 2026",
+        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm"
+      }
+    ]
+  },
+  {
+    "title": "from o1 to deepseek: new scaling laws for llms that reason",
+    "description": "How reasoning models shift scaling from train-time to test-time compute, and what that costs.",
+    "given": [
+      {
+        "date": "2026-04-09",
+        "venue": "PyCon Lithuania 2026",
+        "slides": "https://speakerdeck.com/baggiponte/from-o1-to-deepseek-the-new-scaling-laws-for-llms-that-can-reason"
+      },
+      {
+        "date": "2025-10-15",
+        "venue": "Codemotion Milan 2025",
+        "slides": "https://speakerdeck.com/baggiponte/from-o1-to-deepseek-the-new-scaling-laws-for-llms-that-can-reason"
+      },
+      {
+        "date": "2025-06-25",
+        "venue": "AI Conf 2025",
+        "title": "openai o1/o3: the new scaling laws for llms that can reason",
+        "slides": "https://speakerdeck.com/baggiponte/from-o1-to-deepseek-the-new-scaling-laws-for-llms-that-can-reason"
+      }
+    ]
+  },
+  {
+    "title": "mcp: principles and practice",
+    "description": "How the Model Context Protocol works under the hood, and how to wire your own services into it.",
+    "given": [
+      {
+        "date": "2026-03-04",
+        "venue": "Python Milano",
+        "slides": "https://speakerdeck.com/baggiponte/mcp-principles-and-practice"
+      }
+    ]
+  },
+  {
+    "title": "llm inference arithmetics: the theory behind model serving",
+    "description": "Counting parameters, sizing the KV cache and estimating the GPU memory you need to serve a model.",
+    "given": [
+      {
+        "date": "2025-06-07",
+        "venue": "PyData London 2025",
+        "slides": "https://speakerdeck.com/baggiponte/llm-inference-arithmetics-the-theory-behind-model-serving"
+      }
+    ]
+  },
+  {
+    "title": "foundational models for time series forecasting: are we there yet?",
+    "description": "A look at pretrained foundation models for forecasting, with Gabriele Orlandi.",
+    "given": [
+      {
+        "date": "2025-05-30",
+        "venue": "PyCon Italia 2025",
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet"
+      }
+    ]
+  },
+  {
+    "title": "bigger models or more data? the new scaling laws for llms",
+    "description": "The Chinchilla scaling laws: balancing parameters and training tokens under a compute budget.",
+    "given": [
+      {
+        "date": "2024-06-17",
+        "venue": "AIConf 2024",
+        "slides": "https://speakerdeck.com/baggiponte/bigger-models-or-more-data-the-new-scaling-laws-for-llms"
+      }
+    ]
+  },
+  {
     "title": "polars: zero to hero",
     "description": "What Polars is, why it is fast, when to use it instead of pandas and how to get started.",
     "given": [
