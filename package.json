@@ -1,0 +1,17 @@
+{
+  "name": "blog",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.15.0",
+  "engines": { "node": ">=22.18.0" },
+  "scripts": {
+    "build": "node scripts/build.mjs && cf build",
+    "check": "node scripts/build.mjs && cf deploy --dry-run",
+    "dev": "node scripts/build.mjs && cf dev",
+    "deploy:preview": "node scripts/build.mjs && cf deploy"
+  },
+  "devDependencies": {
+    "cf": "1.0.0-beta.18",
+    "wrangler": "4.151.1"
+  }
+}

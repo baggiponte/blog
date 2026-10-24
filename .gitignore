@@ -1,5 +1,10 @@
 data/talks.json
 
+# Cloudflare build output and JavaScript tooling
+/node_modules/
+/.cloudflare/
+/.wrangler/
+
 # Created by https://www.toptal.com/developers/gitignore/api/hugo
 # Edit at https://www.toptal.com/developers/gitignore?templates=hugo
 

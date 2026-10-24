@@ -39,8 +39,8 @@
     {
       "matchDatasources": ["go"],
       "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
-      "platformAutomerge": true
+      "automerge": false,
+      "platformAutomerge": false
     },
     {
       "matchDatasources": ["go"],
@@ -51,8 +51,8 @@
     {
       "matchDepNames": ["gohugoio/hugo", "github.com/imfing/hextra"],
       "groupName": "hugo",
-      "automerge": true,
-      "platformAutomerge": true,
+      "automerge": false,
+      "platformAutomerge": false,
       "addLabels": ["hugo"]
     }
   ]

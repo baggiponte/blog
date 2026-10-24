@@ -8,6 +8,60 @@ With [just](https://github.com/casey/just)
 just serve
 ```
 
+## Cloudflare preview
+
+GitHub Pages remains production and the rollback host. The Cloudflare Worker is
+named `blog-preview`, has no custom domains or routes, and cannot change apex or
+`www` DNS through the checked-in configuration.
+
+Use Hugo Extended 0.164.0 (matching Pages CI), Node >=22.18, and pnpm 12.15.0:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm check           # clean production Hugo build and Cloudflare dry-run
+pnpm dev             # serve the static assets locally
+pnpm deploy:preview  # deploy only the isolated workers.dev preview
+```
+
+`cf auth login` requires browser authorization before deployment. The build keeps
+production canonical URLs, generates permanent redirects for directory URLs, and
+uses Hugo's custom 404 page instead of an SPA fallback. Only `public/` is uploaded.
+Explicit `index.html` requests may normalize to directory URLs on Cloudflare.
+Workers.dev responses have `X-Robots-Tag: noindex`; custom domains are unaffected.
+Do not publish a worktree containing unfinished content: use a clean checkout of
+the reviewed commit for deployment.
+
+Before a production cutover, save DNS/proxy/routing settings, verify edge TLS for
+apex and `www`, and test preview content, assets, search, RSS, sitemap, redirects,
+and real 404s. Keep Pages' custom domain, HTTPS, and deployment intact. Production
+DNS and Worker domain changes require a separate reviewed cutover; this preview
+configuration does not perform them. Supersede the sibling zone ADR-0002 then.
+
+To roll back a cutover, restore DNS-only apex A records
+`185.199.{108,109,110,111}.153`, AAAA records `2606:50c0:800{0,1,2,3}::153`,
+and `www CNAME baggiponte.github.io`, and remove the migration's Cloudflare
+routes/redirects/custom domains as needed. Keep the last-good Worker alive while
+cached Cloudflare DNS answers expire. Do not disable Pages before the rollback
+window closes.
+
+## Repository writes
+
+Active branch and tag rulesets restrict creation, updates, and deletion to the
+repository admin role (the owner). Separate rulesets prohibit force pushes even
+for the owner: use new branches instead of force-pushing rebased branches. Bots
+have no bypass, so dependency updates require owner-managed branches and merges.
+Actions remains enabled for Pages with read-only default token permissions.
+Allowed actions are GitHub-owned actions and the exact pinned revision of
+`astral-sh/setup-uv` used by CI. Enable mandatory SHA pinning only after the
+pinned Pages workflow reaches `main`, so rollback deployments remain runnable.
+
+Install local hooks with `uvx --from prek==0.5.7 prek install`. The pinned Zizmor
+hook audits workflows without suppressions; the pinned Gitleaks hook scans staged
+changes before commits. CI also scans the complete Git history with Gitleaks and
+requires both security checks and the Hugo build before deploying Pages. Hugo's
+downloaded installer is checksum-verified before installation. Only main-branch
+pushes or main-branch manual dispatches can deploy; PRs cannot publish.
+
 ## Update
 
 With [Just](https://github.com/casey/just)
