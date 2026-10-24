@@ -27,8 +27,16 @@
     nav, footer { font-size: .9rem; color: var(--muted); }
     a { color: var(--link); text-underline-offset: 3px; }
     nav a { color: inherit; }
-    nav button { font: inherit; color: inherit; background: none; border: 1px solid var(--border); border-radius: 999px; padding: 2px 12px; cursor: pointer; }
-    nav button:hover { color: var(--ink); }
+    /* Mirrors the blog's hextra theme toggle: icon button plus a light/dark/system menu. */
+    .theme { position: relative; }
+    .theme button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+    .theme > button { display: flex; padding: 8px; border-radius: 999px; }
+    .theme > button:hover, [role=menu] button:hover { background: var(--border); color: var(--ink); }
+    .theme svg { width: 24px; height: 24px; }
+    .theme:not([data-theme=light]) .light, .theme:not([data-theme=dark]) .dark, .theme:not([data-theme=system]) .system { display: none; }
+    [role=menu] { position: absolute; right: 0; top: 100%; z-index: 1; min-width: 100px; padding: 4px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1); }
+    [role=menu] button { display: block; width: 100%; padding: 6px 36px 6px 12px; border-radius: 4px; text-align: left; position: relative; }
+    [role=menu] [aria-checked=true]::after { content: "✓"; position: absolute; right: 12px; }
     header { margin: 64px 0 40px; }
     h1 { font-size: clamp(2.5rem, 8vw, 4rem); line-height: 1.1; letter-spacing: -.04em; margin: 0; }
     header p { color: var(--muted); font-size: 1.1rem; }
@@ -46,7 +54,18 @@
 <body>
   <nav aria-label="Main">
     <a href="https://baggiponte.com/">← ai field notes</a>
-    <button type="button" id="theme" aria-label="Change theme"></button>
+    <div class="theme">
+      <button type="button" title="Change theme" aria-label="Change theme" aria-haspopup="menu" aria-expanded="false">
+        <svg class="light" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <svg class="dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <svg class="system" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M 11.996094,2 C 6.4986225,2.0192368 2.03125,6.5024993 2.03125,12 c 0,5.497501 4.4673725,9.980763 9.964844,10 H 12 12.0039 c 5.497471,-0.01924 9.964844,-4.502499 9.964844,-10 0,-5.4975007 -4.467373,-9.9807632 -9.964844,-10 H 12 Z M 12,4 c 4.417218,0.017598 7.96875,3.5822356 7.96875,8 0,4.417764 -3.551532,7.982402 -7.96875,8 z"/></svg>
+      </button>
+      <div role="menu" hidden>
+        <button type="button" role="menuitemradio" data-item="light">Light</button>
+        <button type="button" role="menuitemradio" data-item="dark">Dark</button>
+        <button type="button" role="menuitemradio" data-item="system">System</button>
+      </div>
+    </div>
   </nav>
   <main>
     <header>
@@ -106,19 +125,26 @@
   </main>
   <footer>These are historical talks; examples reflect the tools available when presented.</footer>
   <script>
-    const button = document.getElementById("theme");
-    const themes = ["light", "dark", "system"];
+    const toggle = document.querySelector(".theme");
+    const button = toggle.querySelector(":scope > button");
+    const menu = toggle.querySelector("[role=menu]");
     const apply = () => {
       const current = localStorage.getItem("color-theme") || "light";
       const dark = current === "dark" || (current === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
       document.documentElement.classList.toggle("dark", dark);
-      button.textContent = current;
+      toggle.dataset.theme = current;
+      for (const item of menu.children) item.setAttribute("aria-checked", item.dataset.item === current);
     };
-    button.addEventListener("click", () => {
-      const current = localStorage.getItem("color-theme") || "light";
-      localStorage.setItem("color-theme", themes[(themes.indexOf(current) + 1) % themes.length]);
+    const open = state => { menu.hidden = !state; button.setAttribute("aria-expanded", state); };
+    button.addEventListener("click", () => open(menu.hidden));
+    menu.addEventListener("click", event => {
+      const item = event.target.closest("[data-item]");
+      if (!item) return;
+      localStorage.setItem("color-theme", item.dataset.item);
       apply();
+      open(false);
     });
+    document.addEventListener("click", event => { if (!toggle.contains(event.target)) open(false); });
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", apply);
     apply();
   </script>
