@@ -2,25 +2,13 @@
 name: Deploy Hugo site to Pages
 
 on:
-  # Runs on pushes targeting the default branch
+  # Audit every push, including documentation-only changes.
   push:
     branches: ["main"]
-    paths-ignore:
-      - "justfile"
-      - "README.md"
-      - "CLAUDE.md"
-      - ".gitignore"
-      - "renovate.json"
 
   # Runs on pull requests for dev preview
   pull_request:
     branches: ["main"]
-    paths-ignore:
-      - "justfile"
-      - "README.md"
-      - "CLAUDE.md"
-      - ".gitignore"
-      - "renovate.json"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

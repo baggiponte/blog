@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const result = spawnSync("hugo", [
   "--cleanDestinationDir", "--gc", "--minify",
-  "--baseURL=https://baggiponte.com/",
 ], { cwd: root, stdio: "inherit", env: { ...process.env, HUGO_ENVIRONMENT: "production" } });
 if (result.error) throw result.error;
 if (result.status !== 0) process.exit(result.status ?? 1);
