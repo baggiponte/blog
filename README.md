@@ -38,7 +38,8 @@ pnpm dev       # serve the static assets locally
 
 Install local hooks with `uvx --from prek==0.5.7 prek install`: Zizmor audits
 workflows and Gitleaks scans staged changes. CI runs Zizmor, a full-history
-Gitleaks scan and the Hugo build on PRs and `main`, with read-only permissions.
+Gitleaks scan and the Hugo build on PRs, with read-only permissions; `main`
+is checked by Workers Builds itself.
 Rulesets protect `main` from deletion and force pushes.
 
 ## Update
