@@ -27,6 +27,7 @@ pnpm deploy:preview  # deploy only the isolated workers.dev preview
 production canonical URLs, generates permanent redirects for directory URLs, and
 uses Hugo's custom 404 page instead of an SPA fallback. Only `public/` is uploaded.
 Explicit `index.html` requests may normalize to directory URLs on Cloudflare.
+Workers.dev responses have `X-Robots-Tag: noindex`; custom domains are unaffected.
 Do not publish a worktree containing unfinished content: use a clean checkout of
 the reviewed commit for deployment.
 
@@ -42,6 +43,16 @@ and `www CNAME baggiponte.github.io`, and remove the migration's Cloudflare
 routes/redirects/custom domains as needed. Keep the last-good Worker alive while
 cached Cloudflare DNS answers expire. Do not disable Pages before the rollback
 window closes.
+
+## Repository writes
+
+Active branch and tag rulesets restrict creation, updates, and deletion to the
+repository admin role (the owner). Separate rulesets prohibit force pushes even
+for the owner: use new branches instead of force-pushing rebased branches. Bots
+have no bypass, so dependency updates require owner-managed branches and merges.
+Actions remains enabled for Pages with read-only default token permissions and
+only GitHub-owned actions allowed. Enable mandatory SHA pinning only after the
+pinned Pages workflow reaches `main`, so rollback deployments remain runnable.
 
 ## Update
 
