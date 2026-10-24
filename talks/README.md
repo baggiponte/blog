@@ -20,7 +20,7 @@ Requires Node >=22.18 and pnpm 12.15.0.
 
 ```sh
 pnpm install --frozen-lockfile
-prek install                           # Zizmor and Gitleaks hooks
+uvx --from prek==0.5.7 prek install    # Zizmor and Gitleaks hooks
 pnpm exec slidev decks/<slug>/slides.md  # edit one deck with hot reload
 pnpm check                             # build + cf deploy --dry-run
 pnpm exec playwright install chromium
@@ -51,9 +51,9 @@ Cloudflare dashboard:
 | Non-production branch builds | off (GitHub CI checks PRs) |
 
 Node and pnpm come from `package.json`; only `dist/` is uploaded. CI checks
-every PR (Zizmor, frozen install, dry-run, browser tests)
-with read-only permissions and no deploy job. Roll back by restoring a previous
-Worker version in Cloudflare.
+every PR with read-only permissions and no deploy job: Zizmor, then the frozen
+install, dry-run and browser tests. GitHub secret scanning with push protection
+(and the local Gitleaks hook) covers secrets. Roll back by restoring a previous Worker version in Cloudflare.
 
 To deploy by hand, or to smoke-test production after a build:
 
