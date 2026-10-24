@@ -54,10 +54,12 @@
     .editions li:not(:last-child)::after { content: ""; position: absolute; left: -19.5px; top: 19px; height: 100%; width: 1px; background: var(--muted); opacity: .35; }
     .editions time { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
     .editions li:first-child > span:first-of-type { font-weight: 600; }
-    .editions em { display: block; color: var(--muted); }
     .editions .links { gap: 12px; font-size: inherit; justify-content: end; }
     .editions .links a { color: var(--muted); text-decoration-color: var(--border); }
     .editions .links a:hover { color: var(--link); text-decoration-color: currentColor; }
+    /* Organiser logos (site/venues.json) on a small white tile, so dark marks stay visible in dark mode. */
+    .logo { display: inline-block; box-sizing: border-box; width: 20px; height: 20px; margin-right: 8px; vertical-align: -5px; }
+    img.logo { padding: 2px; border-radius: 5px; background: #fff; box-shadow: 0 0 0 1px var(--border); object-fit: contain; }
     .links { display: flex; flex-wrap: wrap; gap: 24px; font-size: .95rem; }
     /* Date column as in the blog's post list. */
     article { display: grid; grid-template-columns: minmax(0, 1fr) 8.5rem; column-gap: 2rem; }

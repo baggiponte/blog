@@ -32,10 +32,17 @@ There is no SPA fallback: unknown paths and out-of-range slides return 404.
 
 To add a talk, add it to `site/talks.json`: `title`, `description` and a `given`
 list of `{date, venue, slides}` with optional `title` (if that edition was named
-differently), `recording`, `source` and `sourceLabel`. `slides` is `/<slug>/` for a
+differently; kept for the record, not shown), `recording`, `source` and `sourceLabel`. `slides` is `/<slug>/` for a
 deck in `decks/` or any external URL. Another edition of an existing talk goes in
 its `given` list. The build fails if a deck is missing from `talks.json` or a
 `/<slug>/` link has no deck. The tests pick up new decks automatically.
+
+Venue logos live in `site/logos/` and are matched to a venue by the longest name
+prefix in `site/venues.json` (`"PyData"` covers London, Global and Amsterdam), which
+also records where each file came from. They are the organisers' own marks, taken
+from their public website repositories and resized to small icons; the trademarks
+belong to their owners and are shown only to name the venue. A venue with no
+entry renders without a logo.
 
 ## deploy
 

@@ -11,7 +11,8 @@
       {
         "date": "2026-06-06",
         "venue": "PyData London 2026",
-        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm"
+        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm",
+        "recording": "https://www.youtube.com/watch?v=ex4x9b-yD8w"
       },
       {
         "date": "2026-05-28",
@@ -35,7 +36,8 @@
       {
         "date": "2026-04-10",
         "venue": "PyCon Lithuania 2026",
-        "slides": "https://speakerdeck.com/baggiponte/from-o1-to-deepseek-the-new-scaling-laws-for-llms-that-can-reason"
+        "slides": "https://speakerdeck.com/baggiponte/from-o1-to-deepseek-the-new-scaling-laws-for-llms-that-can-reason",
+        "recording": "https://www.youtube.com/watch?v=Kaiqmt1swbE"
       },
       {
         "date": "2025-10-15",
@@ -57,7 +59,8 @@
       {
         "date": "2026-03-04",
         "venue": "Python Milano",
-        "slides": "https://speakerdeck.com/baggiponte/mcp-principles-and-practice"
+        "slides": "https://speakerdeck.com/baggiponte/mcp-principles-and-practice",
+        "recording": "https://www.youtube.com/watch?v=G5YoeMQwgiY"
       }
     ]
   },
@@ -68,7 +71,8 @@
       {
         "date": "2025-06-07",
         "venue": "PyData London 2025",
-        "slides": "https://speakerdeck.com/baggiponte/llm-inference-arithmetics-the-theory-behind-model-serving"
+        "slides": "https://speakerdeck.com/baggiponte/llm-inference-arithmetics-the-theory-behind-model-serving",
+        "recording": "https://www.youtube.com/watch?v=rcKloLlpjS8"
       },
       {
         "date": "2025-04-23",
@@ -85,12 +89,20 @@
       {
         "date": "2025-05-30",
         "venue": "PyCon Italia 2025",
-        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet"
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet",
+        "recording": "https://www.youtube.com/watch?v=jT2m1XI70Qw"
       },
       {
         "date": "2024-12-04",
         "venue": "PyData Global 2024",
-        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet"
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet",
+        "recording": "https://www.youtube.com/watch?v=DZICL_8vdXI"
+      },
+      {
+        "date": "2024-09-26",
+        "venue": "PyData Paris 2024",
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet",
+        "recording": "https://www.youtube.com/watch?v=lpQg9yxeVSg"
       },
       {
         "date": "2024-11-19",
@@ -175,7 +187,8 @@
     "given": [
       {
         "date": "2024-06-15",
-        "venue": "PyData London 2024"
+        "venue": "PyData London 2024",
+        "recording": "https://www.youtube.com/watch?v=qDjThKoKdq4"
       }
     ]
   },
@@ -209,7 +222,8 @@
       {
         "date": "2024-04-05",
         "venue": "PyCon Lithuania 2024",
-        "title": "functime: a next generation ml forecasting library powered by polars"
+        "title": "functime: a next generation ml forecasting library powered by polars",
+        "recording": "https://www.youtube.com/watch?v=XpLfIpWZtt8"
       },
       {
         "date": "2024-01-13",

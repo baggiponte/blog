@@ -15,6 +15,9 @@ test("catalog links every deck and unknown paths are real 404s", async ({ page, 
   for (const { slug } of decks) {
     await expect(page.locator(`main a[href="/${slug}/"]`).first()).toBeVisible();
   }
+  const logos = await page.locator("img.logo").evaluateAll(images => images.map(image => image.getAttribute("src")));
+  expect(logos.length).toBeGreaterThan(0);
+  for (const src of new Set(logos)) expect((await request.get(src)).status(), src).toBe(200);
   expect((await request.get("/not-a-talk")).status()).toBe(404);
 });
 

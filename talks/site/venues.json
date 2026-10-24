@@ -1,0 +1,15 @@
+{
+  "PyCon Italia": { "logo": "pycon-italia.png", "source": "https://github.com/pythonitalia/pycon/blob/main/frontend/public/favicon.png" },
+  "PyCon Lithuania": { "logo": "pycon-lithuania.png", "source": "https://github.com/PyConLT/pyconlt.github.io/blob/master/src/img/favicon.png" },
+  "PyCon Portugal": { "logo": "pycon-portugal.svg", "source": "https://github.com/pyconpt/2023/blob/main/pycon_portugal_2023/static/images/logo/logo-pycon2023-blue.svg" },
+  "PyCon DE & PyData": { "logo": "pycon-de.svg", "source": "https://github.com/PioneersHub/pyconde-website/blob/main/assets/static/logo-2027/Logo%205%20VDB.svg" },
+  "PyData": { "logo": "pydata.png", "source": "https://github.com/tacaswell/pydataglobal.github.io/blob/master/assets/images/pydata.png" },
+  "Agile Lab": { "logo": "agile-lab.svg", "source": "https://github.com/agile-lab-dev/witboost-starter-kit/blob/master/docs/img/agilelab_logo.svg", "note": "mark only, wordmark removed" },
+  "Python Milano": { "logo": "python-milano.png", "source": "https://github.com/PythonMilano/pythonmilano.github.io/blob/master/assets/img/pymi.png" },
+  "Python Biella Group": { "logo": "python-biella-group.png", "source": "https://github.com/PythonMilano/pythonmilano.github.io/blob/master/assets/img/PythonBiellaGroup-no-backgrou.png" },
+  "Kaggle Days": { "logo": "kaggle.svg", "source": "https://github.com/simple-icons/simple-icons/blob/develop/icons/kaggle.svg", "note": "Kaggle mark (the k of the wordmark), CC0 path from Simple Icons" },
+  "Codemotion": { "logo": "codemotion.png", "source": "https://conferences.codemotion.com/milan/wp-content/uploads/sites/15/2026/03/cropped-cropped-codemotion-favicon-270x270-1-192x192.png" },
+  "Dealroom": { "logo": "dealroom.png", "source": "https://dealroom.co/favicon.ico" },
+  "AI Conf": { "logo": "ai-conf.png", "source": "https://www.aiconf.it/images/favicon.png" },
+  "AIConf": { "logo": "ai-conf.png", "source": "https://www.aiconf.it/images/favicon.png" }
+}

@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { copyFile, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { copyFile, cp, mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { availableParallelism } from "node:os";
 import { resolve } from "node:path";
 import { promisify } from "node:util";
@@ -14,6 +14,7 @@ await mkdir(dist);
 const decks = (await readdir(resolve(root, "decks"))).sort();
 await writeFile(resolve(dist, "index.html"), await renderCatalog(new URL("../", import.meta.url), decks));
 await copyFile(resolve(root, "site/404.html"), resolve(dist, "404.html"));
+await cp(resolve(root, "site/logos"), resolve(dist, "logos"), { recursive: true });
 
 const run = promisify(execFile);
 async function build(slug) {

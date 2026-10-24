@@ -11,6 +11,16 @@ const links = (given, [slides, recording, source]) => [
   given.source && link(given.source, source),
 ].filter(Boolean).join("");
 
+// Organiser logos keyed by venue prefix ("PyData" covers London, Global, Amsterdam); the longest match wins.
+const venues = JSON.parse(await readFile(new URL("../site/venues.json", import.meta.url), "utf8"));
+const prefixes = Object.keys(venues).sort((a, b) => b.length - a.length);
+export const venueLabel = (venue, slot = false) => {
+  const match = prefixes.find(prefix => venue.startsWith(prefix));
+  // Empty alt: the venue name follows. In lists, venues without a logo keep the slot so names line up.
+  const logo = match ? `<img class="logo" src="/logos/${venues[match].logo}" alt="" width="20" height="20">` : slot ? `<span class="logo"></span>` : "";
+  return `${logo}${escape(venue)}`;
+};
+
 const linksOf = given => {
   const html = links(given, ["slides →", "recording", given.sourceLabel || "original source"]);
   return html && `
@@ -34,19 +44,19 @@ export async function renderCatalog(root, decks) {
   talks.sort((a, b) => b.given[0].date.localeCompare(a.given[0].date));
 
   const articles = talks.map(({ title, description, given: [latest, ...rest] }) => {
-    // A talk given once links its slides directly; repeats list every edition instead.
-    const meta = rest.length ? `given ${rest.length === 1 ? "twice" : `${rest.length + 1} times`}, latest at ${escape(latest.venue)}` : escape(latest.venue);
+    // A talk given once names its venue and links its slides directly; repeats list every edition instead.
+    const meta = rest.length ? "" : `
+      <p class="meta">${venueLabel(latest.venue)}</p>`;
     const more = rest.length ? `
       <ol class="editions">${[latest, ...rest].map(given => `
-        <li>${time(given.date)}<span>${escape(given.venue)}${given.title ? `<em>${escape(given.title)}</em>` : ""}</span><span class="links">${links(given, ["slides", "video", "code"])}</span></li>`).join("")}
+        <li>${time(given.date)}<span>${venueLabel(given.venue, true)}</span><span class="links">${links(given, ["slides", "video", "code"])}</span></li>`).join("")}
       </ol>` : linksOf(latest);
     // Not every edition has slides online: the heading links the newest one that does.
     const slides = [latest, ...rest].find(given => given.slides)?.slides;
     return `
     <article>
       <h2>${slides ? link(slides, title) : escape(title)}</h2>
-      ${time(latest.date)}
-      <p class="meta">${meta}</p>
+      ${time(latest.date)}${meta}
       <p>${escape(description)}</p>${more}
     </article>`;
   });
@@ -81,7 +91,7 @@ function renderTimeline(talks) {
         <span style="left: ${x(`${year}-01-01`).toFixed(2)}%">${year}</span>`);
   const lists = years.toReversed().map(year => {
     const items = appearances.filter(given => given.date.startsWith(year)).map(given => `
-          <li data-talk="${given.talk}">${time(given.date)}<span><span class="talk">${given.slides ? link(given.slides, given.title) : escape(given.title)}</span>${escape(given.venue)}</span></li>`);
+          <li data-talk="${given.talk}">${time(given.date)}<span><span class="talk">${given.slides ? link(given.slides, given.title) : escape(given.title)}</span>${venueLabel(given.venue, true)}</span></li>`);
     return `
       <h2>${year}</h2>
       <ol>${items.join("")}
