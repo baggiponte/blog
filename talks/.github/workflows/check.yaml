@@ -28,7 +28,7 @@ jobs:
         with:
           enable-cache: false
       - name: Audit workflows and hooks
-        run: uvx zizmor==1.31.1 --pedantic .github/workflows/check.yaml .pre-commit-config.yaml
+        run: uvx zizmor==1.31.1 --pedantic .
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm exec playwright install --with-deps chromium

@@ -7,12 +7,11 @@
     "node": ">=22.18.0"
   },
   "scripts": {
-    "build": "node scripts/build.mjs && cf build",
-    "check": "node scripts/build.mjs && cf deploy --dry-run",
-    "dev": "node scripts/build.mjs && cf dev",
-    "preview": "cf dev",
+    "build": "node scripts/build.mjs",
+    "dev": "pnpm build && cf dev",
+    "check": "pnpm build && cf deploy --dry-run",
     "test": "playwright test",
-    "deploy": "node scripts/build.mjs && cf deploy"
+    "deploy": "pnpm build && cf deploy"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
