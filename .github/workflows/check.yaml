@@ -75,14 +75,13 @@ jobs:
             "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
           printf '%s  %s\n' "$HUGO_DEB_SHA256" "$RUNNER_TEMP/hugo.deb" | sha256sum --check --strict
           sudo dpkg -i "$RUNNER_TEMP/hugo.deb"
-      - name: Setup pnpm
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-          cache: pnpm
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
       - name: Build site and dry-run Cloudflare deploy
         run: pnpm check
