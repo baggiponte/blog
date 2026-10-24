@@ -5,26 +5,18 @@ const escape = text => String(text).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<"
 const date = iso => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 const time = iso => `<time datetime="${iso}">${date(iso)}</time>`;
 const link = (href, label) => `<a href="${escape(href)}">${escape(label)}</a>`;
-const links = (given, [slides, recording, source]) => [
-  given.slides && link(given.slides, slides),
-  given.recording && link(given.recording, recording),
-  given.source && link(given.source, source),
-].filter(Boolean).join("");
+// Always three slots, empty when missing, so slides / video / code line up down the list.
+const links = given => [[given.slides, "slides"], [given.recording, "video"], [given.source, "code"]]
+  .map(([href, label]) => href ? link(href, label) : "<span></span>").join("");
 
 // Organiser logos keyed by venue prefix ("PyData" covers London, Global, Amsterdam); the longest match wins.
 const venues = JSON.parse(await readFile(new URL("../site/venues.json", import.meta.url), "utf8"));
 const prefixes = Object.keys(venues).sort((a, b) => b.length - a.length);
-export const venueLabel = (venue, slot = false) => {
+export const venueLabel = venue => {
   const match = prefixes.find(prefix => venue.startsWith(prefix));
-  // Empty alt: the venue name follows. In lists, venues without a logo keep the slot so names line up.
-  const logo = match ? `<img class="logo" src="/logos/${venues[match].logo}" alt="" width="20" height="20">` : slot ? `<span class="logo"></span>` : "";
+  // Empty alt: the venue name follows. Venues without a logo keep the slot so names line up.
+  const logo = match ? `<img class="logo" src="/logos/${venues[match].logo}" alt="" width="20" height="20">` : `<span class="logo"></span>`;
   return `${logo}${escape(venue)}`;
-};
-
-const linksOf = given => {
-  const html = links(given, ["slides →", "recording", given.sourceLabel || "original source"]);
-  return html && `
-      <div class="links">${html}</div>`;
 };
 
 export async function renderCatalog(root, decks) {
@@ -44,20 +36,18 @@ export async function renderCatalog(root, decks) {
   talks.sort((a, b) => b.given[0].date.localeCompare(a.given[0].date));
 
   const articles = talks.map(({ title, description, given: [latest, ...rest] }) => {
-    // A talk given once names its venue and links its slides directly; repeats list every edition instead.
-    const meta = rest.length ? "" : `
-      <p class="meta">${venueLabel(latest.venue)}</p>`;
-    const more = rest.length ? `
+    // Every talk, given once or many times, lists its editions the same way.
+    const editions = `
       <ol class="editions">${[latest, ...rest].map(given => `
-        <li>${time(given.date)}<span>${venueLabel(given.venue, true)}</span><span class="links">${links(given, ["slides", "video", "code"])}</span></li>`).join("")}
-      </ol>` : linksOf(latest);
+        <li>${time(given.date)}<span>${venueLabel(given.venue)}</span><span class="links">${links(given)}</span></li>`).join("")}
+      </ol>`;
     // Not every edition has slides online: the heading links the newest one that does.
     const slides = [latest, ...rest].find(given => given.slides)?.slides;
     return `
     <article>
       <h2>${slides ? link(slides, title) : escape(title)}</h2>
-      ${time(latest.date)}${meta}
-      <p>${escape(description)}</p>${more}
+      ${time(latest.date)}
+      <p>${escape(description)}</p>${editions}
     </article>`;
   });
   const page = await readFile(new URL("site/index.html", root), "utf8");

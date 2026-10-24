@@ -32,7 +32,7 @@ There is no SPA fallback: unknown paths and out-of-range slides return 404.
 
 To add a talk, add it to `site/talks.json`: `title`, `description` and a `given`
 list of `{date, venue, slides}` with optional `title` (if that edition was named
-differently; kept for the record, not shown), `recording`, `source` and `sourceLabel`. `slides` is `/<slug>/` for a
+differently; kept for the record, not shown), `recording` and `source`. `slides` is `/<slug>/` for a
 deck in `decks/` or any external URL. Another edition of an existing talk goes in
 its `given` list. The build fails if a deck is missing from `talks.json` or a
 `/<slug>/` link has no deck. The tests pick up new decks automatically.

@@ -45,8 +45,7 @@
     h2 a { color: inherit; text-decoration: none; }
     h2 a:hover { color: var(--link); }
     article p { margin: 8px 0 16px; color: var(--muted); }
-    article .meta { margin: 0; font-size: .95rem; }
-    /* Every edition of a talk given more than once, newest first, as a timeline: a dot per edition on a thin line. */
+    /* Every edition of a talk, newest first, as a timeline: a dot per edition on a thin line, then slides / video / code. */
     .editions { list-style: none; margin: 4px 0 0; padding: 0 0 0 28px; font-size: .9rem; }
     .editions li { position: relative; display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) auto; gap: 0 16px; padding: 7px 0; }
     .editions li::before { content: ""; position: absolute; left: -24px; top: 14px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--muted); background: var(--bg); z-index: 1; }
@@ -54,21 +53,22 @@
     .editions li:not(:last-child)::after { content: ""; position: absolute; left: -19.5px; top: 19px; height: 100%; width: 1px; background: var(--muted); opacity: .35; }
     .editions time { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
     .editions li:first-child > span:first-of-type { font-weight: 600; }
-    .editions .links { gap: 12px; font-size: inherit; justify-content: end; }
+    .editions .links { display: grid; grid-template-columns: repeat(3, 3.25rem); gap: 8px; justify-items: end; }
     .editions .links a { color: var(--muted); text-decoration-color: var(--border); }
     .editions .links a:hover { color: var(--link); text-decoration-color: currentColor; }
     /* Organiser logos (site/venues.json) on a small white tile, so dark marks stay visible in dark mode. */
     .logo { display: inline-block; box-sizing: border-box; width: 20px; height: 20px; margin-right: 8px; vertical-align: -5px; }
     img.logo { padding: 2px; border-radius: 5px; background: #fff; box-shadow: 0 0 0 1px var(--border); object-fit: contain; }
-    .links { display: flex; flex-wrap: wrap; gap: 24px; font-size: .95rem; }
     /* Date column as in the blog's post list. */
     article { display: grid; grid-template-columns: minmax(0, 1fr) 8.5rem; column-gap: 2rem; }
     article > * { grid-column: 1; }
+    /* Editions span the date column too, so the link columns end flush with the date. */
+    article > .editions { grid-column: 1 / -1; }
     article > time { grid-column: 2; grid-row: 1; justify-self: end; white-space: nowrap; color: var(--muted); font-size: .95rem; line-height: 1.5; }
     footer { margin-top: 48px; }
     :focus-visible { outline: 2px solid var(--link); outline-offset: 5px; }
     @media (max-width: 480px) { body { padding-top: 24px; } header { margin-top: 48px; } }
-    @media (max-width: 640px) { article { grid-template-columns: 1fr; } article > time { grid-column: 1; grid-row: auto; justify-self: start; } .editions li { grid-template-columns: 1fr; padding: 6px 0; } .editions .links { justify-content: start; } }
+    @media (max-width: 640px) { article { grid-template-columns: 1fr; } article > time { grid-column: 1; grid-row: auto; justify-self: start; } .editions li { grid-template-columns: 1fr; padding: 6px 0; } .editions .links { justify-items: start; } }
     /* Timeline view: every appearance as a dot on one time axis, stacked where dates are close, then listed by year. */
     .views { display: flex; justify-content: start; gap: 20px; margin: -12px 0 12px; font-size: .95rem; }
     .views a { color: var(--muted); text-decoration: none; padding-bottom: 4px; border-bottom: 2px solid transparent; }

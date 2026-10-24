@@ -258,8 +258,7 @@
         "venue": "Python Milano",
         "slides": "/pymi-pyo3/",
         "recording": "https://www.youtube.com/watch?v=jp2EQiU9RxA",
-        "source": "https://github.com/baggiponte/pymi-pyo3/tree/49d9618d0be4a2297e1cdd9bf3c16bc4df6ecdef",
-        "sourceLabel": "original source & examples"
+        "source": "https://github.com/baggiponte/pymi-pyo3/tree/49d9618d0be4a2297e1cdd9bf3c16bc4df6ecdef"
       }
     ]
   },
@@ -272,8 +271,7 @@
         "venue": "Python Milano",
         "slides": "/pymi-cookiecutter/",
         "recording": "https://www.youtube.com/watch?v=XESObnka5Nc",
-        "source": "https://github.com/baggiponte/pymi-cookiecutter/tree/84031f379b245b9e994675687e8aca968acc582b",
-        "sourceLabel": "original source & template"
+        "source": "https://github.com/baggiponte/pymi-cookiecutter/tree/84031f379b245b9e994675687e8aca968acc582b"
       }
     ]
   },
