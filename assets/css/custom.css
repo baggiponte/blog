@@ -73,7 +73,7 @@ body {
 
 .site-shell,
 .article-frame {
-  width: min(100% - 2rem, 96rem);
+  width: min(100% - 2rem, 64rem);
   margin: 0 auto;
 }
 
@@ -403,7 +403,7 @@ body {
 
   .site-shell,
   .article-frame {
-    width: min(100% - 1.25rem, 96rem);
+    width: min(100% - 1.25rem, 64rem);
   }
 
   .site-shell,
