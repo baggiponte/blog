@@ -51,7 +51,7 @@ Cloudflare dashboard:
 | Non-production branch builds | off (GitHub CI checks PRs) |
 
 Node and pnpm come from `package.json`; only `dist/` is uploaded. CI checks
-every PR and push to `main` (Zizmor, frozen install, dry-run, browser tests)
+every PR (Zizmor, frozen install, dry-run, browser tests)
 with read-only permissions and no deploy job. Roll back by restoring a previous
 Worker version in Cloudflare.
 

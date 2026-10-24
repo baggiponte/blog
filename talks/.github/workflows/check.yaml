@@ -1,8 +1,7 @@
 # Checks only: production is deployed by Cloudflare Workers Builds (see README).
+# PRs only: Workers Builds deploys main regardless, so a rerun there gates nothing.
 name: Check talks
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 permissions: {}
