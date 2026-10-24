@@ -98,7 +98,15 @@
         "source": "https://github.com/baggiponte/agilelab-2024-polars/tree/e56397ceff9dba3114989c7b5ec1a06fc2984650"
       },
       {
-        "date": "2023-10-27",
+        "date": "2023-12-07",
+        "venue": "Python Biella Group",
+        "title": "polars 02: data wrangling",
+        "slides": "/pbg-polars/",
+        "recording": "https://www.youtube.com/watch?v=iNFq6p470H0",
+        "source": "https://github.com/baggiponte/polars-katas"
+      },
+      {
+        "date": "2023-11-30",
         "venue": "Python Biella Group",
         "title": "polars: the definitive dataframe library",
         "slides": "/pbg-polars/",
@@ -183,6 +191,14 @@
         "date": "2024-04-05",
         "venue": "PyCon Lithuania 2024",
         "title": "functime: a next generation ml forecasting library powered by polars"
+      },
+      {
+        "date": "2024-01-13",
+        "venue": "Python Biella Group",
+        "title": "polars 03: discover functime",
+        "slides": "/pydata-global-2023-functime/",
+        "recording": "https://www.youtube.com/watch?v=dyBXKVsHTNE",
+        "source": "https://github.com/baggiponte/pbg-functime"
       },
       {
         "date": "2023-12-06",
