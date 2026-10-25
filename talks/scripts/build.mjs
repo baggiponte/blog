@@ -17,6 +17,8 @@ await copyFile(resolve(root, "site/404.html"), resolve(dist, "404.html"));
 await cp(resolve(root, "site/logos"), resolve(dist, "logos"), { recursive: true });
 
 const run = promisify(execFile);
+// The first failed build stops the ones still running and keeps the queue from starting more.
+const failed = new AbortController();
 async function build(slug) {
   const directory = resolve(root, "decks", slug);
   const entry = resolve(directory, "slides.md");
@@ -26,11 +28,13 @@ async function build(slug) {
       "exec", "slidev", "build", entry,
       "--base", `/${slug}/`, "--out", resolve(dist, slug),
       "--router-mode", "history",
-    ], { cwd: root, maxBuffer: 64 * 1024 * 1024 });
+    ], { cwd: root, maxBuffer: 64 * 1024 * 1024, signal: failed.signal });
   } catch (error) {
+    if (failed.signal.aborted) throw error;
+    failed.abort();
     // Buffered so parallel builds don't interleave; only a failure needs the log.
     process.stderr.write(`${error.stdout ?? ""}${error.stderr ?? ""}`);
-    throw new Error(`${slug}: slidev build failed`);
+    throw new Error(`${slug}: slidev build failed`, { cause: error });
   }
 
   // Exact slide routes: no global SPA fallback swallowing other decks or missing assets.
@@ -53,7 +57,7 @@ async function build(slug) {
 const queue = [...decks];
 const results = new Map();
 await Promise.all(Array.from({ length: Math.min(availableParallelism(), decks.length) }, async () => {
-  for (let slug; (slug = queue.shift());) results.set(slug, await build(slug));
+  for (let slug; !failed.signal.aborted && (slug = queue.shift());) results.set(slug, await build(slug));
 }));
 const rewrites = decks.flatMap(slug => results.get(slug));
 await writeFile(resolve(dist, "_redirects"), `${rewrites.join("\n")}\n`);

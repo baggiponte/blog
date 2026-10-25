@@ -106,7 +106,9 @@ async function renderMap(talks, places) {
   const cityOf = venue => {
     const match = venues.find(prefix => venue.startsWith(prefix));
     if (!match) throw new Error(`site/places.json: no city for ${venue}`);
-    return places.venues[match];
+    const city = places.venues[match];
+    if (city !== "online" && !places.cities[city]) throw new Error(`site/places.json: ${match} is in ${city}, which is not in cities`);
+    return city;
   };
   const appearances = talks.flatMap(({ title, given }, talk) => given.map(given => ({ ...given, talk, title, city: cityOf(given.venue) })));
   appearances.sort((a, b) => b.date.localeCompare(a.date));

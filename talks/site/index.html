@@ -155,7 +155,7 @@
       <p>Slides, code and conversations from Luca Baggi's talks.</p>
     </header>
     <nav class="views" aria-label="View">
-      <a href="#" data-view="map">map</a>
+      <a href="#map" data-view="map">map</a>
       <a href="#talks" data-view="talks">by talk</a>
       <a href="#timeline" data-view="timeline">timeline</a>
     </nav>
@@ -193,7 +193,7 @@
     apply();
   </script>
   <script>
-    // The map is the default view; "#talks" and "#timeline" switch to the others. They match no element id, so the page does not scroll.
+    // The map is the default view (also "#map"); "#talks" and "#timeline" switch to the others. They match no element id, so the page does not scroll.
     const main = document.querySelector("main");
     const route = () => {
       main.dataset.view = ["#talks", "#timeline"].includes(location.hash) ? location.hash.slice(1) : "map";
@@ -251,8 +251,15 @@
     // Rows carry data-talk; city circles and their cards carry only data-city.
     const markOf = event => event.target.closest("[data-talk], [data-city]");
     const key = mark => mark && (mark.dataset.talk === undefined ? `city ${mark.dataset.city}` : `talk ${mark.dataset.talk}`);
-    map.addEventListener("pointerover", event => reveal(markOf(event) ?? pinned));
-    map.addEventListener("pointerleave", () => reveal(pinned));
+    // Crossing the bare map between a circle and its card should not close the card, so wait before falling back.
+    let fallback;
+    map.addEventListener("pointerover", event => {
+      clearTimeout(fallback);
+      const mark = markOf(event);
+      if (mark) reveal(mark);
+      else fallback = setTimeout(() => reveal(pinned), 300);
+    });
+    map.addEventListener("pointerleave", () => { clearTimeout(fallback); reveal(pinned); });
     map.addEventListener("focusin", event => reveal(markOf(event) ?? pinned));
     map.addEventListener("focusout", () => reveal(pinned));
     map.addEventListener("click", event => {
