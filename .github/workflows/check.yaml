@@ -37,6 +37,34 @@ jobs:
       - name: Audit workflows
         run: uvx --from prek==0.5.7 prek run zizmor --all-files
 
+  notebooks:
+    name: Check notebook exports
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Setup uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          version: "0.13.5"
+          enable-cache: false
+      - name: Export notebooks
+        run: uvx --from rust-just==1.59.0 just marimo-export
+      # The version line changes on every marimo bump, so a Renovate PR passes
+      # unless the new marimo actually exports different Markdown.
+      - name: Fail on stale exports
+        run: |
+          git add --intent-to-add content/blog
+          if ! git diff --exit-code --ignore-matching-lines='^marimo-version: ' -- content/blog; then
+            echo "::error::Notebook exports are stale; run 'just marimo-export' and commit the result."
+            exit 1
+          fi
+
   build:
     # Same commands as Workers Builds, so a red check means Cloudflare would fail too.
     name: Build site and dry-run deploy

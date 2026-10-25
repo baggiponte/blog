@@ -33,6 +33,27 @@
       ],
       "depNameTemplate": "gohugoio/hugo",
       "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^justfile$"],
+      "matchStrings": [
+        "(?<depName>marimo|prek) := \"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "^justfile$",
+        "^README\\.md$",
+        "^\\.pre-commit-config\\.yaml$",
+        "^\\.github/workflows/.*\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "uvx --from (?<depName>[a-z0-9-]+)==(?<currentValue>\\d[^\\s`]*)"
+      ],
+      "datasourceTemplate": "pypi"
     }
   ],
   "packageRules": [
