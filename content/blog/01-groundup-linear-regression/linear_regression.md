@@ -1,8 +1,17 @@
 ---
 title: linear regression
-marimo-version: 0.23.14
+marimo-version: 0.25.2
 width: full
 sql_output: native
+header: |-
+  # /// script
+  # requires-python = ">=3.11"
+  # dependencies = [
+  #     "marimo>=0.23.9",
+  #     "numpy>=2.3.5",
+  #     "torch>=2.9.1",
+  # ]
+  # ///
 ---
 
 ```python {.marimo name="setup"}
