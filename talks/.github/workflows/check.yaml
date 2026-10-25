@@ -58,6 +58,10 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Type-check
+        run: pnpm typecheck
+      - name: Run unit tests
+        run: pnpm test:unit
       - name: Build site and dry-run Cloudflare deploy
         run: pnpm check
       # The runner image already ships Chromium's libraries; --with-deps only adds a

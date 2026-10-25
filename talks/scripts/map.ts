@@ -13,9 +13,9 @@ const projection = geoConicConformal().parallels([40, 56]).rotate([-8, 0])
   .fitExtent([[40, 30], [width - 40, height - 30]], { type: "MultiPoint", coordinates: [[-10.5, 38.6], [27.5, 56.4], [-6, 56.4], [25, 39]] })
   .clipExtent([[0, 0], [width, height]]);
 
-export function locate(name, at) {
-  const [x, y] = projection(at);
-  if (!(x >= 0 && x <= width && y >= 0 && y <= height)) throw new Error(`site/places.json: ${name} falls outside the map`);
+export function locate(name: string, at: [number, number]) {
+  const [x, y] = projection(at) ?? [NaN, NaN];
+  if (!(x >= 0 && x <= width && y >= 0 && y <= height)) throw new Error(`site/cities.json: ${name} falls outside the map`);
   return [x, y];
 }
 
@@ -23,15 +23,17 @@ export function locate(name, at) {
 export async function landDots() {
   const atlas = createRequire(import.meta.url).resolve("world-atlas/land-50m.json");
   const topology = JSON.parse(await readFile(atlas, "utf8"));
-  const rings = [];
-  let ring;
+  const rings: [number, number][][] = [];
+  let ring: [number, number][] = [];
   geoPath(projection, {
     moveTo(x, y) { rings.push(ring = [[x, y]]); },
     lineTo(x, y) { ring.push([x, y]); },
     closePath() {},
-  })(feature(topology, "land"));
+    beginPath() {},
+    arc() {},
+  })(feature(topology, topology.objects.land));
   // Even-odd ray casting against the projected, clipped coastlines.
-  const inside = (x, y) => {
+  const inside = (x: number, y: number) => {
     let hit = false;
     for (const r of rings) for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
       const [xi, yi] = r[i], [xj, yj] = r[j];

@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { parser } from "@slidev/cli";
-import { renderCatalog } from "./catalog.mjs";
+import { renderCatalog } from "./catalog.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const dist = resolve(root, "dist");
@@ -19,7 +19,7 @@ await cp(resolve(root, "site/logos"), resolve(dist, "logos"), { recursive: true 
 const run = promisify(execFile);
 // The first failed build stops the ones still running and keeps the queue from starting more.
 const failed = new AbortController();
-async function build(slug) {
+async function build(slug: string) {
   const directory = resolve(root, "decks", slug);
   const entry = resolve(directory, "slides.md");
   const data = await parser.load({ roots: [directory], userRoot: directory }, entry);
@@ -33,7 +33,8 @@ async function build(slug) {
     if (failed.signal.aborted) throw error;
     failed.abort();
     // Buffered so parallel builds don't interleave; only a failure needs the log.
-    process.stderr.write(`${error.stdout ?? ""}${error.stderr ?? ""}`);
+    const { stdout = "", stderr = "" } = error as { stdout?: string; stderr?: string };
+    process.stderr.write(`${stdout}${stderr}`);
     throw new Error(`${slug}: slidev build failed`, { cause: error });
   }
 

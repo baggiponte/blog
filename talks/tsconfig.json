@@ -1,0 +1,17 @@
+{
+  // Type-check only: Node runs the .ts files directly by stripping their types.
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "lib": ["esnext", "dom"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "include": ["scripts", "tests", "*.ts"]
+}
