@@ -22,13 +22,12 @@ new slug:
 til slug:
     hugo new content/til/{{ slug }}.md && nvim $_
 
-# Create a notebook post with a PEP 723 header, then open it in a sandbox
-notebook slug name *packages:
+# Create a notebook post and open it in a sandbox; marimo writes the PEP 723 header
+notebook slug name:
     #!/usr/bin/env bash
     set -euo pipefail
 
     dir="content/blog/{{ slug }}"
-    notebook="$dir/{{ name }}.py"
     if [ -e "$dir" ]; then
       echo "$dir already exists"
       exit 1
@@ -36,13 +35,7 @@ notebook slug name *packages:
 
     hugo new "$dir/index.md"
     printf '\n{{{{< include-md "%s" >}}\n' "{{ name }}.md" >> "$dir/index.md"
-    printf 'import marimo\n\napp = marimo.App(width="full")\n\n\nif __name__ == "__main__":\n    app.run()\n' > "$notebook"
-    uv add --script "$notebook" marimo {{ packages }}
-    uvx marimo=={{ marimo }} edit --sandbox "$notebook"
-
-# Add dependencies to a notebook's PEP 723 header
-notebook-add notebook +packages:
-    uv add --script {{ notebook }} {{ packages }}
+    uvx marimo=={{ marimo }} edit --sandbox "$dir/{{ name }}.py"
 
 # Export marimo notebooks to Markdown in-place; defaults to all blog notebooks
 marimo-export *notebooks:
