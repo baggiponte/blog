@@ -42,6 +42,19 @@
       ],
       "depNameTemplate": "marimo",
       "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "^justfile$",
+        "^README\\.md$",
+        "^\\.pre-commit-config\\.yaml$",
+        "^\\.github/workflows/.*\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "uvx --from (?<depName>[a-z0-9-]+)==(?<currentValue>[^\\s`]+)"
+      ],
+      "datasourceTemplate": "pypi"
     }
   ],
   "packageRules": [
