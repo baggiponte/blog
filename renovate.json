@@ -33,6 +33,15 @@
       ],
       "depNameTemplate": "gohugoio/hugo",
       "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^justfile$"],
+      "matchStrings": [
+        "marimo := \"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "marimo",
+      "datasourceTemplate": "pypi"
     }
   ],
   "packageRules": [
