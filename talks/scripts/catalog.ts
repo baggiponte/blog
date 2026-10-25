@@ -116,12 +116,12 @@ function fill(page: string, views: Record<string, Html>) {
 }
 
 function renderTalks(talks: Talk[], venueLabel: Label) {
-  const articles = talks.map(({ title, description, given }) => {
+  const articles = talks.map(({ title, description, workshop, given }) => {
     // Not every edition has slides online: the heading links the newest one that does.
     const slides = given.find(given => given.slides)?.slides;
     // Every talk, given once or many times, lists its editions the same way.
     return html`    <article>
-      <h2>${slides ? link(slides, title) : title}</h2>
+      <h2>${slides ? link(slides, title) : title}${workshop ? html` <span class="kind">workshop</span>` : ""}</h2>
       ${time(given[0].date)}
       <p>${description}</p>
       <ol class="editions">${given.map(

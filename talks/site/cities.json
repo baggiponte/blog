@@ -8,5 +8,6 @@
   "Amsterdam": { "at": [4.9, 52.37] },
   "Darmstadt": { "at": [8.65, 49.87] },
   "Vilnius": { "at": [25.28, 54.69] },
-  "Coimbra": { "at": [-8.43, 40.21] }
+  "Coimbra": { "at": [-8.43, 40.21] },
+  "Lausanne": { "at": [6.63, 46.52], "label": "left" }
 }

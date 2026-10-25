@@ -1,6 +1,12 @@
 {
   "AI Conf": { "city": "Milan", "logo": "ai-conf.png", "source": "https://www.aiconf.it/images/favicon.png" },
   "AIConf": { "city": "Milan", "logo": "ai-conf.png", "source": "https://www.aiconf.it/images/favicon.png" },
+  "AMLD": {
+    "city": "Lausanne",
+    "logo": "amld.png",
+    "source": "https://avatars.githubusercontent.com/amld",
+    "note": "avatar of the AMLD GitHub organisation, trimmed and scaled to 64px"
+  },
   "Agile Lab": {
     "city": "online",
     "logo": "agile-lab.svg",

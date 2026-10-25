@@ -51,6 +51,11 @@ test("renders every view, escapes data and ids talks by title", async () => {
   assert.match(page, /<strong>2 talks<\/strong> given in 2 cities</);
 });
 
+test("tags workshops in the talks view", async () => {
+  const page = await renderCatalog(await fixture({ talks: [{ ...talk, workshop: true }] }), ["pyconit-polars"]);
+  assert.match(page, /polars &amp; friends<\/a> <span class="kind">workshop<\/span><\/h2>/);
+});
+
 test("a deck missing from talks.json fails", async () => {
   await assert.rejects(renderCatalog(await fixture(), ["pyconit-polars", "orphan"]), /decks not listed: orphan/);
 });

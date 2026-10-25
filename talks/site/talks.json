@@ -113,6 +113,18 @@
     ]
   },
   {
+    "title": "beyond the hype: building and evaluating robust rag systems",
+    "description": "Evaluation-driven development for RAG: bootstrap an evaluation set, judge answers with an LLM, then improve retrieval with HyDE and metadata, with Fabio Lipreri.",
+    "workshop": true,
+    "given": [
+      {
+        "date": "2025-02-14",
+        "venue": "AMLD EPFL 2025",
+        "source": "https://github.com/xtreamsrl/beyond-the-hype"
+      }
+    ]
+  },
+  {
     "title": "polars: zero to hero",
     "description": "What Polars is, why it is fast, when to use it instead of pandas and how to get started.",
     "given": [
@@ -246,6 +258,18 @@
         "slides": "/kaggledays-functime/",
         "recording": "https://www.youtube.com/live/W2jiOODzjU0?t=125",
         "source": "https://github.com/baggiponte/kaggledays-functime/tree/0a0e498f02d8f8f33db15927bd7d3eb2ca950c85"
+      }
+    ]
+  },
+  {
+    "title": "build your own ai movies buddy",
+    "description": "A hands-on workshop on retrieval-augmented generation: build an AI movie expert from scratch, with Fabio Lipreri.",
+    "workshop": true,
+    "given": [
+      {
+        "date": "2024-03-23",
+        "venue": "AMLD EPFL 2024",
+        "source": "https://github.com/xtreamsrl/movies-buddy"
       }
     ]
   },

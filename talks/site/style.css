@@ -134,6 +134,17 @@ h2 a {
 h2 a:hover {
   color: var(--link);
 }
+h2 .kind {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  vertical-align: 0.2em;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted);
+}
 article p {
   margin: 8px 0 16px;
   color: var(--muted);

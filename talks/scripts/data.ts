@@ -17,6 +17,8 @@ const Edition = z.strictObject({
 const Talk = z.strictObject({
   title: z.string().min(1),
   description: z.string().min(1),
+  // A hands-on workshop rather than a talk: tagged as such in the talks view.
+  workshop: z.literal(true).optional(),
   // Non-empty, so given[0] (the newest edition, once sorted) always exists.
   given: z.tuple([Edition], Edition),
 });
