@@ -10,4 +10,4 @@
 * Edit post metadata in the bundle's `index.md`, and notebook content in its `.py`.
 * Never hand-edit a notebook's generated `.md`; regenerate it with `just marimo-export`.
 * Keep exactly one notebook `.py` per bundle directory.
-* Declare notebook dependencies in the notebook's PEP 723 header, not in a project file.
+* Create notebook posts with `just notebook` and add dependencies with `just notebook-add`; never write or edit a notebook's PEP 723 header by hand.
