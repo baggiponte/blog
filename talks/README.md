@@ -44,6 +44,12 @@ from their public website repositories and resized to small icons; the trademark
 belong to their owners and are shown only to name the venue. A venue with no
 entry renders without a logo.
 
+The map view places each venue in a city by the longest name prefix in
+`site/places.json`, which also holds each city's coordinates (and which side its
+label goes on). A venue mapped to `"online"` joins the online pill. The build fails
+if a venue has no entry or a city falls outside the map of Europe; the land dots
+come from Natural Earth via `world-atlas`.
+
 ## deploy
 
 Production is the Cloudflare Worker `talks` on `talks.baggiponte.com`, deployed

@@ -31,7 +31,23 @@ test("timeline lights up every appearance of the talk under the pointer", async 
   await expect(page.locator(".timeline > article")).toHaveCount(0);
   await expect(page.locator("main > article").first()).toBeHidden();
   const total = await page.locator(".axis button").count();
-  await expect(page.locator(".total strong")).toHaveText(`${total} talks`);
+  await expect(page.locator(".timeline .total strong")).toHaveText(`${total} talks`);
+});
+
+test("map shows a city's talks and lights up every city a talk went to", async ({ page }) => {
+  await page.goto("/#map");
+  const milan = page.locator('.place[data-city="Milan"]');
+  await milan.hover();
+  const given = await page.locator('.map li[data-city="Milan"]').count();
+  await expect(page.locator('.card.on[data-city="Milan"] li')).toHaveCount(given);
+  await expect(page.locator(".map li.on")).toHaveCount(given);
+  await page.locator('.map li[data-talk="0"]').first().click();
+  const editions = await page.locator('.map li[data-talk="0"]').count();
+  await expect(page.locator(".map li.on")).toHaveCount(editions);
+  await expect(page.locator(".place.on").first()).toBeVisible();
+  await expect(page.locator(".timeline")).toBeHidden();
+  const total = await page.locator(".map li[data-talk]").count();
+  await expect(page.locator(".map .total strong")).toHaveText(`${total} talks`);
 });
 
 for (const { slug, count } of decks) {

@@ -74,33 +74,62 @@
     .views a { color: var(--muted); text-decoration: none; padding-bottom: 4px; border-bottom: 2px solid transparent; }
     .views a:hover { color: var(--ink); }
     .views a[aria-current] { color: var(--ink); border-color: var(--link); }
-    main:not([data-view=timeline]) > .timeline, main[data-view=timeline] > article { display: none; }
-    .timeline { padding-top: 32px; border-top: 1px solid var(--border); }
+    main:not([data-view=timeline]) > .timeline, main:not([data-view=map]) > .map, main:not([data-view=talks]) > article { display: none; }
+    :is(.timeline, .map) { padding-top: 32px; border-top: 1px solid var(--border); }
     .axis { position: relative; height: calc(var(--rows) * 16px + 40px); margin: 0 6px; }
     .axis::before { content: ""; position: absolute; left: -6px; right: -6px; bottom: 22px; height: 1px; background: var(--muted); opacity: .35; }
     .axis span { position: absolute; bottom: 0; padding-left: 4px; font-size: .8rem; line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
     .axis span::before { content: ""; position: absolute; left: 0; bottom: 14px; height: 12px; width: 1px; background: var(--muted); opacity: .35; }
     .axis button { position: absolute; bottom: calc(28px + var(--row) * 16px); width: 12px; height: 12px; padding: 0; translate: -50%; border-radius: 50%; border: 1.5px solid var(--muted); background: var(--bg); cursor: pointer; }
     .axis button::before { content: ""; position: absolute; inset: -4px; }
-    .timeline [data-talk] { transition: opacity .15s; }
-    .timeline.active [data-talk]:not(.on) { opacity: .25; }
-    .timeline li.on::before, .axis .on { border-color: var(--link); background: var(--link); box-shadow: 0 0 0 4px color-mix(in srgb, var(--link) 18%, transparent); }
+    :is(.timeline, .map) [data-talk] { transition: opacity .15s; }
+    :is(.timeline, .map).active [data-talk]:not(.on) { opacity: .25; }
+    :is(.timeline, .map) li.on::before, .axis .on { border-color: var(--link); background: var(--link); box-shadow: 0 0 0 4px color-mix(in srgb, var(--link) 18%, transparent); }
     .total { margin: 0 0 8px; color: var(--muted); }
     .total strong { color: var(--ink); }
     .axis b { margin-left: 6px; font-weight: 600; color: var(--ink); }
-    .timeline h2 span { margin-left: 12px; font-weight: 400; font-size: .9rem; }
+    :is(.timeline, .map) h2 span { margin-left: 12px; font-weight: 400; font-size: .9rem; }
     .caption { margin: 12px 0 0; min-height: 3.2em; color: var(--muted); }
     .caption strong { color: var(--ink); }
-    .timeline h2 { margin: 28px 0 4px; font-size: 1rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-    .timeline ol { list-style: none; margin: 0; padding: 0; }
-    .timeline li { position: relative; display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0 16px; padding: 8px 0 8px 28px; border-top: 1px solid var(--border); cursor: pointer; }
-    .timeline li::before { content: ""; position: absolute; left: 4px; top: 15px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--muted); background: var(--bg); }
-    .timeline li time { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
-    .timeline li > span { color: var(--muted); }
-    .timeline .talk { display: block; color: var(--ink); font-weight: 600; }
-    .timeline .talk a { color: inherit; text-decoration: none; }
-    .timeline .talk a:hover { color: var(--link); }
-    @media (max-width: 640px) { .timeline li { grid-template-columns: 1fr; } }
+    :is(.timeline, .map) h2 { margin: 28px 0 4px; font-size: 1rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    :is(.timeline, .map) ol { list-style: none; margin: 0; padding: 0; }
+    :is(.timeline, .map) li { position: relative; display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0 16px; padding: 8px 0 8px 28px; border-top: 1px solid var(--border); cursor: pointer; }
+    :is(.timeline, .map) li::before { content: ""; position: absolute; left: 4px; top: 15px; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--muted); background: var(--bg); }
+    :is(.timeline, .map) li time { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    :is(.timeline, .map) li > span { color: var(--muted); }
+    :is(.timeline, .map) .talk { display: block; color: var(--ink); font-weight: 600; }
+    :is(.timeline, .map) .talk a { color: inherit; text-decoration: none; }
+    :is(.timeline, .map) .talk a:hover { color: var(--link); }
+    @media (max-width: 640px) { :is(.timeline, .map) li { grid-template-columns: 1fr; } }
+    /* Map view: Europe as dots, a circle per city sized by its talks; a city shows its talks, a talk lights its cities. */
+    .places { position: relative; container-type: inline-size; }
+    .places svg { display: block; width: 100%; height: auto; }
+    .places path { stroke: color-mix(in srgb, var(--ink) 22%, transparent); stroke-width: 3.2; stroke-linecap: round; }
+    .place { position: absolute; left: var(--x); top: var(--y); width: max(10px, calc(var(--r) * 200cqw / 960)); aspect-ratio: 1; translate: -50% -50%; padding: 0; border-radius: 50%; border: 1.5px solid var(--muted); background: color-mix(in srgb, var(--link) 35%, var(--bg)); font: inherit; cursor: pointer; transition: opacity .15s; }
+    .place::before { content: ""; position: absolute; inset: -4px; border-radius: 50%; }
+    .place span { position: absolute; top: 50%; left: calc(100% + 6px); translate: 0 -50%; white-space: nowrap; font-size: .85rem; font-weight: 600; color: var(--ink); text-shadow: 0 0 2px var(--bg), 0 0 4px var(--bg), 0 0 6px var(--bg); pointer-events: none; }
+    .place.left span { left: auto; right: calc(100% + 6px); }
+    .place b { font-weight: 400; color: var(--muted); }
+    .place.online { width: auto; aspect-ratio: auto; padding: 2px 14px; border-radius: 999px; border-style: dashed; background: var(--bg); }
+    .place.online span { position: static; translate: none; font-weight: 400; color: var(--muted); }
+    .place.on { border-color: var(--link); background: var(--link); box-shadow: 0 0 0 4px color-mix(in srgb, var(--link) 18%, transparent); }
+    .place.on b { color: var(--link); }
+    .place.online.on :is(span, b) { color: var(--bg); text-shadow: none; }
+    .map.active .place:not(.on) { opacity: .3; }
+    .card { display: none; position: absolute; left: var(--x); top: var(--y); z-index: 2; width: min(22rem, 75cqw); translate: 24px -18px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1); font-size: .85rem; color: var(--muted); }
+    .card.west { translate: calc(-100% - 24px) -18px; }
+    .card.up { translate: 24px calc(18px - 100%); }
+    .card.west.up { translate: calc(-100% - 24px) calc(18px - 100%); }
+    .card.on { display: block; }
+    .card strong { margin-right: 6px; color: var(--ink); }
+    .map .card ol { margin-top: 6px; }
+    .map .card li { grid-template-columns: 6rem minmax(0, 1fr); gap: 0 10px; padding: 4px 0; cursor: auto; }
+    .map .card li::before { content: none; }
+    .card li > span { color: var(--ink); }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover { color: var(--link); }
+    /* On phones the card opens under the map, full width, over the caption and list. */
+    @media (max-width: 640px) { .place:not(.on, .online) span { display: none; } .card { left: 0; right: 0; top: 100%; width: auto; margin-top: 8px; translate: none !important; } }
   </style>
 </head>
 <body>
@@ -127,10 +156,14 @@
     <nav class="views" aria-label="View">
       <a href="#" data-view="talks">by talk</a>
       <a href="#timeline" data-view="timeline">timeline</a>
+      <a href="#map" data-view="map">map</a>
     </nav>
     <!-- talks -->
     <section class="timeline" aria-label="Timeline">
     <!-- timeline -->
+    </section>
+    <section class="map" aria-label="Map">
+    <!-- map -->
     </section>
   </main>
   <footer>These are historical talks; examples reflect the tools available when presented.</footer>
@@ -159,10 +192,10 @@
     apply();
   </script>
   <script>
-    // "#timeline" switches views; it matches no element id, so the page does not scroll.
+    // "#timeline" and "#map" switch views; they match no element id, so the page does not scroll.
     const main = document.querySelector("main");
     const route = () => {
-      main.dataset.view = location.hash === "#timeline" ? "timeline" : "talks";
+      main.dataset.view = ["#timeline", "#map"].includes(location.hash) ? location.hash.slice(1) : "talks";
       for (const view of document.querySelectorAll(".views a")) view.toggleAttribute("aria-current", view.dataset.view === main.dataset.view);
     };
     addEventListener("hashchange", route);
@@ -193,6 +226,41 @@
       show(selected = talk === selected ? null : talk);
     });
     addEventListener("keydown", event => event.key === "Escape" && show(selected = null));
+
+    // A city shows the talks given there; a talk lights up every city it went to. Same hover / tap rules as the timeline.
+    const map = main.querySelector(".map");
+    const mapCaption = map.querySelector(".caption");
+    const mapHint = mapCaption.textContent;
+    let pinned = null;
+    const reveal = mark => {
+      const talk = mark?.dataset.talk ?? null;
+      const city = talk === null ? mark?.dataset.city ?? null : null;
+      map.classList.toggle("active", mark !== null);
+      for (const row of map.querySelectorAll("li[data-talk]")) row.classList.toggle("on", row.dataset.talk === talk || row.dataset.city === city);
+      for (const place of map.querySelectorAll(".place")) place.classList.toggle("on", place.dataset.city === city || place.dataset.talks.split(" ").includes(talk));
+      for (const card of map.querySelectorAll(".card")) card.classList.toggle("on", card.dataset.city === city);
+      if (talk === null) return void (mapCaption.textContent = mapHint);
+      const places = [...map.querySelectorAll(".place.on")].map(place => place.dataset.city);
+      const count = map.querySelectorAll(`li[data-talk="${talk}"]`).length;
+      const title = document.createElement("strong");
+      title.textContent = map.querySelector(`li[data-talk="${talk}"] .talk`).textContent;
+      const where = places.length > 1 ? `${places.slice(0, -1).join(", ")} and ${places.at(-1)}` : places[0];
+      mapCaption.replaceChildren(title, `, given ${["once", "twice"][count - 1] || `${count} times`} in ${where}`);
+    };
+    // Rows carry data-talk; city circles and their cards carry only data-city.
+    const markOf = event => event.target.closest("[data-talk], [data-city]");
+    const key = mark => mark && (mark.dataset.talk === undefined ? `city ${mark.dataset.city}` : `talk ${mark.dataset.talk}`);
+    map.addEventListener("pointerover", event => reveal(markOf(event) ?? pinned));
+    map.addEventListener("pointerleave", () => reveal(pinned));
+    map.addEventListener("focusin", event => reveal(markOf(event) ?? pinned));
+    map.addEventListener("focusout", () => reveal(pinned));
+    map.addEventListener("click", event => {
+      if (event.target.closest("a")) return;
+      const mark = markOf(event);
+      if (mark?.closest(".card")) return;
+      reveal(pinned = mark && key(mark) !== key(pinned) ? mark : null);
+    });
+    addEventListener("keydown", event => event.key === "Escape" && reveal(pinned = null));
   </script>
 </body>
 </html>

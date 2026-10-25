@@ -1,0 +1,32 @@
+{
+  "cities": {
+    "Milan": { "at": [9.19, 45.46] },
+    "Biella": { "at": [8.05, 45.56], "label": "left" },
+    "Florence": { "at": [11.25, 43.77] },
+    "London": { "at": [-0.13, 51.51], "label": "left" },
+    "Paris": { "at": [2.35, 48.86], "label": "left" },
+    "Amsterdam": { "at": [4.90, 52.37] },
+    "Darmstadt": { "at": [8.65, 49.87] },
+    "Vilnius": { "at": [25.28, 54.69] },
+    "Coimbra": { "at": [-8.43, 40.21] }
+  },
+  "venues": {
+    "PyCon Italia": "Florence",
+    "PyCon Lithuania": "Vilnius",
+    "PyCon Portugal": "Coimbra",
+    "PyCon DE & PyData": "Darmstadt",
+    "PyData Amsterdam": "Amsterdam",
+    "PyData London": "London",
+    "PyData Paris": "Paris",
+    "PyData Milano": "Milan",
+    "PyData Global": "online",
+    "Python Milano": "Milan",
+    "Python Biella Group": "Biella",
+    "Codemotion Milan": "Milan",
+    "Kaggle Days Milan": "Milan",
+    "AI Conf": "Milan",
+    "AIConf": "Milan",
+    "Agile Lab": "online",
+    "Dealroom": "online"
+  }
+}
