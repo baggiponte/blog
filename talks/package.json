@@ -13,9 +13,12 @@
     "test": "playwright test",
     "deploy": "pnpm build && cf deploy",
     "typecheck": "tsc",
-    "test:unit": "node --test \"scripts/*.test.ts\""
+    "test:unit": "node --test \"scripts/*.test.ts\"",
+    "lint": "biome ci .",
+    "format": "biome check --write ."
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.15",
     "@playwright/test": "1.64.1",
     "@slidev/cli": "53.0.0",
     "@slidev/theme-default": "0.25.0",

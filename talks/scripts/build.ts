@@ -2,8 +2,8 @@ import { execFile } from "node:child_process";
 import { copyFile, cp, mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { availableParallelism } from "node:os";
 import { resolve } from "node:path";
-import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import { parser } from "@slidev/cli";
 import { renderCatalog } from "./catalog.ts";
 
@@ -13,7 +13,8 @@ await rm(dist, { recursive: true, force: true });
 await mkdir(dist);
 const decks = (await readdir(resolve(root, "decks"))).sort();
 await writeFile(resolve(dist, "index.html"), await renderCatalog(root, decks));
-await copyFile(resolve(root, "site/404.html"), resolve(dist, "404.html"));
+for (const file of ["404.html", "style.css", "main.js"])
+  await copyFile(resolve(root, "site", file), resolve(dist, file));
 await cp(resolve(root, "site/logos"), resolve(dist, "logos"), { recursive: true });
 
 const run = promisify(execFile);
@@ -24,11 +25,22 @@ async function build(slug: string) {
   const entry = resolve(directory, "slides.md");
   const data = await parser.load({ roots: [directory], userRoot: directory }, entry);
   try {
-    await run("pnpm", [
-      "exec", "slidev", "build", entry,
-      "--base", `/${slug}/`, "--out", resolve(dist, slug),
-      "--router-mode", "history",
-    ], { cwd: root, maxBuffer: 64 * 1024 * 1024, signal: failed.signal });
+    await run(
+      "pnpm",
+      [
+        "exec",
+        "slidev",
+        "build",
+        entry,
+        "--base",
+        `/${slug}/`,
+        "--out",
+        resolve(dist, slug),
+        "--router-mode",
+        "history",
+      ],
+      { cwd: root, maxBuffer: 64 * 1024 * 1024, signal: failed.signal },
+    );
   } catch (error) {
     if (failed.signal.aborted) throw error;
     failed.abort();
@@ -55,10 +67,16 @@ async function build(slug: string) {
 }
 
 // Each Slidev build is mostly single-threaded, so run one per CPU.
-const queue = [...decks];
-const results = new Map();
-await Promise.all(Array.from({ length: Math.min(availableParallelism(), decks.length) }, async () => {
-  for (let slug; !failed.signal.aborted && (slug = queue.shift());) results.set(slug, await build(slug));
-}));
-const rewrites = decks.flatMap(slug => results.get(slug));
+// The workers share one iterator, so each deck is taken by exactly one of them.
+const queue = decks.values();
+const results = new Map<string, string[]>();
+await Promise.all(
+  Array.from({ length: Math.min(availableParallelism(), decks.length) }, async () => {
+    for (const slug of queue) {
+      if (failed.signal.aborted) break;
+      results.set(slug, await build(slug));
+    }
+  }),
+);
+const rewrites = decks.flatMap(slug => results.get(slug) ?? []);
 await writeFile(resolve(dist, "_redirects"), `${rewrites.join("\n")}\n`);

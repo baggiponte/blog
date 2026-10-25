@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 import { resolve } from "node:path";
-import { parser } from "@slidev/cli";
 import { expect, test } from "@playwright/test";
+import { parser } from "@slidev/cli";
 
 const decks: { slug: string; count: number }[] = [];
 for (const slug of (await readdir("decks")).sort()) {

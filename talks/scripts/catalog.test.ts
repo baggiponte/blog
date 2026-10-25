@@ -16,7 +16,12 @@ const talk = {
     { date: "2025-06-06", venue: "PyData London 2025", slides: "https://example.com/slides" },
   ],
 };
-const venues = { "PyCon Italia": { logo: "pycon-italia.png" }, "PyCon Italia 2024": { city: "Florence" }, "PyData": { logo: "pydata.png" }, "PyData London": { city: "London" } };
+const venues = {
+  "PyCon Italia": { logo: "pycon-italia.png" },
+  "PyCon Italia 2024": { city: "Florence" },
+  PyData: { logo: "pydata.png" },
+  "PyData London": { city: "London" },
+};
 const cities = { Florence: { at: [11.25, 43.77] }, London: { at: [-0.13, 51.51] } };
 
 // A site/ directory with the real page template and the given data files.
@@ -25,14 +30,19 @@ async function fixture(data: { talks?: unknown; venues?: unknown; cities?: unkno
   await mkdir(join(root, "site"));
   if (data.page === undefined) await copyFile(resolve(site, "index.html"), join(root, "site/index.html"));
   else await writeFile(join(root, "site/index.html"), data.page);
-  const files = { "talks.json": data.talks ?? [talk], "venues.json": data.venues ?? venues, "cities.json": data.cities ?? cities };
+  const files = {
+    "talks.json": data.talks ?? [talk],
+    "venues.json": data.venues ?? venues,
+    "cities.json": data.cities ?? cities,
+  };
   for (const [file, value] of Object.entries(files)) await writeFile(join(root, "site", file), JSON.stringify(value));
   return root;
 }
 
 test("renders every view, escapes data and ids talks by title", async () => {
   const page = await renderCatalog(await fixture(), ["pyconit-polars"]);
-  for (const placeholder of ["<!-- talks -->", "<!-- timeline -->", "<!-- map -->"]) assert.ok(!page.includes(placeholder));
+  for (const placeholder of ["<!-- talks -->", "<!-- timeline -->", "<!-- map -->"])
+    assert.ok(!page.includes(placeholder));
   assert.match(page, /<h2><a href="https:\/\/example.com\/slides">polars &amp; friends<\/a><\/h2>/);
   assert.match(page, /data-talk="polars-friends"/);
   // Logo from "PyData", city from "PyData London".
@@ -51,24 +61,39 @@ test("a /<slug>/ link without a deck fails", async () => {
 
 test("a venue without a city fails", async () => {
   const { "PyData London": _, ...rest } = venues;
-  await assert.rejects(renderCatalog(await fixture({ venues: rest }), ["pyconit-polars"]), /no city for PyData London 2025/);
+  await assert.rejects(
+    renderCatalog(await fixture({ venues: rest }), ["pyconit-polars"]),
+    /no city for PyData London 2025/,
+  );
 });
 
 test("a city missing from cities.json fails", async () => {
-  await assert.rejects(renderCatalog(await fixture({ cities: { Florence: cities.Florence } }), ["pyconit-polars"]), /PyData London 2025 is in London, which is not in site\/cities.json/);
+  await assert.rejects(
+    renderCatalog(await fixture({ cities: { Florence: cities.Florence } }), ["pyconit-polars"]),
+    /PyData London 2025 is in London, which is not in site\/cities.json/,
+  );
 });
 
 test("a malformed entry fails with its path", async () => {
   const talks = [{ ...talk, given: [{ ...talk.given[0], date: "23 May 2024" }] }];
-  await assert.rejects(renderCatalog(await fixture({ talks }), ["pyconit-polars"]), /site\/talks.json:[\s\S]*at \[0\]\.given\[0\]\.date/);
+  await assert.rejects(
+    renderCatalog(await fixture({ talks }), ["pyconit-polars"]),
+    /site\/talks.json:[\s\S]*at \[0\]\.given\[0\]\.date/,
+  );
 });
 
 test("two talks with the same id fail", async () => {
   const talks = [talk, { ...talk, title: "Polars, & friends!", given: [talk.given[1]] }];
-  await assert.rejects(renderCatalog(await fixture({ talks }), ["pyconit-polars"]), /two talks share the id polars-friends/);
+  await assert.rejects(
+    renderCatalog(await fixture({ talks }), ["pyconit-polars"]),
+    /two talks share the id polars-friends/,
+  );
 });
 
 test("a template without a placeholder fails", async () => {
-  const page = (await readFile(resolve(site, "index.html"), "utf8")).replace("    <!-- map -->\n", "");
-  await assert.rejects(renderCatalog(await fixture({ page }), ["pyconit-polars"]), /expected one <!-- map --> placeholder/);
+  const page = (await readFile(resolve(site, "index.html"), "utf8")).replace(/^ *<!-- map -->\n/m, "");
+  await assert.rejects(
+    renderCatalog(await fixture({ page }), ["pyconit-polars"]),
+    /expected one <!-- map --> placeholder/,
+  );
 });

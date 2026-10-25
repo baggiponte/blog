@@ -1,24 +1,63 @@
 {
-  "AI Conf": {"city": "Milan", "logo": "ai-conf.png", "source": "https://www.aiconf.it/images/favicon.png"},
-  "AIConf": {"city": "Milan", "logo": "ai-conf.png", "source": "https://www.aiconf.it/images/favicon.png"},
-  "Agile Lab": {"city": "online", "logo": "agile-lab.svg", "source": "https://github.com/agile-lab-dev/witboost-starter-kit/blob/master/docs/img/agilelab_logo.svg", "note": "mark only, wordmark removed"},
-  "Codemotion": {"logo": "codemotion.png", "source": "https://conferences.codemotion.com/milan/wp-content/uploads/sites/15/2026/03/cropped-cropped-codemotion-favicon-270x270-1-192x192.png"},
-  "Codemotion Milan": {"city": "Milan"},
-  "Dealroom": {"city": "online", "logo": "dealroom.png", "source": "https://dealroom.co/favicon.ico"},
-  "Kaggle Days": {"logo": "kaggle.svg", "source": "https://github.com/simple-icons/simple-icons/blob/develop/icons/kaggle.svg", "note": "Kaggle mark (the k of the wordmark), CC0 path from Simple Icons"},
-  "Kaggle Days Milan": {"city": "Milan"},
-  "PyCon DE & PyData": {"city": "Darmstadt", "logo": "pycon-de.svg", "source": "https://github.com/PioneersHub/pyconde-website/blob/main/assets/static/logo-2027/Logo%205%20VDB.svg"},
-  "PyCon Italia": {"city": "Bologna", "logo": "pycon-italia.png", "source": "https://github.com/pythonitalia/pycon/blob/main/frontend/public/favicon.png"},
-  "PyCon Italia 2023": {"city": "Florence"},
-  "PyCon Italia 2024": {"city": "Florence"},
-  "PyCon Lithuania": {"city": "Vilnius", "logo": "pycon-lithuania.png", "source": "https://github.com/PyConLT/pyconlt.github.io/blob/master/src/img/favicon.png"},
-  "PyCon Portugal": {"city": "Coimbra", "logo": "pycon-portugal.svg", "source": "https://github.com/pyconpt/2023/blob/main/pycon_portugal_2023/static/images/logo/logo-pycon2023-blue.svg"},
-  "PyData": {"logo": "pydata.png", "source": "https://github.com/tacaswell/pydataglobal.github.io/blob/master/assets/images/pydata.png"},
-  "PyData Amsterdam": {"city": "Amsterdam"},
-  "PyData Global": {"city": "online"},
-  "PyData London": {"city": "London"},
-  "PyData Milano": {"city": "Milan"},
-  "PyData Paris": {"city": "Paris"},
-  "Python Biella Group": {"city": "Biella", "logo": "python-biella-group.png", "source": "https://github.com/PythonMilano/pythonmilano.github.io/blob/master/assets/img/PythonBiellaGroup-no-backgrou.png"},
-  "Python Milano": {"city": "Milan", "logo": "python-milano.png", "source": "https://github.com/PythonMilano/pythonmilano.github.io/blob/master/assets/img/pymi.png"}
+  "AI Conf": { "city": "Milan", "logo": "ai-conf.png", "source": "https://www.aiconf.it/images/favicon.png" },
+  "AIConf": { "city": "Milan", "logo": "ai-conf.png", "source": "https://www.aiconf.it/images/favicon.png" },
+  "Agile Lab": {
+    "city": "online",
+    "logo": "agile-lab.svg",
+    "source": "https://github.com/agile-lab-dev/witboost-starter-kit/blob/master/docs/img/agilelab_logo.svg",
+    "note": "mark only, wordmark removed"
+  },
+  "Codemotion": {
+    "logo": "codemotion.png",
+    "source": "https://conferences.codemotion.com/milan/wp-content/uploads/sites/15/2026/03/cropped-cropped-codemotion-favicon-270x270-1-192x192.png"
+  },
+  "Codemotion Milan": { "city": "Milan" },
+  "Dealroom": { "city": "online", "logo": "dealroom.png", "source": "https://dealroom.co/favicon.ico" },
+  "Kaggle Days": {
+    "logo": "kaggle.svg",
+    "source": "https://github.com/simple-icons/simple-icons/blob/develop/icons/kaggle.svg",
+    "note": "Kaggle mark (the k of the wordmark), CC0 path from Simple Icons"
+  },
+  "Kaggle Days Milan": { "city": "Milan" },
+  "PyCon DE & PyData": {
+    "city": "Darmstadt",
+    "logo": "pycon-de.svg",
+    "source": "https://github.com/PioneersHub/pyconde-website/blob/main/assets/static/logo-2027/Logo%205%20VDB.svg"
+  },
+  "PyCon Italia": {
+    "city": "Bologna",
+    "logo": "pycon-italia.png",
+    "source": "https://github.com/pythonitalia/pycon/blob/main/frontend/public/favicon.png"
+  },
+  "PyCon Italia 2023": { "city": "Florence" },
+  "PyCon Italia 2024": { "city": "Florence" },
+  "PyCon Lithuania": {
+    "city": "Vilnius",
+    "logo": "pycon-lithuania.png",
+    "source": "https://github.com/PyConLT/pyconlt.github.io/blob/master/src/img/favicon.png"
+  },
+  "PyCon Portugal": {
+    "city": "Coimbra",
+    "logo": "pycon-portugal.svg",
+    "source": "https://github.com/pyconpt/2023/blob/main/pycon_portugal_2023/static/images/logo/logo-pycon2023-blue.svg"
+  },
+  "PyData": {
+    "logo": "pydata.png",
+    "source": "https://github.com/tacaswell/pydataglobal.github.io/blob/master/assets/images/pydata.png"
+  },
+  "PyData Amsterdam": { "city": "Amsterdam" },
+  "PyData Global": { "city": "online" },
+  "PyData London": { "city": "London" },
+  "PyData Milano": { "city": "Milan" },
+  "PyData Paris": { "city": "Paris" },
+  "Python Biella Group": {
+    "city": "Biella",
+    "logo": "python-biella-group.png",
+    "source": "https://github.com/PythonMilano/pythonmilano.github.io/blob/master/assets/img/PythonBiellaGroup-no-backgrou.png"
+  },
+  "Python Milano": {
+    "city": "Milan",
+    "logo": "python-milano.png",
+    "source": "https://github.com/PythonMilano/pythonmilano.github.io/blob/master/assets/img/pymi.png"
+  }
 }
