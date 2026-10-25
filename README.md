@@ -72,6 +72,13 @@ content/blog/<slug>/
 The shortcode implementation is in `layouts/shortcodes/include-md.html`.
 It reads the sibling generated Markdown, strips its front matter, and renders the rest in the page.
 
+Each notebook declares its own dependencies in a PEP 723 header, so there is no
+Python project to sync. Edit one in its own throwaway environment with:
+
+```bash
+uvx marimo edit --sandbox content/blog/<slug>/<notebook_name>.py
+```
+
 ### Export Commands
 
 ```bash
@@ -84,3 +91,4 @@ Notes:
 
 - Keep one notebook `*.py` file per bundle directory.
 - Treat generated `*.md` files as build outputs from marimo; regenerate instead of hand-editing.
+- Exports use the marimo version pinned in `justfile`; CI fails if a committed export is stale.

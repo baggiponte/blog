@@ -46,3 +46,5 @@ Use `just` recipes from `justfile`:
 - Edit notebook code/content in `<notebook_name>.py`.
 - Do not manually edit `<notebook_name>.md`; regenerate it.
 - Keep exactly one notebook `*.py` file per notebook bundle directory.
+- Declare notebook dependencies in the notebook's PEP 723 header; there is no `pyproject.toml`.
+- Edit notebooks with `uvx marimo edit --sandbox <path>`; export without `--sandbox`, since Markdown export never runs code.
