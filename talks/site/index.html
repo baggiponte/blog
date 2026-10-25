@@ -125,7 +125,8 @@
     .map .card ol { margin-top: 6px; }
     .map .card li { grid-template-columns: 6rem minmax(0, 1fr); gap: 0 10px; padding: 4px 0; cursor: auto; }
     .map .card li::before { content: none; }
-    .card li > span { color: var(--ink); }
+    .card li > span { display: flex; align-items: flex-start; color: var(--ink); }
+    .card .logo { flex: none; width: 18px; height: 18px; margin: 1px 8px 0 0; }
     .card a { color: inherit; text-decoration: none; }
     .card a:hover { color: var(--link); }
     /* On phones the card opens under the map, full width, over the caption and list. */
@@ -154,9 +155,9 @@
       <p>Slides, code and conversations from Luca Baggi's talks.</p>
     </header>
     <nav class="views" aria-label="View">
-      <a href="#" data-view="talks">by talk</a>
+      <a href="#" data-view="map">map</a>
+      <a href="#talks" data-view="talks">by talk</a>
       <a href="#timeline" data-view="timeline">timeline</a>
-      <a href="#map" data-view="map">map</a>
     </nav>
     <!-- talks -->
     <section class="timeline" aria-label="Timeline">
@@ -192,10 +193,10 @@
     apply();
   </script>
   <script>
-    // "#timeline" and "#map" switch views; they match no element id, so the page does not scroll.
+    // The map is the default view; "#talks" and "#timeline" switch to the others. They match no element id, so the page does not scroll.
     const main = document.querySelector("main");
     const route = () => {
-      main.dataset.view = ["#timeline", "#map"].includes(location.hash) ? location.hash.slice(1) : "talks";
+      main.dataset.view = ["#talks", "#timeline"].includes(location.hash) ? location.hash.slice(1) : "map";
       for (const view of document.querySelectorAll(".views a")) view.toggleAttribute("aria-current", view.dataset.view === main.dataset.view);
     };
     addEventListener("hashchange", route);

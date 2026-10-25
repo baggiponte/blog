@@ -13,12 +13,12 @@ const links = given => [[given.slides, "slides"], [given.recording, "video"], [g
 // Organiser logos keyed by venue prefix ("PyData" covers London, Global, Amsterdam); the longest match wins.
 const venues = JSON.parse(await readFile(new URL("../site/venues.json", import.meta.url), "utf8"));
 const prefixes = Object.keys(venues).sort((a, b) => b.length - a.length);
-export const venueLabel = venue => {
+// Venues without a logo keep the slot so names line up. Pass the venue as alt when no name follows.
+const venueLogo = (venue, alt = "") => {
   const match = prefixes.find(prefix => venue.startsWith(prefix));
-  // Empty alt: the venue name follows. Venues without a logo keep the slot so names line up.
-  const logo = match ? `<img class="logo" src="/logos/${venues[match].logo}" alt="" width="20" height="20">` : `<span class="logo"></span>`;
-  return `${logo}${escape(venue)}`;
+  return match ? `<img class="logo" src="/logos/${venues[match].logo}" alt="${escape(alt)}" title="${escape(venue)}" width="20" height="20">` : `<span class="logo"></span>`;
 };
+export const venueLabel = venue => `${venueLogo(venue)}${escape(venue)}`;
 
 export async function renderCatalog(root, decks) {
   const talks = JSON.parse(await readFile(new URL("site/talks.json", root), "utf8"));
@@ -124,9 +124,9 @@ async function renderMap(talks, places) {
     const [x, y] = city === "online" ? [110, 50] : locate(city, places.cities[city].at);
     const side = city === "online" ? "online" : places.cities[city].label ?? "right";
     const position = `--x: ${percent(x, width)}; --y: ${percent(y, height)}`;
-    // The card listing a city's talks opens away from the nearest edges of the map.
+    // The card listing a city's talks, each after its venue's logo, opens away from the nearest edges of the map.
     const items = given.map(given => `
-            <li>${time(given.date)}<span>${title(given)}</span></li>`);
+            <li>${time(given.date)}<span>${venueLogo(given.venue, given.venue)}${title(given)}</span></li>`);
     return `
         <button type="button" class="place ${side}" data-city="${city}" data-talks="${talks}" style="${position}; --r: ${(4 + Math.sqrt(given.length) * 3).toFixed(1)}" aria-label="${escape(`${city}, ${count(given.length)}`)}"><span>${city} <b>${given.length}</b></span></button>
         <div class="card${x > width * .7 ? " west" : ""}${y > height * .55 ? " up" : ""}" data-city="${city}" style="${position}">

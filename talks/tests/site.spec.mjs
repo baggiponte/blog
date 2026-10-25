@@ -11,7 +11,7 @@ for (const slug of (await readdir("decks")).sort()) {
 }
 
 test("catalog links every deck and unknown paths are real 404s", async ({ page, request }) => {
-  expect((await page.goto("/")).status()).toBe(200);
+  expect((await page.goto("/#talks")).status()).toBe(200);
   for (const { slug } of decks) {
     await expect(page.locator(`main a[href="/${slug}/"]`).first()).toBeVisible();
   }
@@ -35,7 +35,8 @@ test("timeline lights up every appearance of the talk under the pointer", async 
 });
 
 test("map shows a city's talks and lights up every city a talk went to", async ({ page }) => {
-  await page.goto("/#map");
+  // The map is the default view.
+  await page.goto("/");
   const milan = page.locator('.place[data-city="Milan"]');
   await milan.hover();
   const given = await page.locator('.map li[data-city="Milan"]').count();
