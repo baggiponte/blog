@@ -38,9 +38,8 @@
       "customType": "regex",
       "fileMatch": ["^justfile$"],
       "matchStrings": [
-        "marimo := \"(?<currentValue>[^\"]+)\""
+        "(?<depName>marimo|prek) := \"(?<currentValue>[^\"]+)\""
       ],
-      "depNameTemplate": "marimo",
       "datasourceTemplate": "pypi"
     },
     {
@@ -52,7 +51,7 @@
         "^\\.github/workflows/.*\\.ya?ml$"
       ],
       "matchStrings": [
-        "uvx --from (?<depName>[a-z0-9-]+)==(?<currentValue>[^\\s`]+)"
+        "uvx --from (?<depName>[a-z0-9-]+)==(?<currentValue>\\d[^\\s`]*)"
       ],
       "datasourceTemplate": "pypi"
     }

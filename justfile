@@ -1,9 +1,10 @@
 # Pinned so local exports, the pre-commit hook and CI write identical Markdown
 marimo := "0.25.2"
+prek := "0.5.7"
 
 # Run marimo notebook export hook, then launch a local hugo server
 serve:
-    uvx --from prek==0.5.7 prek run marimo-export-notebooks
+    uvx --from prek=={{ prek }} prek run marimo-export-notebooks
     hugo server --buildDrafts --disableFastRender
 
 # Update hugo modules
@@ -11,7 +12,7 @@ update:
     hugo mod get -u
     hugo mod get -u github.com/imfing/hextra
 
-    uvx --from prek==0.5.7 prek autoupdate
+    uvx --from prek=={{ prek }} prek autoupdate
 
 # Create a new blog post
 new slug:
