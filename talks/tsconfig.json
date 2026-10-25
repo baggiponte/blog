@@ -6,6 +6,7 @@
     "lib": ["esnext", "dom"],
     "types": ["node"],
     "strict": true,
+    "noUncheckedIndexedAccess": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
@@ -13,5 +14,5 @@
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "include": ["scripts", "tests", "*.ts"]
+  "include": ["scripts", "tests", "*.ts", "site/main.ts"]
 }

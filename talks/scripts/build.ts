@@ -1,5 +1,6 @@
 import { execFile } from "node:child_process";
-import { copyFile, cp, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { copyFile, cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { stripTypeScriptTypes } from "node:module";
 import { availableParallelism } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,8 +14,9 @@ await rm(dist, { recursive: true, force: true });
 await mkdir(dist);
 const decks = (await readdir(resolve(root, "decks"))).sort();
 await writeFile(resolve(dist, "index.html"), await renderCatalog(root, decks));
-for (const file of ["404.html", "style.css", "main.js"])
-  await copyFile(resolve(root, "site", file), resolve(dist, file));
+for (const file of ["404.html", "style.css"]) await copyFile(resolve(root, "site", file), resolve(dist, file));
+// The page script is TypeScript for tsc; browsers get it with the types stripped, nothing else changed.
+await writeFile(resolve(dist, "main.js"), stripTypeScriptTypes(await readFile(resolve(root, "site/main.ts"), "utf8")));
 await cp(resolve(root, "site/logos"), resolve(dist, "logos"), { recursive: true });
 
 const run = promisify(execFile);

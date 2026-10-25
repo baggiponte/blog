@@ -17,7 +17,8 @@ const Edition = z.strictObject({
 const Talk = z.strictObject({
   title: z.string().min(1),
   description: z.string().min(1),
-  given: z.array(Edition).min(1),
+  // Non-empty, so given[0] (the newest edition, once sorted) always exists.
+  given: z.tuple([Edition], Edition),
 });
 
 export const Talks = z

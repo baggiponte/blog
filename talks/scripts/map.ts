@@ -32,7 +32,7 @@ const projection = geoConicConformal()
     [width, height],
   ]);
 
-export function locate(name: string, at: [number, number]) {
+export function locate(name: string, at: [number, number]): [number, number] {
   const [x, y] = projection(at) ?? [NaN, NaN];
   if (!(x >= 0 && x <= width && y >= 0 && y <= height))
     throw new Error(`site/cities.json: ${name} falls outside the map`);
@@ -60,12 +60,14 @@ export async function landDots() {
   // Even-odd ray casting against the projected, clipped coastlines.
   const inside = (x: number, y: number) => {
     let hit = false;
-    for (const r of rings)
-      for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
-        const [xi, yi] = r[i],
-          [xj, yj] = r[j];
+    for (const polygon of rings) {
+      // Each edge runs from the previous point to this one, starting with the closing edge.
+      let [xj, yj] = polygon.at(-1) ?? [0, 0];
+      for (const [xi, yi] of polygon) {
         if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) hit = !hit;
+        [xj, yj] = [xi, yi];
       }
+    }
     return hit;
   };
   let d = "";

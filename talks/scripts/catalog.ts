@@ -13,7 +13,7 @@ class Html {
 }
 type Value = Html | string | number | null | undefined | Value[];
 const escapes: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
-const escapeHtml = (text: string | number) => String(text).replace(/[&<>"]/g, c => escapes[c]);
+const escapeHtml = (text: string | number) => String(text).replace(/[&<>"]/g, c => escapes[c] ?? c);
 const render = (value: Value): string =>
   value instanceof Html
     ? value.markup
@@ -58,11 +58,9 @@ export async function renderCatalog(root: string, decks: string[]) {
     load(root, "cities.json", Cities),
   ]);
   // Each field comes from the longest venue prefix that sets it.
-  const prefixes = Object.keys(venues).sort((a, b) => b.length - a.length);
-  const lookup = (venue: string, field: "city" | "logo") => {
-    const prefix = prefixes.find(prefix => venue.startsWith(prefix) && venues[prefix][field]);
-    return prefix && venues[prefix][field];
-  };
+  const byLength = Object.entries(venues).sort(([a], [b]) => b.length - a.length);
+  const lookup = (venue: string, field: "city" | "logo") =>
+    byLength.find(([prefix, entry]) => venue.startsWith(prefix) && entry[field])?.[1][field];
 
   // Venues without a logo keep the slot so names line up. Pass the venue as alt when no name follows.
   const venueLogo = (venue: string, alt = "") => {
@@ -138,8 +136,10 @@ function renderTalks(talks: Talk[], venueLabel: Label) {
 
 // Every appearance on one time axis, plus the same appearances listed by year.
 function renderTimeline(talks: Talk[], appearances: Appearance[], venueLabel: Label) {
-  const first = Number(appearances.at(-1)!.date.slice(0, 4));
-  const last = Number(appearances[0].date.slice(0, 4)) + 1;
+  const [newest, oldest] = [appearances[0], appearances.at(-1)];
+  if (!newest || !oldest) throw new Error("site/talks.json: no talks to show");
+  const first = Number(oldest.date.slice(0, 4));
+  const last = Number(newest.date.slice(0, 4)) + 1;
   const start = Date.UTC(first, 0, 1);
   const x = (iso: string) => ((Date.parse(iso) - start) / (Date.UTC(last, 0, 1) - start)) * 100;
 
@@ -196,9 +196,10 @@ function renderMap(
   const marks = order.map(city => {
     const given = ofCity(city);
     const talks = [...new Set(given.map(given => given.talk))].join(" ");
-    // Online talks have no place: they share a pill in the empty Atlantic corner.
-    const [x, y] = city === "online" ? [110, 50] : locate(city, cities[city].at);
-    const side = city === "online" ? "online" : (cities[city].label ?? "right");
+    // Online talks have no place in cities.json: they share a pill in the empty Atlantic corner.
+    const place = cities[city];
+    const [x, y] = place ? locate(city, place.at) : [110, 50];
+    const side = place ? (place.label ?? "right") : "online";
     const position = `--x: ${percent(x, width)}; --y: ${percent(y, height)}`;
     // The card listing a city's talks, each after its venue's logo, opens away from the nearest edges of the map.
     return html`
