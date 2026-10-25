@@ -1,6 +1,9 @@
+# Pinned so local exports, the pre-commit hook and CI write identical Markdown
+marimo := "0.25.2"
+
 # Run marimo notebook export hook, then launch a local hugo server
 serve:
-    uv run prek run marimo-export-notebooks
+    uvx --from prek==0.5.7 prek run marimo-export-notebooks
     hugo server --buildDrafts --disableFastRender
 
 # Update hugo modules
@@ -8,8 +11,7 @@ update:
     hugo mod get -u
     hugo mod get -u github.com/imfing/hextra
 
-    uv sync --upgrade --all-groups
-    uv run prek autoupdate
+    uvx --from prek==0.5.7 prek autoupdate
 
 # Create a new blog post
 new slug:
@@ -21,19 +23,21 @@ til slug:
 
 # Export marimo notebooks to Markdown in-place; defaults to all blog notebooks
 marimo-export *notebooks:
-    #!/usr/bin/env zsh
-    notebooks="{{ notebooks }}"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    shopt -s nullglob
 
-    if [ -z "$notebooks" ]; then
-      notebooks="$(fd --extension py --min-depth 2 --max-depth 2 --type f . content/blog)"
+    notebooks=({{ notebooks }})
+    if [ ${#notebooks[@]} -eq 0 ]; then
+      notebooks=(content/blog/*/*.py)
     fi
 
-    if [ -z "$notebooks" ]; then
-      echo "No notebooks found under content/blog";
-      exit 0;
+    if [ ${#notebooks[@]} -eq 0 ]; then
+      echo "No notebooks found under content/blog"
+      exit 0
     fi
 
-    for notebook in ${(z)notebooks}; do
-      out="${notebook%.py}.md";
-      uvx marimo export md "$notebook" -o "$out" -f;
+    # No --sandbox: exporting to Markdown never runs the notebook, so it needs no dependencies
+    for notebook in "${notebooks[@]}"; do
+      uvx marimo=={{ marimo }} export md "$notebook" -o "${notebook%.py}.md" -f
     done
