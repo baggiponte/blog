@@ -12,7 +12,7 @@ const dist = resolve(root, "dist");
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist);
 const decks = (await readdir(resolve(root, "decks"))).sort();
-await writeFile(resolve(dist, "index.html"), await renderCatalog(new URL("../", import.meta.url), decks));
+await writeFile(resolve(dist, "index.html"), await renderCatalog(root, decks));
 await copyFile(resolve(root, "site/404.html"), resolve(dist, "404.html"));
 await cp(resolve(root, "site/logos"), resolve(dist, "logos"), { recursive: true });
 

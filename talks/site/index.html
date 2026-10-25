@@ -7,10 +7,13 @@
   <link rel="canonical" href="https://talks.baggiponte.com/">
   <title>talks · luca baggi</title>
   <script>
-    // Same "color-theme" values as the blog's toggle: light (default), dark or system.
-    const theme = localStorage.getItem("color-theme") || "light";
-    const dark = theme === "dark" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-    document.documentElement.classList.toggle("dark", dark);
+    // Same "color-theme" values as the blog's toggle: light (default), dark or system. Runs before paint, and again from the menu.
+    const applyTheme = () => {
+      const theme = localStorage.getItem("color-theme") || "light";
+      document.documentElement.classList.toggle("dark", theme === "dark" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches));
+      return theme;
+    };
+    applyTheme();
   </script>
   <style>
     :root {
@@ -40,7 +43,9 @@
     header { margin: 64px 0 40px; }
     h1 { font-size: clamp(2.5rem, 8vw, 4rem); line-height: 1.1; letter-spacing: -.04em; margin: 0; }
     header p { color: var(--muted); font-size: 1.1rem; }
-    article { padding: 26px 0; border-top: 1px solid var(--border); }
+    /* Date column as in the blog's post list. */
+    article { display: grid; grid-template-columns: minmax(0, 1fr) 8.5rem; column-gap: 2rem; padding: 26px 0; border-top: 1px solid var(--border); }
+    article > * { grid-column: 1; }
     h2 { font-size: 1.35rem; line-height: 1.3; letter-spacing: -.025em; margin: 0 0 8px; }
     h2 a { color: inherit; text-decoration: none; }
     h2 a:hover { color: var(--link); }
@@ -59,9 +64,6 @@
     /* Organiser logos (site/venues.json) on a small white tile, so dark marks stay visible in dark mode. */
     .logo { display: inline-block; box-sizing: border-box; width: 20px; height: 20px; margin-right: 8px; vertical-align: -5px; }
     img.logo { padding: 2px; border-radius: 5px; background: #fff; box-shadow: 0 0 0 1px var(--border); object-fit: contain; }
-    /* Date column as in the blog's post list. */
-    article { display: grid; grid-template-columns: minmax(0, 1fr) 8.5rem; column-gap: 2rem; }
-    article > * { grid-column: 1; }
     /* Editions span the date column too, so the link columns end flush with the date. */
     article > .editions { grid-column: 1 / -1; }
     article > time { grid-column: 2; grid-row: 1; justify-self: end; white-space: nowrap; color: var(--muted); font-size: .95rem; line-height: 1.5; }
@@ -173,9 +175,7 @@
     const button = toggle.querySelector(":scope > button");
     const menu = toggle.querySelector("[role=menu]");
     const apply = () => {
-      const current = localStorage.getItem("color-theme") || "light";
-      const dark = current === "dark" || (current === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-      document.documentElement.classList.toggle("dark", dark);
+      const current = applyTheme();
       toggle.dataset.theme = current;
       for (const item of menu.children) item.setAttribute("aria-checked", item.dataset.item === current);
     };
@@ -202,73 +202,71 @@
     addEventListener("hashchange", route);
     route();
 
-    // Lights up every appearance of one talk: hovering or focusing previews it, a click or tap keeps it.
-    const timeline = main.querySelector(".timeline");
-    const caption = timeline.querySelector(".caption");
-    const hint = caption.textContent;
-    let selected = null;
-    const show = talk => {
-      timeline.classList.toggle("active", talk !== null);
-      for (const mark of timeline.querySelectorAll("[data-talk]")) mark.classList.toggle("on", mark.dataset.talk === talk);
-      if (talk === null) return void (caption.textContent = hint);
-      const count = timeline.querySelectorAll(`button[data-talk="${talk}"]`).length;
-      const title = document.createElement("strong");
-      title.textContent = timeline.querySelector(`li[data-talk="${talk}"] .talk`).textContent;
-      caption.replaceChildren(title, `, given ${["once", "twice"][count - 1] || `${count} times`}`);
+    // Hovering or focusing a mark previews it, a click or tap keeps it, Escape clears it.
+    // A mark is anything with data-talk or data-city; show(mark) lights it up, or resets the view for null.
+    // linger (ms) delays the fall back when the pointer moves onto bare space inside the section.
+    const highlight = (section, show, { linger = 0 } = {}) => {
+      const markOf = event => event.target.closest("[data-talk], [data-city]");
+      const key = mark => mark && (mark.dataset.talk ?? `city ${mark.dataset.city}`);
+      let pinned = null;
+      let fallback;
+      const preview = event => show(markOf(event) ?? pinned);
+      const restore = () => { clearTimeout(fallback); show(pinned); };
+      section.addEventListener("pointerover", event => {
+        clearTimeout(fallback);
+        const mark = markOf(event);
+        if (mark || !linger) show(mark ?? pinned);
+        else fallback = setTimeout(() => show(pinned), linger);
+      });
+      section.addEventListener("pointerleave", restore);
+      section.addEventListener("focusin", preview);
+      section.addEventListener("focusout", restore);
+      section.addEventListener("click", event => {
+        // Links navigate, and a city's card stays open while you use it.
+        if (event.target.closest("a, .card")) return;
+        const mark = markOf(event);
+        show(pinned = mark && key(mark) !== key(pinned) ? mark : null);
+      });
+      addEventListener("keydown", event => event.key === "Escape" && show(pinned = null));
     };
-    const talkOf = event => event.target.closest("[data-talk]")?.dataset.talk ?? null;
-    timeline.addEventListener("pointerover", event => show(talkOf(event) ?? selected));
-    timeline.addEventListener("pointerleave", () => show(selected));
-    timeline.addEventListener("focusin", event => show(talkOf(event) ?? selected));
-    timeline.addEventListener("focusout", () => show(selected));
-    timeline.addEventListener("click", event => {
-      if (event.target.closest("a")) return;
-      const talk = talkOf(event);
-      show(selected = talk === selected ? null : talk);
-    });
-    addEventListener("keydown", event => event.key === "Escape" && show(selected = null));
+    // Puts "<title>, given N times<suffix>" in the section's caption, or its hint back for null.
+    const captioner = section => {
+      const caption = section.querySelector(".caption");
+      const hint = caption.textContent;
+      return (talk, suffix = "") => {
+        if (talk === null) return void (caption.textContent = hint);
+        const count = section.querySelectorAll(`li[data-talk="${talk}"]`).length;
+        const title = document.createElement("strong");
+        title.textContent = section.querySelector(`li[data-talk="${talk}"] .talk`).textContent;
+        caption.replaceChildren(title, `, given ${["once", "twice"][count - 1] || `${count} times`}${suffix}`);
+      };
+    };
 
-    // A city shows the talks given there; a talk lights up every city it went to. Same hover / tap rules as the timeline.
+    // Timeline: a talk lights up every dot and row of its appearances.
+    const timeline = main.querySelector(".timeline");
+    const timelineCaption = captioner(timeline);
+    highlight(timeline, mark => {
+      const talk = mark?.dataset.talk ?? null;
+      timeline.classList.toggle("active", talk !== null);
+      for (const each of timeline.querySelectorAll("[data-talk]")) each.classList.toggle("on", each.dataset.talk === talk);
+      timelineCaption(talk);
+    });
+
+    // Map: a city shows the talks given there; a talk lights up every city it went to.
+    // Rows carry data-talk; city circles and their cards carry only data-city.
+    // Crossing the bare map between a circle and its card lingers, so the card stays reachable.
     const map = main.querySelector(".map");
-    const mapCaption = map.querySelector(".caption");
-    const mapHint = mapCaption.textContent;
-    let pinned = null;
-    const reveal = mark => {
+    const mapCaption = captioner(map);
+    highlight(map, mark => {
       const talk = mark?.dataset.talk ?? null;
       const city = talk === null ? mark?.dataset.city ?? null : null;
       map.classList.toggle("active", mark !== null);
       for (const row of map.querySelectorAll("li[data-talk]")) row.classList.toggle("on", row.dataset.talk === talk || row.dataset.city === city);
       for (const place of map.querySelectorAll(".place")) place.classList.toggle("on", place.dataset.city === city || place.dataset.talks.split(" ").includes(talk));
       for (const card of map.querySelectorAll(".card")) card.classList.toggle("on", card.dataset.city === city);
-      if (talk === null) return void (mapCaption.textContent = mapHint);
       const places = [...map.querySelectorAll(".place.on")].map(place => place.dataset.city);
-      const count = map.querySelectorAll(`li[data-talk="${talk}"]`).length;
-      const title = document.createElement("strong");
-      title.textContent = map.querySelector(`li[data-talk="${talk}"] .talk`).textContent;
-      const where = places.length > 1 ? `${places.slice(0, -1).join(", ")} and ${places.at(-1)}` : places[0];
-      mapCaption.replaceChildren(title, `, given ${["once", "twice"][count - 1] || `${count} times`} in ${where}`);
-    };
-    // Rows carry data-talk; city circles and their cards carry only data-city.
-    const markOf = event => event.target.closest("[data-talk], [data-city]");
-    const key = mark => mark && (mark.dataset.talk === undefined ? `city ${mark.dataset.city}` : `talk ${mark.dataset.talk}`);
-    // Crossing the bare map between a circle and its card should not close the card, so wait before falling back.
-    let fallback;
-    map.addEventListener("pointerover", event => {
-      clearTimeout(fallback);
-      const mark = markOf(event);
-      if (mark) reveal(mark);
-      else fallback = setTimeout(() => reveal(pinned), 300);
-    });
-    map.addEventListener("pointerleave", () => { clearTimeout(fallback); reveal(pinned); });
-    map.addEventListener("focusin", event => reveal(markOf(event) ?? pinned));
-    map.addEventListener("focusout", () => reveal(pinned));
-    map.addEventListener("click", event => {
-      if (event.target.closest("a")) return;
-      const mark = markOf(event);
-      if (mark?.closest(".card")) return;
-      reveal(pinned = mark && key(mark) !== key(pinned) ? mark : null);
-    });
-    addEventListener("keydown", event => event.key === "Escape" && reveal(pinned = null));
+      mapCaption(talk, ` in ${places.length > 1 ? `${places.slice(0, -1).join(", ")} and ${places.at(-1)}` : places[0]}`);
+    }, { linger: 300 });
   </script>
 </body>
 </html>
