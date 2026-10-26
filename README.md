@@ -27,6 +27,8 @@ for directory URLs and serves Hugo's 404 page; only `public/` is uploaded. Roll
 back by restoring a previous Worker version in Cloudflare.
 
 To build or deploy locally (Hugo 0.168.0, Node >=22.18, pnpm 12.15.0):
+`mise install` provides Hugo and Go (for Hugo modules) from `mise.toml`.
+Workers Builds and CI ignore that file and pin their own versions.
 
 ```bash
 pnpm install --frozen-lockfile
