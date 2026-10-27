@@ -62,7 +62,8 @@ header.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srg
 .tabs { display: flex; gap: 2px; }
 .tab { font-size: 15px; padding: 7px 14px; border-radius: 999px; color: var(--muted); transition: color 0.2s, background 0.2s; }
 .tab:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 5%, transparent); }
-.tab.active { color: var(--paper); background: var(--ink); }
+/* the active tab gets the same pastel marker stroke as the rotating bio */
+.tab.active { color: var(--ink); background: linear-gradient(var(--mark), var(--mark)) no-repeat center bottom 11px / calc(100% - 24px) 0.55em; }
 .search {
   all: unset; cursor: pointer; display: flex; gap: 12px; align-items: center; margin-left: 10px;
   padding: 6px 8px 6px 14px; border-radius: 999px; border: 1px solid var(--line); font-size: 14px; color: var(--muted);
