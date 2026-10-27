@@ -18,31 +18,32 @@ Its build settings live in the Cloudflare dashboard:
 | --- | --- |
 | Git repository | `baggiponte/blog`, production branch `main` |
 | Build command | `node scripts/build.mjs` |
-| Deploy command | `pnpm exec cf deploy` |
+| Deploy command | `pnpm run deploy` |
 | Non-production branch builds | off (GitHub CI checks PRs) |
-| Build variable `HUGO_VERSION` | `0.168.0`, matching `.github/workflows/check.yaml` |
 
-Node and pnpm come from `package.json`. The build generates permanent redirects
-for directory URLs and serves Hugo's 404 page; only `public/` is uploaded. Roll
-back by restoring a previous Worker version in Cloudflare.
+Node and pnpm come from `package.json`. The build runs `astro build` into
+`dist/`, generates permanent redirects for directory URLs, then packages `dist/`
+as static assets in `.cloudflare/output/`, which `cf deploy --prebuilt` uploads.
+`cf build` is not used directly because it detects Astro and expects the
+Cloudflare adapter, which a fully static site does not need. Roll back by
+restoring a previous Worker version in Cloudflare.
 
-To build or deploy locally (Hugo 0.168.0, Node >=22.18, pnpm 12.15.0):
-`mise install` provides Hugo and Go (for Hugo modules) from `mise.toml`.
-Workers Builds and CI ignore that file and pin their own versions.
+To build or deploy locally (Node >=22.18, pnpm 12.15.0):
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm check     # clean production Hugo build and Cloudflare dry-run
-pnpm dev       # serve the static assets locally
+pnpm check     # production build and Cloudflare dry-run
+pnpm dev       # astro dev server, drafts included
+pnpm preview   # serve the production build locally
 ```
 
 ## Checks
 
 Install local hooks with `uvx --from prek==0.5.7 prek install`: Zizmor audits
-workflows and Gitleaks scans staged changes. CI runs Zizmor and the Hugo build
-on PRs, with read-only permissions; `main` is checked by Workers Builds itself.
-GitHub secret scanning with push protection covers secrets on push.
-Rulesets protect `main` from deletion and force pushes.
+workflows and Gitleaks scans staged changes. CI runs Zizmor, the notebook export
+check and the production build on PRs, with read-only permissions; `main` is
+checked by Workers Builds itself. GitHub secret scanning with push protection
+covers secrets on push. Rulesets protect `main` from deletion and force pushes.
 
 ## Update
 
@@ -52,27 +53,33 @@ With [Just](https://github.com/casey/just)
 just update
 ```
 
+## Writing
+
+```bash
+just new <slug>              # long post
+just tidbit <slug>           # tidbits entry
+just notebook <slug> <name>  # marimo notebook post
+```
+
+Each entry is a bundle under `content/blog/<slug>/` whose `index.md` holds the
+front matter: `title`, `description`, `date`, `format` (`post` or `tidbits`),
+`draft` and, for notebook posts, `notebook`. New entries start as drafts, which
+show up only in `pnpm dev`. Wrap text in `==double equals==` to highlight it.
+Every post is also served as raw Markdown at `/blog/<slug>.md`, which the copy
+page button uses.
+
 ## Marimo Notebook Posts
-
-Notebook-backed posts are stored as Hugo page bundles under `content/blog/<slug>/`.
-
-Expected bundle layout:
 
 ```text
 content/blog/<slug>/
-  index.md                 # Hugo front matter and include shortcode
+  index.md                 # front matter, with `notebook: <notebook_name>.md`
   <notebook_name>.py       # Marimo notebook source
   <notebook_name>.md       # Generated Markdown from marimo export
 ```
 
-`index.md` owns metadata (`title`, `date`, `tags`, `draft`, etc.) and includes the generated body:
-
-```md
-{{< include-md "<notebook_name>.md" >}}
-```
-
-The shortcode implementation is in `layouts/shortcodes/include-md.html`.
-It reads the sibling generated Markdown, strips its front matter, and renders the rest in the page.
+The post body is the generated Markdown named by `notebook`; `index.md` has no
+body of its own. A missing export fails the build with a hint to run
+`just marimo-export`.
 
 ### Export Commands
 
