@@ -18,7 +18,7 @@ find(".theme-toggle").addEventListener("click", () => {
 // ---- search -------------------------------------------------------------
 const modal = find("[data-search]");
 const input = find<HTMLInputElement>("input", modal);
-const list = find<HTMLUListElement>("ul", modal);
+const results = find("[role=listbox]", modal);
 // Fetched on first open and kept; dropped on failure so the next open tries again.
 let index: Promise<SearchEntry[]> | undefined;
 let entries: SearchEntry[] = [];
@@ -33,26 +33,32 @@ async function loadIndex(): Promise<SearchEntry[]> {
   return (await response.json()) as SearchEntry[];
 }
 
-const notice = (text: string): HTMLLIElement => element("li", { className: "empty", textContent: text });
+function showNotice(text: string): void {
+  input.removeAttribute("aria-activedescendant");
+  results.replaceChildren(element("p", { className: "empty", textContent: text }));
+}
 
 function render(): void {
   const hits = search(entries, input.value);
-  selected = Math.min(selected, Math.max(hits.length - 1, 0));
   if (hits.length === 0) {
-    list.replaceChildren(notice("nothing yet. maybe i should write that one."));
+    showNotice("nothing yet. maybe i should write that one.");
     return;
   }
-  list.replaceChildren(
+  selected = Math.min(selected, hits.length - 1);
+  results.replaceChildren(
     ...hits.map((hit, i) => {
-      const item = element(
-        "li",
-        { role: "option" },
-        element("a", { href: hit.url }, hit.title, element("small", {}, hit.date)),
+      const option = element(
+        "a",
+        { href: hit.url, id: `search-hit-${i}`, role: "option" },
+        hit.title,
+        element("small", {}, hit.date),
       );
-      item.setAttribute("aria-selected", String(i === selected));
-      return item;
+      option.setAttribute("aria-selected", String(i === selected));
+      return option;
     }),
   );
+  // Screen readers announce the highlighted result while focus stays in the box.
+  input.setAttribute("aria-activedescendant", `search-hit-${selected}`);
 }
 
 async function openSearch(): Promise<void> {
@@ -65,7 +71,7 @@ async function openSearch(): Promise<void> {
     entries = await index;
   } catch {
     index = undefined;
-    list.replaceChildren(notice("search is unavailable right now. try again in a bit."));
+    showNotice("search is unavailable right now. try again in a bit.");
     return;
   }
   render();
@@ -101,7 +107,7 @@ document.addEventListener("keydown", event => {
   if (modal.hidden) {
     return;
   }
-  const links = list.querySelectorAll("a");
+  const links = results.querySelectorAll("a");
   switch (event.key) {
     case "Escape":
       closeSearch();
