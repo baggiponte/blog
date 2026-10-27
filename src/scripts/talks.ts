@@ -1,21 +1,18 @@
 // The talks page's views: switching between them and lighting up talks and cities. The theme toggle is in site.ts.
-
-// The element matching selector, which the page always has.
-const find = <T extends Element = HTMLElement>(selector: string, root: ParentNode = document): T => {
-  const element = root.querySelector<T>(selector);
-  if (!element) throw new Error(`talks page: no ${selector}`);
-  return element;
-};
-const targetOf = (event: Event) => (event.target instanceof Element ? event.target : null);
+import { find, targetOf } from "./dom.ts";
 
 // The map is the default view (also "#map"); "#talks" and "#timeline" switch to the others. They match no element id, so the page does not scroll.
 const page = find(".talks");
-const route = () => {
-  page.dataset.view = ["#talks", "#timeline"].includes(location.hash) ? location.hash.slice(1) : "map";
+const views = ["map", "talks", "timeline"] as const;
+type View = (typeof views)[number];
+const isView = (name: string): name is View => (views as readonly string[]).includes(name);
+const route = (): void => {
+  const name = location.hash.slice(1);
+  page.dataset.view = isView(name) ? name : "map";
   for (const view of document.querySelectorAll<HTMLElement>(".views a"))
     view.toggleAttribute("aria-current", view.dataset.view === page.dataset.view);
 };
-addEventListener("hashchange", route);
+window.addEventListener("hashchange", route);
 route();
 
 // A mark is anything with data-talk or data-city; show(mark) lights it up, or resets the view for null.
@@ -49,7 +46,7 @@ const highlight = (section: HTMLElement, show: Show, { linger = 0 } = {}) => {
     pinned = mark && key(mark) !== key(pinned) ? mark : null;
     show(pinned);
   });
-  addEventListener("keydown", event => {
+  window.addEventListener("keydown", event => {
     if (event.key !== "Escape") return;
     pinned = null;
     show(null);
@@ -64,12 +61,17 @@ const captioner = (section: HTMLElement) => {
       caption.textContent = hint;
       return;
     }
-    const count = section.querySelectorAll(`li[data-talk="${talk}"]`).length;
+    const rows = `li[data-talk="${CSS.escape(talk)}"]`;
+    const count = section.querySelectorAll(rows).length;
     const title = document.createElement("strong");
-    title.textContent = find(`li[data-talk="${talk}"] .talk`, section).textContent;
+    title.textContent = find(`${rows} .talk`, section).textContent;
     caption.replaceChildren(title, `, given ${["once", "twice"][count - 1] ?? `${count} times`}${suffix}`);
   };
 };
+
+// "Milan", "Milan and Turin", "Milan, Turin and Rome".
+const listOf = (names: string[]): string =>
+  names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : (names[0] ?? "");
 
 // Timeline: a talk lights up every dot and row of its appearances.
 const timeline = find(".timeline", page);
@@ -102,8 +104,8 @@ highlight(
       );
     for (const card of map.querySelectorAll<HTMLElement>(".card"))
       card.classList.toggle("on", card.dataset.city === city);
-    const places = [...map.querySelectorAll<HTMLElement>(".place.on")].map(place => place.dataset.city);
-    mapCaption(talk, ` in ${places.length > 1 ? `${places.slice(0, -1).join(", ")} and ${places.at(-1)}` : places[0]}`);
+    const places = [...map.querySelectorAll<HTMLElement>(".place.on")].map(place => place.dataset.city ?? "");
+    mapCaption(talk, ` in ${listOf(places)}`);
   },
   { linger: 300 },
 );
