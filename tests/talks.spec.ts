@@ -1,14 +1,13 @@
-import { readdir } from "node:fs/promises";
-import { resolve } from "node:path";
 import { expect, test } from "@playwright/test";
-import { parser } from "@slidev/cli";
 
-const decks: { slug: string; count: number }[] = [];
-for (const slug of (await readdir("decks")).sort()) {
-  const directory = resolve("decks", slug);
-  const data = await parser.load({ roots: [directory], userRoot: directory }, resolve(directory, "slides.md"));
-  decks.push({ slug, count: data.slides.length });
-}
+import { listDecks } from "../src/talks/decks.ts";
+import { slideCount } from "../src/talks/slides.ts";
+
+// Playwright runs from the repository root.
+const root = process.cwd();
+const decks = await Promise.all(
+  (await listDecks(root)).map(async slug => ({ slug, count: await slideCount(root, slug) })),
+);
 
 test("catalog links every deck and unknown paths are real 404s", async ({ page, request }) => {
   expect((await page.goto("/talks/#talks"))!.status()).toBe(200);

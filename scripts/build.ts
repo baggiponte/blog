@@ -4,27 +4,35 @@ import { availableParallelism } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { parser } from "@slidev/cli";
+
+import { deckEntry, listDecks } from "../src/talks/decks.ts";
+import { slideCount } from "../src/talks/slides.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const dist = resolve(root, "dist");
-function run(command: string, args: string[], env = process.env) {
+
+// Runs a command in the foreground with its output shown, and stops the build if it fails.
+function run(command: string, args: string[], env: NodeJS.ProcessEnv = process.env): void {
   const result = spawnSync(command, args, { cwd: root, stdio: "inherit", env });
-  if (result.error) throw result.error;
-  if (result.status !== 0) process.exit(result.status ?? 1);
+  if (result.error) {
+    throw result.error;
+  }
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
 }
 
 run("pnpm", ["exec", "astro", "build"]);
 
 // Each deck in decks/ is a Slidev app at /talks/<slug>/. Astro empties dist/ first, so they build after it.
-const decks = (await readdir(resolve(root, "decks"))).sort();
+const decks = await listDecks(root);
 const execute = promisify(execFile);
 // The first failed build stops the ones still running and keeps the queue from starting more.
 const failed = new AbortController();
-async function build(slug: string) {
-  const directory = resolve(root, "decks", slug);
-  const entry = resolve(directory, "slides.md");
-  const data = await parser.load({ roots: [directory], userRoot: directory }, entry);
+// Builds one deck and returns its _redirects rewrites.
+async function build(slug: string): Promise<string[]> {
+  const entry = deckEntry(root, slug);
+  const slides = await slideCount(root, slug);
   const base = `/talks/${slug}/`;
   try {
     await execute(
@@ -33,17 +41,20 @@ async function build(slug: string) {
       { cwd: root, maxBuffer: 64 * 1024 * 1024, signal: failed.signal },
     );
   } catch (error) {
-    if (failed.signal.aborted) throw error;
+    if (failed.signal.aborted) {
+      throw error;
+    }
     failed.abort();
-    // Buffered so parallel builds don't interleave; only a failure needs the log.
+    // Buffered so parallel builds don't interleave; only a failure needs the log. A child that never started
+    // (pnpm missing) has no output, and its error, kept as the cause, says why.
     const { stdout = "", stderr = "" } = error as { stdout?: string; stderr?: string };
     process.stderr.write(`${stdout}${stderr}`);
     throw new Error(`${slug}: slidev build failed`, { cause: error });
   }
 
   // Exact slide routes: no global SPA fallback swallowing other decks or missing assets.
-  const rewrites = [];
-  for (let slide = 1; slide <= data.slides.length; slide++) {
+  const rewrites: string[] = [];
+  for (let slide = 1; slide <= slides; slide++) {
     for (const suffix of [String(slide), `${slide}/`, `presenter/${slide}`, `presenter/${slide}/`]) {
       rewrites.push(`${base}${suffix} ${base} 200`);
     }
@@ -53,7 +64,7 @@ async function build(slug: string) {
   }
   // Slidev's GitHub Pages fallback must not turn unknown paths into an app shell.
   await rm(join(dist, base, "404.html"), { force: true });
-  console.log(`${slug}: ${data.slides.length} slides`);
+  console.log(`${slug}: ${slides} slides`);
   return rewrites;
 }
 
@@ -64,7 +75,9 @@ const results = new Map<string, string[]>();
 await Promise.all(
   Array.from({ length: Math.min(availableParallelism(), decks.length) }, async () => {
     for (const slug of queue) {
-      if (failed.signal.aborted) break;
+      if (failed.signal.aborted) {
+        break;
+      }
       results.set(slug, await build(slug));
     }
   }),
@@ -72,14 +85,15 @@ await Promise.all(
 
 // Keep permanent directory redirects rather than the assets service's 307s.
 const redirects: string[] = [];
-async function visit(directory: string, url = "") {
+async function visit(directory: string, url = ""): Promise<void> {
   const entries = await readdir(directory, { withFileTypes: true });
   if (url && entries.some(entry => entry.name === "index.html" && entry.isFile())) {
     redirects.push(`${url} ${url}/ 301`);
   }
   for (const entry of entries) {
-    if (entry.isDirectory() && !entry.name.startsWith("_"))
+    if (entry.isDirectory() && !entry.name.startsWith("_")) {
       await visit(join(directory, entry.name), `${url}/${entry.name}`);
+    }
   }
 }
 await visit(dist);
