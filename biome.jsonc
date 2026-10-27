@@ -2,8 +2,17 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
-    // Decks are historical material and logos are the organisers' own files: both kept as imported.
-    "includes": ["**", "!decks", "!site/logos"]
+    // The code that came from the talks site, the build and the tests. The blog's own files and the .astro pages
+    // (whose frontmatter Biome doesn't link to the template yet) aren't covered yet. Decks are kept as imported.
+    "includes": [
+      "*.ts",
+      "biome.jsonc",
+      "scripts/**",
+      "tests/**",
+      "src/talks/**",
+      "src/scripts/talks.ts",
+      "src/styles/talks.css"
+    ]
   },
   "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
   "javascript": { "formatter": { "arrowParentheses": "asNeeded" } },

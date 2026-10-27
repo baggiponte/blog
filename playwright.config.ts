@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
-const destination = process.env.TALKS_BASE_URL;
+const destination = process.env.SITE_BASE_URL;
 export default defineConfig({
   // Unit tests (scripts/*.test.ts) run with node --test instead.
   testDir: "tests",
@@ -14,7 +14,9 @@ export default defineConfig({
   webServer: destination
     ? undefined
     : {
-        command: "pnpm exec cf dev --port 8790",
+        // `cf dev` would start Astro's dev server; this serves the production build in dist/ instead.
+        command: "pnpm exec cf-wrangler dev --port 8790",
+        env: { CLOUDFLARE_CF_AUTH: "true" },
         url: "http://localhost:8790",
         reuseExistingServer: !process.env.CI,
       },
