@@ -33,6 +33,7 @@ const projection = geoConicConformal()
 
 export function locate(name: string, at: [number, number]): [number, number] {
   const [x, y] = projection(at) ?? [Number.NaN, Number.NaN];
+  // NaN, for a point the projection can't place, fails these comparisons too.
   if (!(x >= 0 && x <= width && y >= 0 && y <= height)) {
     throw new Error(`content/talks/cities.json: ${name} falls outside the map`);
   }

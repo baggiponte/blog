@@ -175,6 +175,9 @@ function renderTimeline(talks: Talk[], appearances: Appearance[], venueLabel: La
       <p class="caption" aria-live="polite">hover or tap a talk to see every time it was given.</p>${lists}`;
 }
 
+// Where the "online" pill sits on the map, in map units: the empty Atlantic corner.
+const onlinePill: [number, number] = [110, 50];
+
 // Every city on a dot map of Europe, plus the same appearances listed by city.
 // A city lists the talks given there; data-talk on each row lets a talk light up every city it went to.
 function renderMap(
@@ -197,7 +200,7 @@ function renderMap(
     const talks = [...new Set(given.map(given => given.talk))].join(" ");
     // Online talks have no place in cities.json: they share a pill in the empty Atlantic corner.
     const place = cities[city];
-    const [x, y] = place ? locate(city, place.at) : [110, 50];
+    const [x, y] = place ? locate(city, place.at) : onlinePill;
     const side = place ? (place.label ?? "right") : "online";
     const position = `--x: ${percent(x, width)}; --y: ${percent(y, height)}`;
     // The card listing a city's talks, each after its venue's logo, opens away from the nearest edges of the map.
