@@ -123,3 +123,11 @@ name the venue.
 
 The talks used to live in `baggiponte/talks` at `talks.baggiponte.com`; their
 history is in this repo's log under `talks/`, before the move into this layout.
+
+## Docs
+
+`docs/` holds standalone reference pages that are not part of the site. Open them
+straight from disk in a browser.
+
+- `docs/frontend-glossary.html`: names for the UI elements on this site, with
+  annotated screenshots and live examples, for describing design feedback.
