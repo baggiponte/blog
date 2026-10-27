@@ -1,4 +1,5 @@
 // Renders content/talks/*.json into the markup of the talks page's three views: by talk, timeline and map.
+import { formatDate } from "../lib/dates.ts";
 import { Cities, type Edition, load, slugify, type Talk, Talks, Venues } from "./data.ts";
 import { height, landDots, locate, width } from "./map.ts";
 
@@ -27,15 +28,8 @@ const html = (strings: TemplateStringsArray, ...values: Value[]) =>
 type Appearance = Edition & { talk: string; title: string; city: string };
 type Label = (venue: string) => Html;
 
-const date = (iso: string) =>
-  new Date(`${iso}T00:00:00Z`)
-    .toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      timeZone: "UTC",
-    })
-    .toLowerCase();
+// Edition dates are ISO calendar days ("2024-05-23"), which Date reads as midnight UTC.
+const date = (iso: string): string => formatDate(new Date(iso));
 const time = (iso: string) => html`<time datetime="${iso}">${date(iso)}</time>`;
 const link = (href: string, label: string) => html`<a href="${href}">${label}</a>`;
 const count = (n: number) => `${n} ${n === 1 ? "talk" : "talks"}`;

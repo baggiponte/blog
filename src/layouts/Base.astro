@@ -3,7 +3,7 @@ import "@fontsource-variable/bricolage-grotesque";
 import "@fontsource-variable/instrument-sans";
 import "../styles/global.css";
 
-import { site } from "../site";
+import { site } from "../site.ts";
 
 interface Props {
   title?: string;
@@ -13,7 +13,8 @@ interface Props {
 const { title, description = site.description } = Astro.props;
 const pageTitle = title ? `${title} · ${site.title}` : site.title;
 const path = Astro.url.pathname;
-const active = (href: string) => (href === "/" ? path === "/" || path.startsWith("/blog/") : path.startsWith(href));
+// The nav tab for the current section: "writing" covers the home page and every post.
+const active = (href: string): boolean => (href === "/" ? path === "/" || path.startsWith("/blog/") : path.startsWith(href));
 ---
 
 <!doctype html>
@@ -47,13 +48,8 @@ const active = (href: string) => (href === "/" ? path === "/" || path.startsWith
         <nav class="tabs" aria-label="main">
           {
             site.nav.map((item) => (
-              <a
-                class:list={["tab", { active: !item.external && active(item.href) }]}
-                href={item.href}
-                aria-current={!item.external && active(item.href) ? "page" : undefined}
-              >
+              <a class:list={["tab", { active: active(item.href) }]} href={item.href} aria-current={active(item.href) ? "page" : undefined}>
                 {item.label}
-                {item.external && " ↗"}
               </a>
             ))
           }
@@ -88,7 +84,7 @@ const active = (href: string) => (href === "/" ? path === "/" || path.startsWith
     </div>
 
     <script>
-      import "../scripts/site";
+      import "../scripts/site.ts";
     </script>
   </body>
 </html>

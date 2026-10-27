@@ -1,14 +1,9 @@
-import type { APIContext } from "astro";
+import type { APIRoute, InferGetStaticPropsType } from "astro";
 
-import { getPosts, markdownOf, slugOf, type Post } from "../../lib/posts";
+import { getPostPaths, markdownOf } from "../../lib/posts.ts";
 
-export async function getStaticPaths() {
-  const posts = await getPosts();
-  return posts.map((post) => ({ params: { slug: slugOf(post) }, props: { post } }));
-}
+export const getStaticPaths = getPostPaths;
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
-export async function GET({ props }: APIContext<{ post: Post }>) {
-  return new Response(await markdownOf(props.post), {
-    headers: { "Content-Type": "text/markdown; charset=utf-8" },
-  });
-}
+export const GET: APIRoute<Props> = async ({ props }) =>
+  new Response(await markdownOf(props.post), { headers: { "Content-Type": "text/markdown; charset=utf-8" } });

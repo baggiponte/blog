@@ -1,39 +1,49 @@
-import { getCollection, getEntry, type CollectionEntry } from "astro:content";
+import { type CollectionEntry, getCollection, getEntry } from "astro:content";
+import type { GetStaticPaths } from "astro";
+
+import { plainMarkdown } from "./markdown.ts";
 
 export type Post = CollectionEntry<"blog">;
+type Body = Post | CollectionEntry<"notebooks">;
 
-// Bundle directories keep their ordering prefix on disk; URLs drop it.
-export const slugOf = (post: Post) => post.id.replace(/^\d+-/, "");
+// Bundle directories keep their ordering prefix on disk (01-groundup-...); URLs drop it.
+export const slugOf = (post: Post): string => post.id.replace(/^\d+-/, "");
+export const urlOf = (post: Post): string => `/blog/${slugOf(post)}/`;
+export const markdownUrlOf = (post: Post): string => `/blog/${slugOf(post)}.md`;
 
-export async function getPosts() {
+// Newest first; drafts only show in `astro dev`.
+export async function getPosts(): Promise<Post[]> {
   const posts = await getCollection("blog", ({ data }) => import.meta.env.DEV || !data.draft);
-  return posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  return posts.toSorted((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }
 
+// One page per post, for both /blog/<slug>/ and /blog/<slug>.md.
+export const getPostPaths = (async () => {
+  const posts = await getPosts();
+  return posts.map(post => ({ params: { slug: slugOf(post) }, props: { post } }));
+}) satisfies GetStaticPaths;
+
 // The entry whose body is the post: the notebook export when there is one, else the bundle itself.
-export async function bodyEntry(post: Post) {
-  if (!post.data.notebook) return post;
+export async function bodyEntry(post: Post): Promise<Body> {
+  if (post.data.notebook === undefined) {
+    return post;
+  }
   const id = `${post.id}/${post.data.notebook.replace(/\.md$/, "")}`;
   const entry = await getEntry("notebooks", id);
-  if (!entry) throw new Error(`${post.id}: notebook export ${post.data.notebook} not found; run 'just marimo-export'`);
+  if (entry === undefined) {
+    throw new Error(`${post.id}: notebook export ${post.data.notebook} not found; run 'just marimo-export'`);
+  }
   return entry;
 }
 
-// Plain Markdown for "copy page" and "view as markdown": marimo cell attributes and
-// separators are noise outside the notebook.
-export async function markdownOf(post: Post) {
+// The post as one Markdown document: title, description and body.
+export async function markdownOf(post: Post): Promise<string> {
   const { body = "" } = await bodyEntry(post);
-  const clean = body
-    .replace(/^(```\w*)\s*\{[^}\n]*\}/gm, "$1")
-    .replace(/^<!---->$/gm, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-  return `# ${post.data.title}\n\n${post.data.description}\n\n${clean}\n`;
+  return `# ${post.data.title}\n\n${post.data.description}\n\n${plainMarkdown(body)}\n`;
 }
 
-export function readingMinutes(markdown: string) {
-  return Math.max(1, Math.round(markdown.split(/\s+/).length / 220));
+const wordsPerMinute = 220;
+export function readingMinutes(markdown: string): number {
+  const words = markdown.split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / wordsPerMinute));
 }
-
-export const formatDate = (date: Date) =>
-  date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).toLowerCase();
