@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    // Decks are historical material and logos are the organisers' own files: both kept as imported.
+    "includes": ["**", "!decks", "!site/logos"]
+  },
+  "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
+  "javascript": { "formatter": { "arrowParentheses": "asNeeded" } },
+  "html": { "formatter": { "enabled": true }, "linter": { "enabled": true } },
+  "linter": {
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        // `value!` says "this is never missing here"; the tests and the timeline lean on it.
+        "noNonNullAssertion": "off",
+        // The stylesheet relies on source order for overrides (phones, the map card), not on specificity.
+        "noDescendingSpecificity": "off"
+      }
+    }
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } }
+}

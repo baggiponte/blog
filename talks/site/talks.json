@@ -1,0 +1,315 @@
+[
+  {
+    "title": "inside the mind of an llm",
+    "description": "Mechanistic interpretability: how we are starting to see what happens inside neural networks.",
+    "given": [
+      {
+        "date": "2026-09-10",
+        "venue": "PyData Amsterdam 2026",
+        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm"
+      },
+      {
+        "date": "2026-06-06",
+        "venue": "PyData London 2026",
+        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm",
+        "recording": "https://www.youtube.com/watch?v=ex4x9b-yD8w"
+      },
+      {
+        "date": "2026-05-28",
+        "venue": "PyCon Italia 2026",
+        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm",
+        "recording": "https://www.youtube.com/watch?v=LGNnG7nnlzg"
+      },
+      {
+        "date": "2026-04-10",
+        "venue": "PyCon Lithuania 2026",
+        "title": "reading the mind of an llm, with gabriele orlandi",
+        "slides": "https://speakerdeck.com/baggiponte/inside-the-mind-of-an-llm",
+        "recording": "https://www.youtube.com/watch?v=cUqNrpxxajU"
+      }
+    ]
+  },
+  {
+    "title": "from o1 to deepseek: new scaling laws for llms that reason",
+    "description": "How reasoning models shift scaling from train-time to test-time compute, and what that costs.",
+    "given": [
+      {
+        "date": "2026-04-10",
+        "venue": "PyCon Lithuania 2026",
+        "slides": "https://speakerdeck.com/baggiponte/from-o1-to-deepseek-the-new-scaling-laws-for-llms-that-can-reason",
+        "recording": "https://www.youtube.com/watch?v=Kaiqmt1swbE"
+      },
+      {
+        "date": "2025-10-15",
+        "venue": "Codemotion Milan 2025",
+        "slides": "https://speakerdeck.com/baggiponte/from-o1-to-deepseek-the-new-scaling-laws-for-llms-that-can-reason"
+      },
+      {
+        "date": "2025-06-25",
+        "venue": "AI Conf 2025",
+        "title": "openai o1/o3: the new scaling laws for llms that can reason",
+        "slides": "https://speakerdeck.com/baggiponte/from-o1-to-deepseek-the-new-scaling-laws-for-llms-that-can-reason"
+      }
+    ]
+  },
+  {
+    "title": "mcp: principles and practice",
+    "description": "How the Model Context Protocol works under the hood, and how to wire your own services into it.",
+    "given": [
+      {
+        "date": "2026-03-04",
+        "venue": "Python Milano",
+        "slides": "https://speakerdeck.com/baggiponte/mcp-principles-and-practice",
+        "recording": "https://www.youtube.com/watch?v=G5YoeMQwgiY"
+      }
+    ]
+  },
+  {
+    "title": "llm inference arithmetics: the theory behind model serving",
+    "description": "Counting parameters, sizing the KV cache and estimating the GPU memory you need to serve a model.",
+    "given": [
+      {
+        "date": "2025-06-07",
+        "venue": "PyData London 2025",
+        "slides": "https://speakerdeck.com/baggiponte/llm-inference-arithmetics-the-theory-behind-model-serving",
+        "recording": "https://www.youtube.com/watch?v=rcKloLlpjS8"
+      },
+      {
+        "date": "2025-04-23",
+        "venue": "PyCon DE & PyData 2025",
+        "slides": "https://speakerdeck.com/baggiponte/llm-inference-arithmetics-the-theory-behind-model-serving",
+        "recording": "https://www.youtube.com/watch?v=y3tag45TX9M"
+      }
+    ]
+  },
+  {
+    "title": "foundational models for time series forecasting: are we there yet?",
+    "description": "A look at pretrained foundation models for forecasting, with Gabriele Orlandi.",
+    "given": [
+      {
+        "date": "2025-05-30",
+        "venue": "PyCon Italia 2025",
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet",
+        "recording": "https://www.youtube.com/watch?v=jT2m1XI70Qw"
+      },
+      {
+        "date": "2024-12-04",
+        "venue": "PyData Global 2024",
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet",
+        "recording": "https://www.youtube.com/watch?v=DZICL_8vdXI"
+      },
+      {
+        "date": "2024-09-26",
+        "venue": "PyData Paris 2024",
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet",
+        "recording": "https://www.youtube.com/watch?v=lpQg9yxeVSg"
+      },
+      {
+        "date": "2024-11-19",
+        "venue": "PyData Milano at Spotify",
+        "slides": "https://speakerdeck.com/baggiponte/foundational-models-for-time-series-forecasting-are-we-there-yet",
+        "recording": "https://www.youtube.com/watch?v=bWXOwC7h5C0"
+      }
+    ]
+  },
+  {
+    "title": "beyond the hype: building and evaluating robust rag systems",
+    "description": "Evaluation-driven development for RAG: bootstrap an evaluation set, judge answers with an LLM, then improve retrieval with HyDE and metadata, with Fabio Lipreri.",
+    "workshop": true,
+    "given": [
+      {
+        "date": "2025-02-14",
+        "venue": "AMLD EPFL 2025",
+        "source": "https://github.com/xtreamsrl/beyond-the-hype"
+      }
+    ]
+  },
+  {
+    "title": "polars: zero to hero",
+    "description": "What Polars is, why it is fast, when to use it instead of pandas and how to get started.",
+    "given": [
+      {
+        "date": "2024-10-25",
+        "venue": "Dealroom",
+        "slides": "/dealroom-2024-polars/",
+        "source": "https://github.com/baggiponte/dealroom-2024-polars/tree/b79d66ce1abef28507a9f5521e7d82d78579fd8a"
+      },
+      {
+        "date": "2024-07-26",
+        "venue": "Agile Lab",
+        "slides": "/agilelab-2024-polars/",
+        "source": "https://github.com/baggiponte/agilelab-2024-polars/tree/e56397ceff9dba3114989c7b5ec1a06fc2984650"
+      },
+      {
+        "date": "2023-12-07",
+        "venue": "Python Biella Group",
+        "title": "polars 02: data wrangling",
+        "slides": "/pbg-polars/",
+        "recording": "https://www.youtube.com/watch?v=iNFq6p470H0",
+        "source": "https://github.com/baggiponte/polars-katas"
+      },
+      {
+        "date": "2023-11-30",
+        "venue": "Python Biella Group",
+        "title": "polars: the definitive dataframe library",
+        "slides": "/pbg-polars/",
+        "recording": "https://www.youtube.com/watch?v=_63lctyG2U8",
+        "source": "https://github.com/baggiponte/pbg-polars/tree/9866ffed31d513fa6016c899b457f2b6b224843f"
+      },
+      {
+        "date": "2023-09-08",
+        "venue": "PyCon Portugal 2023",
+        "title": "i know polars is fast, but my data pipelines are written in pandas!",
+        "slides": "/pyconpt-polars/",
+        "recording": "https://www.youtube.com/watch?v=OlvEtR6365A",
+        "source": "https://github.com/baggiponte/pyconpt-polars/tree/a793ec9a85d39dc55c893cf022260e9e8a057fad"
+      },
+      {
+        "date": "2023-05-28",
+        "venue": "PyCon Italia 2023",
+        "title": "polars: is the great dataframe showdown finally over?",
+        "slides": "/pyconit-polars/",
+        "recording": "https://www.youtube.com/watch?v=XsxrhGlkyk0",
+        "source": "https://github.com/baggiponte/pyconit-polars/tree/fd22dbf66143967ccdc0806ae434198b425e0117"
+      },
+      {
+        "date": "2023-01-17",
+        "venue": "Python Milano",
+        "title": "a lightning-fast dataframe library",
+        "slides": "/pymi-polars/",
+        "recording": "https://www.youtube.com/watch?v=ujodUwEj5L4&t=210",
+        "source": "https://github.com/baggiponte/pymi-polars/tree/81f08f263e53e1feddd00ae713c29541daf14b09"
+      }
+    ]
+  },
+  {
+    "title": "bigger models or more data? the new scaling laws for llms",
+    "description": "The Chinchilla scaling laws: balancing parameters and training tokens under a compute budget.",
+    "given": [
+      {
+        "date": "2024-06-17",
+        "venue": "AIConf 2024",
+        "slides": "https://speakerdeck.com/baggiponte/bigger-models-or-more-data-the-new-scaling-laws-for-llms"
+      }
+    ]
+  },
+  {
+    "title": "uncertainty estimation at scale with functime, polars and conformal predictions",
+    "description": "Fast prediction intervals for thousands of time series with functime and EnBPI conformal prediction.",
+    "given": [
+      {
+        "date": "2024-06-15",
+        "venue": "PyData London 2024",
+        "recording": "https://www.youtube.com/watch?v=qDjThKoKdq4"
+      }
+    ]
+  },
+  {
+    "title": "embeddings, transformers, rlhf: three key ideas to understand chatgpt",
+    "description": "The three ideas behind ChatGPT: word embeddings, the transformer architecture and reinforcement learning from human feedback.",
+    "given": [
+      {
+        "date": "2024-05-25",
+        "venue": "PyCon Italia 2024",
+        "recording": "https://www.youtube.com/watch?v=Isv9K_7YRw0&t=67"
+      },
+      {
+        "date": "2024-04-05",
+        "venue": "PyCon Lithuania 2024",
+        "title": "lightning talk",
+        "recording": "https://www.youtube.com/watch?v=91Bbn0TYSoM"
+      }
+    ]
+  },
+  {
+    "title": "how we used polars to build functime",
+    "description": "A next-generation ML forecasting library built on Polars and global models.",
+    "given": [
+      {
+        "date": "2024-05-23",
+        "venue": "PyCon Italia 2024",
+        "title": "functime: a next generation ml forecasting library powered by polars",
+        "recording": "https://www.youtube.com/watch?v=1ise06L3pDw"
+      },
+      {
+        "date": "2024-04-05",
+        "venue": "PyCon Lithuania 2024",
+        "title": "functime: a next generation ml forecasting library powered by polars",
+        "recording": "https://www.youtube.com/watch?v=XpLfIpWZtt8"
+      },
+      {
+        "date": "2024-01-13",
+        "venue": "Python Biella Group",
+        "title": "polars 03: discover functime",
+        "slides": "/pydata-global-2023-functime/",
+        "recording": "https://www.youtube.com/watch?v=dyBXKVsHTNE",
+        "source": "https://github.com/baggiponte/pbg-functime"
+      },
+      {
+        "date": "2023-12-06",
+        "venue": "PyData Global 2023",
+        "slides": "/pydata-global-2023-functime/",
+        "source": "https://github.com/baggiponte/pydata-global-2023-functime/tree/7c3b105759d18a0e41f3cb789cac2309659e64db"
+      },
+      {
+        "date": "2023-10-18",
+        "venue": "Kaggle Days Milan 2023",
+        "title": "polars and functime: how to innovate time series forecasting",
+        "slides": "/kaggledays-functime/",
+        "recording": "https://www.youtube.com/live/W2jiOODzjU0?t=125",
+        "source": "https://github.com/baggiponte/kaggledays-functime/tree/0a0e498f02d8f8f33db15927bd7d3eb2ca950c85"
+      }
+    ]
+  },
+  {
+    "title": "build your own ai movies buddy",
+    "description": "A hands-on workshop on retrieval-augmented generation: build an AI movie expert from scratch, with Fabio Lipreri.",
+    "workshop": true,
+    "given": [
+      {
+        "date": "2024-03-23",
+        "venue": "AMLD EPFL 2024",
+        "source": "https://github.com/xtreamsrl/movies-buddy"
+      }
+    ]
+  },
+  {
+    "title": "use rust in your python package",
+    "description": "Getting started with PyO3 and maturin: Python packaging meets Rust.",
+    "given": [
+      {
+        "date": "2023-03-09",
+        "venue": "Python Milano",
+        "slides": "/pymi-pyo3/",
+        "recording": "https://www.youtube.com/watch?v=jp2EQiU9RxA",
+        "source": "https://github.com/baggiponte/pymi-pyo3/tree/49d9618d0be4a2297e1cdd9bf3c16bc4df6ecdef"
+      }
+    ]
+  },
+  {
+    "title": "coding project templates with cookiecutter",
+    "description": "A recipe for reusable scaffolding, variables and generation hooks.",
+    "given": [
+      {
+        "date": "2022-10-19",
+        "venue": "Python Milano",
+        "slides": "/pymi-cookiecutter/",
+        "recording": "https://www.youtube.com/watch?v=XESObnka5Nc",
+        "source": "https://github.com/baggiponte/pymi-cookiecutter/tree/84031f379b245b9e994675687e8aca968acc582b"
+      }
+    ]
+  },
+  {
+    "title": "rust is easy",
+    "description": "Start from Python-like code in a Rust program and fix compiler errors one at a time until it is valid Rust.",
+    "given": [
+      {
+        "date": "2023-05-27",
+        "venue": "PyCon Italia 2023",
+        "slides": "https://github.com/baggiponte/pyconit-rust-is-easy/blob/502627c1fdb5dbd848d1026ff521445ba5a505c5/pyconit-rust-is-easy.pdf",
+        "recording": "https://www.youtube.com/watch?v=09drs_8PJJM",
+        "source": "https://github.com/baggiponte/pyconit-rust-is-easy/tree/502627c1fdb5dbd848d1026ff521445ba5a505c5"
+      }
+    ]
+  }
+]
