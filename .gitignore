@@ -4,3 +4,9 @@
 /node_modules/
 /.cloudflare/
 /.wrangler/
+# Slidev's per-deck caches and the browser tests' output
+node_modules/
+/playwright-report/
+/test-results/
+.env*
+.dev.vars*

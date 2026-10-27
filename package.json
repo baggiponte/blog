@@ -3,23 +3,42 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@12.15.0",
-  "engines": { "node": ">=22.18.0" },
+  "engines": {
+    "node": ">=22.18.0"
+  },
   "scripts": {
     "build": "node scripts/build.ts",
     "check": "node scripts/build.ts && cf deploy --prebuilt --dry-run",
     "deploy": "cf deploy --prebuilt",
     "dev": "astro dev",
-    "preview": "node scripts/build.ts && astro preview"
+    "preview": "node scripts/build.ts && astro preview",
+    "test": "playwright test",
+    "test:unit": "node --test \"src/talks/*.test.ts\"",
+    "typecheck": "astro sync && tsc",
+    "lint": "biome ci .",
+    "format": "biome check --write ."
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "7.3.2",
     "@astrojs/rss": "4.0.19",
     "@astrojs/sitemap": "3.7.4",
+    "@biomejs/biome": "2.5.15",
     "@fontsource-variable/bricolage-grotesque": "5.3.0",
     "@fontsource-variable/instrument-sans": "5.3.0",
+    "@playwright/test": "1.64.1",
+    "@slidev/cli": "53.0.0",
+    "@slidev/theme-default": "0.25.0",
+    "@types/d3-geo": "3.1.1",
+    "@types/node": "24.19.2",
+    "@types/topojson-client": "3.1.5",
     "astro": "7.3.8",
     "cf": "1.0.0-beta.18",
+    "d3-geo": "3.1.1",
+    "topojson-client": "3.1.0",
+    "typescript": "7.0.2",
     "unist-util-visit": "5.1.0",
-    "wrangler": "4.151.1"
+    "world-atlas": "2.0.2",
+    "wrangler": "4.152.0",
+    "zod": "4.6.7"
   }
 }

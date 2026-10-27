@@ -1,0 +1,37 @@
+---
+import { readdir } from "node:fs/promises";
+
+import Base from "../../layouts/Base.astro";
+import "../../styles/talks.css";
+import { renderCatalog } from "../../talks/catalog";
+
+// Every deck in decks/ must be listed in content/talks/talks.json, and every /talks/<slug>/ link must have a deck.
+const decks = (await readdir("decks")).sort();
+const views = await renderCatalog(process.cwd(), decks);
+---
+
+<Base title="talks" description="slides, code and recordings from luca baggi's talks.">
+  <div class="talks">
+    <header>
+      <h1>talks</h1>
+      <p>slides, code and recordings from the times i got on stage.</p>
+    </header>
+    <nav class="views" aria-label="view">
+      <a href="#map" data-view="map">map</a>
+      <a href="#talks" data-view="talks">by talk</a>
+      <a href="#timeline" data-view="timeline">timeline</a>
+    </nav>
+    <Fragment set:html={views.talks} />
+    <section class="timeline" aria-label="timeline">
+      <Fragment set:html={views.timeline} />
+    </section>
+    <section class="map" aria-label="map">
+      <Fragment set:html={views.map} />
+    </section>
+    <p class="note">these are historical talks: examples reflect the tools available when presented.</p>
+  </div>
+
+  <script>
+    import "../../scripts/talks";
+  </script>
+</Base>

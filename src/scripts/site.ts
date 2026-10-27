@@ -137,7 +137,7 @@ if (cp) {
   main.addEventListener("click", copyPage);
   more.addEventListener("click", (e) => {
     e.stopPropagation();
-    setMenu(menu.hidden);
+    setMenu(Boolean(menu.hidden));
   });
   menu.querySelector("[data-act=copy]")?.addEventListener("click", () => {
     copyPage();

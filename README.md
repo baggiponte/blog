@@ -28,22 +28,26 @@ as static assets in `.cloudflare/output/`, which `cf deploy --prebuilt` uploads.
 Cloudflare adapter, which a fully static site does not need. Roll back by
 restoring a previous Worker version in Cloudflare.
 
-To build or deploy locally (Node >=22.18, pnpm 12.15.0):
+To build or deploy locally (the Node in `.node-version`, pnpm 12.15.0):
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm check     # production build and Cloudflare dry-run
-pnpm dev       # astro dev server, drafts included
-pnpm preview   # serve the production build locally
+pnpm check       # production build, decks included, and Cloudflare dry-run
+pnpm dev         # astro dev server, drafts included (decks are not served)
+pnpm preview     # serve the production build locally
+pnpm exec playwright install chromium   # once, for pnpm test
+pnpm test        # browser tests against the production build in dist/
 ```
 
 ## Checks
 
 Install local hooks with `uvx --from prek==0.5.7 prek install`: Zizmor audits
-workflows and Gitleaks scans staged changes. CI runs Zizmor, the notebook export
-check and the production build on PRs, with read-only permissions; `main` is
-checked by Workers Builds itself. GitHub secret scanning with push protection
-covers secrets on push. Rulesets protect `main` from deletion and force pushes.
+workflows, Gitleaks scans staged changes and Biome formats the files it covers
+(see `biome.jsonc`). CI runs Zizmor, the notebook export check, Biome, tsc, the
+unit tests, the production build and the browser tests on PRs, with read-only
+permissions; `main` is checked by Workers Builds itself. GitHub secret scanning
+with push protection covers secrets on push. Rulesets protect `main` from
+deletion and force pushes.
 
 ## Update
 
@@ -93,3 +97,25 @@ Notes:
 
 - Keep one notebook `*.py` file per bundle directory.
 - Treat generated `*.md` files as build outputs from marimo; regenerate instead of hand-editing.
+
+## Talks
+
+The talks catalog is at `/talks/`, and each Slidev deck in `decks/<slug>/` is
+built to `/talks/<slug>/` by `scripts/build.ts`. The decks are kept as imported
+apart from build fixes. To edit one with hot reload:
+`pnpm exec slidev decks/<slug>/slides.md`.
+
+To add a talk, add it to `content/talks/talks.json`, or add an edition to an
+existing talk's `given` list. `slides` is `/talks/<slug>/` for a deck in
+`decks/` or any URL. The build fails with the file and the entry when something
+doesn't match `src/talks/data.ts`, a deck isn't listed, or a venue has no city.
+
+A venue's `city` and `logo` come from the longest name prefix in
+`content/talks/venues.json` that sets them, so `"PyData London 2026"` takes its
+logo from `"PyData"` and its city from `"PyData London"`. Cities and their
+coordinates are in `content/talks/cities.json`; `"online"` needs no entry. The
+logos in `public/talks/logos/` are the organisers' own marks, shown only to
+name the venue.
+
+The talks used to live in `baggiponte/talks` at `talks.baggiponte.com`; their
+history is in this repo's log under `talks/`, before the move into this layout.
