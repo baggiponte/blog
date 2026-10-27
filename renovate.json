@@ -18,22 +18,7 @@
   "automerge": false,
   "platformAutomerge": false,
   "rebaseWhen": "conflicted",
-  "golang": {
-    "enabled": true
-  },
-  "gomod": {
-    "enabled": true
-  },
   "customManagers": [
-    {
-      "customType": "regex",
-      "fileMatch": ["^\\.github/workflows/.*\\.ya?ml$"],
-      "matchStrings": [
-        "HUGO_VERSION:\\s*(?<currentValue>\\S+)"
-      ],
-      "depNameTemplate": "gohugoio/hugo",
-      "datasourceTemplate": "github-releases"
-    },
     {
       "customType": "regex",
       "fileMatch": ["^justfile$"],
@@ -58,23 +43,8 @@
   ],
   "packageRules": [
     {
-      "matchDatasources": ["go"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": false,
-      "platformAutomerge": false
-    },
-    {
-      "matchDatasources": ["go"],
-      "matchUpdateTypes": ["major"],
-      "automerge": false,
-      "addLabels": ["breaking-change"]
-    },
-    {
-      "matchDepNames": ["gohugoio/hugo", "github.com/imfing/hextra"],
-      "groupName": "hugo",
-      "automerge": false,
-      "platformAutomerge": false,
-      "addLabels": ["hugo"]
+      "matchPackageNames": ["astro", "@astrojs/**"],
+      "groupName": "astro"
     }
   ]
 }
