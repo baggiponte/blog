@@ -2,8 +2,9 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
-    // Everything but content and the decks, which are kept as imported (AGENTS.md).
-    "includes": ["**", "!content", "!decks", "!public"]
+    // Everything but content and the decks, which are kept as imported (AGENTS.md), and docs/, which holds
+    // standalone reference pages rather than site code.
+    "includes": ["**", "!content", "!decks", "!public", "!docs"]
   },
   "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
   "javascript": { "formatter": { "arrowParentheses": "asNeeded" } },
