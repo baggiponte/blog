@@ -42,6 +42,10 @@ export function locate(name: string, at: [number, number]): [number, number] {
 export function landDots() {
   // The JSON import is typed by its contents; topojson-client wants its own Topology type.
   const topology = land as unknown as Parameters<typeof feature>[0];
+  const coastlines = topology.objects.land;
+  if (coastlines === undefined) {
+    throw new Error("world-atlas/land-50m.json has no land object");
+  }
   const rings: [number, number][][] = [];
   let ring: [number, number][] = [];
   geoPath(projection, {
@@ -55,7 +59,7 @@ export function landDots() {
     closePath() {},
     beginPath() {},
     arc() {},
-  })(feature(topology, topology.objects.land));
+  })(feature(topology, coastlines));
   // Even-odd ray casting against the projected, clipped coastlines.
   const inside = (x: number, y: number) => {
     let hit = false;

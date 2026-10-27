@@ -1,3 +1,4 @@
+import { dirname } from "node:path";
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
@@ -8,14 +9,23 @@ const blog = defineCollection({
   loader: glob({
     pattern: "*/index.md",
     base: "./content/blog",
-    generateId: ({ entry }) => entry.split("/")[0],
+    // "01-groundup-linear-regression/index.md" has the id "01-groundup-linear-regression".
+    generateId: ({ entry }) => dirname(entry),
   }),
   schema: z.object({
-    title: z.string(),
-    description: z.string(),
+    // Titles are lowercase, like the rest of the site (AGENTS.md).
+    title: z
+      .string()
+      .min(1)
+      .refine(title => title === title.toLowerCase(), "titles are lowercase"),
+    description: z.string().min(1),
     date: z.coerce.date(),
     format: z.enum(["post", "tidbits"]).default("post"),
-    notebook: z.string().optional(),
+    // The export next to index.md, as `just notebook` writes it: "<name>.md".
+    notebook: z
+      .string()
+      .regex(/^[\w-]+\.md$/, "a <name>.md file next to index.md")
+      .optional(),
     draft: z.boolean().default(false),
   }),
 });
