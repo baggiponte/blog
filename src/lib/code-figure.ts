@@ -8,7 +8,9 @@ export function codeFigure(): ShikiTransformer {
     name: "code-figure",
     root(root) {
       const meta = this.options.meta?.__raw ?? "";
-      const caption = /name="([^"]+)"/.exec(meta)?.[1] ?? this.options.lang ?? "text";
+      // Astro hands a fence without a language to Shiki as "plaintext".
+      const { lang = "plaintext" } = this.options;
+      const caption = /name="([^"]+)"/.exec(meta)?.[1] ?? (lang === "plaintext" ? "text" : lang);
       root.children = [
         {
           type: "element",
