@@ -758,23 +758,34 @@ footer {
     --gutter: 16px;
     --col: 100%;
   }
+  /* one row on phones: name, then the tabs, search and theme toggle packed tight */
   .bar {
-    flex-wrap: wrap;
-    row-gap: 12px;
+    gap: 2px;
     padding-block: 14px;
   }
-  .tabs {
-    order: 3;
-    width: 100%;
+  .brand {
+    white-space: nowrap;
   }
-  /* phones have no ⌘K: show a plain search box with a magnifier instead, and drop the keyboard hints */
+  .tab {
+    padding-inline: 7px;
+  }
+  /* phones have no ⌘K: search is a bare magnifier beside the theme toggle, and the modal drops its keyboard hints */
   .search {
-    gap: 8px;
-    padding: 7px 16px 7px 12px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin-left: 0;
+    padding: 0;
+    border: 0;
+    color: var(--ink);
   }
   .search .glass {
     display: block;
+    width: 19px;
+    height: 19px;
   }
+  .search .lbl,
   .search kbd,
   .search-foot {
     display: none;
@@ -806,6 +817,13 @@ footer {
     margin-inline: calc(-1 * var(--gutter));
     border-radius: 0;
     border-inline: 0;
+  }
+}
+/* the narrowest phones (≤360px) shave the tabs a little more so the row still fits */
+@media (max-width: 360px) {
+  .tab {
+    padding-inline: 5px;
+    font-size: 14px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
