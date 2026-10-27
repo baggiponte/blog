@@ -42,8 +42,12 @@ pnpm test        # browser tests against the production build in dist/
 ## Checks
 
 Install local hooks with `uvx --from prek==0.5.7 prek install`: Zizmor audits
-workflows, Gitleaks scans staged changes and Biome formats the files it covers
-(see `biome.jsonc`). CI runs Zizmor, the notebook export check, Biome, tsc, the
+workflows, Gitleaks scans staged changes and Biome lints and formats the code
+(see `biome.jsonc`; `.astro` files are linted but not formatted yet). `tsc`
+checks every `.ts` file with Astro's strictest preset; it can't read `.astro`
+files until TypeScript 7.1, so their frontmatter only wires up `.ts` modules.
+Unit tests sit next to the code as `src/**/*.test.ts` (`pnpm test:unit`);
+browser tests are in `tests/`. CI runs Zizmor, the notebook export check, Biome, tsc, the
 unit tests, the production build and the browser tests on PRs, with read-only
 permissions; `main` is checked by Workers Builds itself. GitHub secret scanning
 with push protection covers secrets on push. Rulesets protect `main` from
