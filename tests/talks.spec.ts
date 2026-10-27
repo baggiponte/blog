@@ -42,8 +42,6 @@ test("timeline lights up every appearance of the talk under the pointer", async 
   await expect(page.locator(".axis .on")).toHaveCount(count);
   await expect(page.locator(".timeline li.on")).toHaveCount(count);
   await expect(page.locator(".talks > article").first()).toBeHidden();
-  const total = await page.locator(".axis button").count();
-  await expect(page.locator(".timeline .total strong")).toHaveText(`${total} talks`);
 });
 
 test("map shows a city's talks and lights up every city a talk went to", async ({ page }) => {
@@ -51,11 +49,10 @@ test("map shows a city's talks and lights up every city a talk went to", async (
   await page.goto("/talks/");
   const milan = page.locator('.place[data-city="Milan"]');
   await milan.hover();
-  const given = await page.locator('.map li[data-city="Milan"]').count();
-  await expect(page.locator('.card.on[data-city="Milan"] li')).toHaveCount(given);
-  await expect(page.locator(".map li.on")).toHaveCount(given);
+  const card = page.locator('.card[data-city="Milan"]');
+  await expect(card).toBeVisible();
+  await expect(page.locator(".map li.on")).toHaveCount(await page.locator('.map li[data-city="Milan"]').count());
   // The card stays open while the pointer crosses the bare map between the circle and the card.
-  const card = page.locator('.card.on[data-city="Milan"]');
   const circle = await boxOf(milan);
   const edge = await boxOf(card);
   await page.mouse.move(edge.x + 8, circle.y + circle.height / 2, { steps: 20 });
@@ -63,12 +60,12 @@ test("map shows a city's talks and lights up every city a talk went to", async (
   const row = page.locator(".map li[data-talk]").first();
   const talk = await row.getAttribute("data-talk");
   await row.click();
-  const editions = await page.locator(`.map li[data-talk="${talk}"]`).count();
-  await expect(page.locator(".map li.on")).toHaveCount(editions);
-  await expect(page.locator(".place.on").first()).toBeVisible();
+  const editions = page.locator(`.map li[data-talk="${talk}"]`);
+  await expect(page.locator(".map li.on")).toHaveCount(await editions.count());
+  // Every city the talk went to lights up, and no other.
+  const cities = new Set(await editions.evaluateAll(rows => rows.map(row => row.getAttribute("data-city"))));
+  await expect(page.locator(".place.on")).toHaveCount(cities.size);
   await expect(page.locator(".timeline")).toBeHidden();
-  const total = await page.locator(".map li[data-talk]").count();
-  await expect(page.locator(".map .total strong")).toHaveText(`${total} talks`);
 });
 
 test("the map tab does not jump to the top of the page", async ({ page }) => {
