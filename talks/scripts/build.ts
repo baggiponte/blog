@@ -18,6 +18,12 @@ for (const file of ["404.html", "style.css"]) await copyFile(resolve(root, "site
 // The page script is TypeScript for tsc; browsers get it with the types stripped, nothing else changed.
 await writeFile(resolve(dist, "main.js"), stripTypeScriptTypes(await readFile(resolve(root, "site/main.ts"), "utf8")));
 await cp(resolve(root, "site/logos"), resolve(dist, "logos"), { recursive: true });
+// The blog's typefaces, self-hosted from Fontsource; site/style.css declares their latin subsets.
+await mkdir(resolve(dist, "fonts"));
+for (const font of ["bricolage-grotesque", "instrument-sans"]) {
+  const file = `${font}-latin-wght-normal.woff2`;
+  await copyFile(resolve(root, "node_modules/@fontsource-variable", font, "files", file), resolve(dist, "fonts", file));
+}
 
 const run = promisify(execFile);
 // The first failed build stops the ones still running and keeps the queue from starting more.

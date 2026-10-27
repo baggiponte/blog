@@ -30,12 +30,14 @@ type Appearance = Edition & { talk: string; title: string; city: string };
 type Label = (venue: string) => Html;
 
 const date = (iso: string) =>
-  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+  new Date(`${iso}T00:00:00Z`)
+    .toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "UTC",
+    })
+    .toLowerCase();
 const time = (iso: string) => html`<time datetime="${iso}">${date(iso)}</time>`;
 const link = (href: string, label: string) => html`<a href="${href}">${label}</a>`;
 const count = (n: number) => `${n} ${n === 1 ? "talk" : "talks"}`;
@@ -173,7 +175,7 @@ function renderTimeline(talks: Talk[], appearances: Appearance[], venueLabel: La
   return html`    <p class="total"><strong>${count(appearances.length)}</strong> given since ${first}, ${talks.length} different ones</p>
       <div class="axis" style="--rows: ${rows.length}">${dots}${ticks}
       </div>
-      <p class="caption" aria-live="polite">Hover or tap a talk to see every time it was given.</p>${lists}`;
+      <p class="caption" aria-live="polite">hover or tap a talk to see every time it was given.</p>${lists}`;
 }
 
 // Every city on a dot map of Europe, plus the same appearances listed by city.
@@ -227,5 +229,5 @@ function renderMap(
       <div class="places">
         <svg viewBox="0 0 ${width} ${height}" aria-hidden="true"><path d="${land}"/></svg>${marks}
       </div>
-      <p class="caption" aria-live="polite">Hover or tap a city to see the talks given there, or a talk to see everywhere it went.</p>${lists}`;
+      <p class="caption" aria-live="polite">hover or tap a city to see the talks given there, or a talk to see everywhere it went.</p>${lists}`;
 }

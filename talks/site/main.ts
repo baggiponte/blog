@@ -1,8 +1,5 @@
 // The page script. The build strips its types into dist/main.js; tsc checks it with the rest.
 
-// Defined by the inline script in site/index.html, which runs first.
-declare function applyTheme(): string;
-
 // The element matching selector, which the page always has.
 const find = <T extends Element = HTMLElement>(selector: string, root: ParentNode = document): T => {
   const element = root.querySelector<T>(selector);
@@ -11,32 +8,15 @@ const find = <T extends Element = HTMLElement>(selector: string, root: ParentNod
 };
 const targetOf = (event: Event) => (event.target instanceof Element ? event.target : null);
 
-const toggle = find(".theme");
-const button = find(":scope > button", toggle);
-const menu = find("[role=menu]", toggle);
-const apply = () => {
-  const current = applyTheme();
-  toggle.dataset.theme = current;
-  for (const item of menu.querySelectorAll<HTMLElement>("[data-item]"))
-    item.setAttribute("aria-checked", String(item.dataset.item === current));
-};
-const open = (state: boolean) => {
-  menu.hidden = !state;
-  button.setAttribute("aria-expanded", String(state));
-};
-button.addEventListener("click", () => open(Boolean(menu.hidden)));
-menu.addEventListener("click", event => {
-  const item = targetOf(event)?.closest<HTMLElement>("[data-item]");
-  if (!item?.dataset.item) return;
-  localStorage.setItem("color-theme", item.dataset.item);
-  apply();
-  open(false);
+// Light or dark, saved under the same "theme" key as the blog; the inline script in site/index.html applies it before paint.
+const root = document.documentElement;
+find(".theme-toggle").addEventListener("click", () => {
+  const next = root.dataset.theme === "dark" ? "light" : "dark";
+  root.dataset.theme = next;
+  try {
+    localStorage.setItem("theme", next);
+  } catch {}
 });
-document.addEventListener("click", event => {
-  if (!toggle.contains(targetOf(event))) open(false);
-});
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change", apply);
-apply();
 
 // The map is the default view (also "#map"); "#talks" and "#timeline" switch to the others. They match no element id, so the page does not scroll.
 const main = find("main");
