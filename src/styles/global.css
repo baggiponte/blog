@@ -767,14 +767,23 @@ footer {
     order: 3;
     width: 100%;
   }
-  /* phones have no ⌘K: show a plain search box with a magnifier instead, and drop the keyboard hints */
+  /* phones have no ⌘K: search is a bare magnifier beside the theme toggle, and the modal drops its keyboard hints */
   .search {
-    gap: 8px;
-    padding: 7px 16px 7px 12px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin-left: 4px;
+    padding: 0;
+    border: 0;
+    color: var(--ink);
   }
   .search .glass {
     display: block;
+    width: 19px;
+    height: 19px;
   }
+  .search .lbl,
   .search kbd,
   .search-foot {
     display: none;
