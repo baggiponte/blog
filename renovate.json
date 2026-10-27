@@ -1,11 +1,6 @@
 {
-  "extends": [
-    "config:recommended",
-    "helpers:pinGitHubActionDigests"
-  ],
-  "schedule": [
-    "before 6am on monday"
-  ],
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+  "schedule": ["before 6am on monday"],
   "timezone": "Europe/Rome",
   "labels": ["dependencies"],
   "commitMessagePrefix": "chore(deps):",
@@ -22,22 +17,13 @@
     {
       "customType": "regex",
       "fileMatch": ["^justfile$"],
-      "matchStrings": [
-        "(?<depName>marimo|prek) := \"(?<currentValue>[^\"]+)\""
-      ],
+      "matchStrings": ["(?<depName>marimo|prek) := \"(?<currentValue>[^\"]+)\""],
       "datasourceTemplate": "pypi"
     },
     {
       "customType": "regex",
-      "fileMatch": [
-        "^justfile$",
-        "^README\\.md$",
-        "^\\.pre-commit-config\\.yaml$",
-        "^\\.github/workflows/.*\\.ya?ml$"
-      ],
-      "matchStrings": [
-        "uvx --from (?<depName>[a-z0-9-]+)==(?<currentValue>\\d[^\\s`]*)"
-      ],
+      "fileMatch": ["^justfile$", "^README\\.md$", "^\\.pre-commit-config\\.yaml$", "^\\.github/workflows/.*\\.ya?ml$"],
+      "matchStrings": ["uvx --from (?<depName>[a-z0-9-]+)==(?<currentValue>\\d[^\\s`]*)"],
       "datasourceTemplate": "pypi"
     }
   ],

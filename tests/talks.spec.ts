@@ -1,23 +1,35 @@
-import { readdir } from "node:fs/promises";
-import { resolve } from "node:path";
-import { expect, test } from "@playwright/test";
-import { parser } from "@slidev/cli";
+import { expect, type Locator, test } from "@playwright/test";
 
-const decks: { slug: string; count: number }[] = [];
-for (const slug of (await readdir("decks")).sort()) {
-  const directory = resolve("decks", slug);
-  const data = await parser.load({ roots: [directory], userRoot: directory }, resolve(directory, "slides.md"));
-  decks.push({ slug, count: data.slides.length });
+import { listDecks } from "../src/talks/decks.ts";
+import { slideCount } from "../src/talks/slides.ts";
+
+// Where the element is on screen; it must be visible.
+async function boxOf(locator: Locator): Promise<{ x: number; y: number; width: number; height: number }> {
+  const box = await locator.boundingBox();
+  if (box === null) {
+    throw new Error(`${locator.toString()} is not visible`);
+  }
+  return box;
 }
 
+// Playwright runs from the repository root.
+const root = process.cwd();
+const decks = await Promise.all(
+  (await listDecks(root)).map(async slug => ({ slug, count: await slideCount(root, slug) })),
+);
+
 test("catalog links every deck and unknown paths are real 404s", async ({ page, request }) => {
-  expect((await page.goto("/talks/#talks"))!.status()).toBe(200);
+  expect((await page.goto("/talks/#talks"))?.status()).toBe(200);
   for (const { slug } of decks) {
     await expect(page.locator(`.talks a[href="/talks/${slug}/"]`).first()).toBeVisible();
   }
-  const logos = await page.locator("img.logo").evaluateAll(images => images.map(image => image.getAttribute("src")!));
+  const logos = await page
+    .locator("img.logo")
+    .evaluateAll(images => images.map(image => image.getAttribute("src") ?? ""));
   expect(logos.length).toBeGreaterThan(0);
-  for (const src of new Set(logos)) expect((await request.get(src)).status(), src).toBe(200);
+  for (const src of new Set(logos)) {
+    expect((await request.get(src)).status(), src).toBe(200);
+  }
   expect((await request.get("/talks/not-a-talk")).status()).toBe(404);
 });
 
@@ -30,8 +42,6 @@ test("timeline lights up every appearance of the talk under the pointer", async 
   await expect(page.locator(".axis .on")).toHaveCount(count);
   await expect(page.locator(".timeline li.on")).toHaveCount(count);
   await expect(page.locator(".talks > article").first()).toBeHidden();
-  const total = await page.locator(".axis button").count();
-  await expect(page.locator(".timeline .total strong")).toHaveText(`${total} talks`);
 });
 
 test("map shows a city's talks and lights up every city a talk went to", async ({ page }) => {
@@ -39,24 +49,23 @@ test("map shows a city's talks and lights up every city a talk went to", async (
   await page.goto("/talks/");
   const milan = page.locator('.place[data-city="Milan"]');
   await milan.hover();
-  const given = await page.locator('.map li[data-city="Milan"]').count();
-  await expect(page.locator('.card.on[data-city="Milan"] li')).toHaveCount(given);
-  await expect(page.locator(".map li.on")).toHaveCount(given);
+  const card = page.locator('.card[data-city="Milan"]');
+  await expect(card).toBeVisible();
+  await expect(page.locator(".map li.on")).toHaveCount(await page.locator('.map li[data-city="Milan"]').count());
   // The card stays open while the pointer crosses the bare map between the circle and the card.
-  const card = page.locator('.card.on[data-city="Milan"]');
-  const circle = (await milan.boundingBox())!;
-  const edge = (await card.boundingBox())!;
+  const circle = await boxOf(milan);
+  const edge = await boxOf(card);
   await page.mouse.move(edge.x + 8, circle.y + circle.height / 2, { steps: 20 });
   await expect(card).toBeVisible();
   const row = page.locator(".map li[data-talk]").first();
   const talk = await row.getAttribute("data-talk");
   await row.click();
-  const editions = await page.locator(`.map li[data-talk="${talk}"]`).count();
-  await expect(page.locator(".map li.on")).toHaveCount(editions);
-  await expect(page.locator(".place.on").first()).toBeVisible();
+  const editions = page.locator(`.map li[data-talk="${talk}"]`);
+  await expect(page.locator(".map li.on")).toHaveCount(await editions.count());
+  // Every city the talk went to lights up, and no other.
+  const cities = new Set(await editions.evaluateAll(rows => rows.map(row => row.getAttribute("data-city"))));
+  await expect(page.locator(".place.on")).toHaveCount(cities.size);
   await expect(page.locator(".timeline")).toBeHidden();
-  const total = await page.locator(".map li[data-talk]").count();
-  await expect(page.locator(".map .total strong")).toHaveText(`${total} talks`);
 });
 
 test("the map tab does not jump to the top of the page", async ({ page }) => {
@@ -79,9 +88,9 @@ for (const { slug, count } of decks) {
         errors.push(`${response.status()} ${response.url()}`);
       }
     });
-    expect((await page.goto(`/talks/${slug}/`))!.status()).toBe(200);
+    expect((await page.goto(`/talks/${slug}/`))?.status()).toBe(200);
     await expect(page.locator(".slidev-page-1")).toBeVisible();
-    expect((await page.goto(`/talks/${slug}/${count}?clicks=1`))!.status()).toBe(200);
+    expect((await page.goto(`/talks/${slug}/${count}?clicks=1`))?.status()).toBe(200);
     await expect(page.locator(`.slidev-page-${count}`)).toBeVisible();
     for (let slide = 1; slide <= count; slide++) {
       expect((await request.get(`/talks/${slug}/${slide}`, { maxRedirects: 0 })).status(), `slide ${slide}`).toBe(200);

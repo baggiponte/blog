@@ -1,10 +1,11 @@
 // Renders content/talks/*.json into the markup of the talks page's three views: by talk, timeline and map.
+import { formatDate } from "../lib/dates.ts";
 import { Cities, type Edition, load, slugify, type Talk, Talks, Venues } from "./data.ts";
 import { height, landDots, locate, width } from "./map.ts";
 
 // Markup built with html`` is kept as is; every other interpolated value is escaped, arrays are joined.
 class Html {
-  markup: string;
+  readonly markup: string;
   constructor(markup: string) {
     this.markup = markup;
   }
@@ -12,14 +13,15 @@ class Html {
 type Value = Html | string | number | null | undefined | Value[];
 const escapes: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
 const escapeHtml = (text: string | number) => String(text).replace(/[&<>"]/g, c => escapes[c] ?? c);
-const render = (value: Value): string =>
-  value instanceof Html
-    ? value.markup
-    : Array.isArray(value)
-      ? value.map(render).join("")
-      : value == null
-        ? ""
-        : escapeHtml(value);
+function render(value: Value): string {
+  if (value instanceof Html) {
+    return value.markup;
+  }
+  if (Array.isArray(value)) {
+    return value.map(render).join("");
+  }
+  return value === null || value === undefined ? "" : escapeHtml(value);
+}
 const html = (strings: TemplateStringsArray, ...values: Value[]) =>
   new Html(String.raw({ raw: strings }, ...values.map(render)));
 
@@ -27,15 +29,8 @@ const html = (strings: TemplateStringsArray, ...values: Value[]) =>
 type Appearance = Edition & { talk: string; title: string; city: string };
 type Label = (venue: string) => Html;
 
-const date = (iso: string) =>
-  new Date(`${iso}T00:00:00Z`)
-    .toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      timeZone: "UTC",
-    })
-    .toLowerCase();
+// Edition dates are ISO calendar days ("2024-05-23"), which Date reads as midnight UTC.
+const date = (iso: string): string => formatDate(new Date(iso));
 const time = (iso: string) => html`<time datetime="${iso}">${date(iso)}</time>`;
 const link = (href: string, label: string) => html`<a href="${href}">${label}</a>`;
 const count = (n: number) => `${n} ${n === 1 ? "talk" : "talks"}`;
@@ -75,25 +70,34 @@ export async function renderCatalog(root: string, decks: string[]) {
   for (const talk of talks) {
     talk.given.sort(newestFirst);
     for (const { slides } of talk.given) {
-      if (!slides?.startsWith("/")) continue;
+      if (!slides?.startsWith("/")) {
+        continue;
+      }
       const slug = slides.slice("/talks/".length, -1);
-      if (!decks.includes(slug)) throw new Error(`content/talks/talks.json: no deck for ${slides}`);
+      if (!decks.includes(slug)) {
+        throw new Error(`content/talks/talks.json: no deck for ${slides}`);
+      }
       linked.add(slug);
     }
   }
   const missing = decks.filter(slug => !linked.has(slug));
-  if (missing.length) throw new Error(`content/talks/talks.json: decks not listed: ${missing.join(", ")}`);
+  if (missing.length > 0) {
+    throw new Error(`content/talks/talks.json: decks not listed: ${missing.join(", ")}`);
+  }
   talks.sort((a, b) => newestFirst(a.given[0], b.given[0]));
 
   const appearances: Appearance[] = talks
     .flatMap(({ title, given }) =>
       given.map(given => {
         const city = lookup(given.venue, "city");
-        if (!city) throw new Error(`content/talks/venues.json: no city for ${given.venue}`);
-        if (city !== "online" && !cities[city])
+        if (!city) {
+          throw new Error(`content/talks/venues.json: no city for ${given.venue}`);
+        }
+        if (city !== "online" && !cities[city]) {
           throw new Error(
             `content/talks/venues.json: ${given.venue} is in ${city}, which is not in content/talks/cities.json`,
           );
+        }
         return { ...given, talk: slugify(title), title, city };
       }),
     )
@@ -128,7 +132,9 @@ function renderTalks(talks: Talk[], venueLabel: Label) {
 // Every appearance on one time axis, plus the same appearances listed by year.
 function renderTimeline(talks: Talk[], appearances: Appearance[], venueLabel: Label) {
   const [newest, oldest] = [appearances[0], appearances.at(-1)];
-  if (!newest || !oldest) throw new Error("content/talks/talks.json: no talks to show");
+  if (!(newest && oldest)) {
+    throw new Error("content/talks/talks.json: no talks to show");
+  }
   const first = Number(oldest.date.slice(0, 4));
   const last = Number(newest.date.slice(0, 4)) + 1;
   const start = Date.UTC(first, 0, 1);
@@ -140,7 +146,9 @@ function renderTimeline(talks: Talk[], appearances: Appearance[], venueLabel: La
   const dots = appearances.toReversed().map(given => {
     const left = x(given.date);
     let row = rows.findIndex(end => left - end >= gap);
-    if (row < 0) row = rows.length;
+    if (row < 0) {
+      row = rows.length;
+    }
     rows[row] = left;
     return html`
         <button type="button" data-talk="${given.talk}" style="left: ${left.toFixed(2)}%; --row: ${row}" aria-label="${given.title}, ${given.venue}, ${date(given.date)}"></button>`;
@@ -167,6 +175,9 @@ function renderTimeline(talks: Talk[], appearances: Appearance[], venueLabel: La
       <p class="caption" aria-live="polite">hover or tap a talk to see every time it was given.</p>${lists}`;
 }
 
+// Where the "online" pill sits on the map, in map units: the empty Atlantic corner.
+const onlinePill: [number, number] = [110, 50];
+
 // Every city on a dot map of Europe, plus the same appearances listed by city.
 // A city lists the talks given there; data-talk on each row lets a talk light up every city it went to.
 function renderMap(
@@ -189,7 +200,7 @@ function renderMap(
     const talks = [...new Set(given.map(given => given.talk))].join(" ");
     // Online talks have no place in cities.json: they share a pill in the empty Atlantic corner.
     const place = cities[city];
-    const [x, y] = place ? locate(city, place.at) : [110, 50];
+    const [x, y] = place ? locate(city, place.at) : onlinePill;
     const side = place ? (place.label ?? "right") : "online";
     const position = `--x: ${percent(x, width)}; --y: ${percent(y, height)}`;
     // The card listing a city's talks, each after its venue's logo, opens away from the nearest edges of the map.

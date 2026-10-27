@@ -1,13 +1,16 @@
+import type { ShikiTransformer } from "@shikijs/types";
+
 // Shiki transformer: wraps each highlighted block in <figure class="code"> with a caption.
 // The caption is the marimo cell name (```python {.marimo name="setup"}) or the language;
 // copy and wrap buttons are added client side so they never render dead without JS.
-export function codeFigure() {
+export function codeFigure(): ShikiTransformer {
   return {
     name: "code-figure",
     root(root) {
       const meta = this.options.meta?.__raw ?? "";
-      const name = meta.match(/name="([^"]+)"/)?.[1];
-      const caption = name ?? this.options.lang ?? "text";
+      // Astro hands a fence without a language to Shiki as "plaintext".
+      const { lang = "plaintext" } = this.options;
+      const caption = /name="([^"]+)"/.exec(meta)?.[1] ?? (lang === "plaintext" ? "text" : lang);
       root.children = [
         {
           type: "element",
@@ -18,9 +21,11 @@ export function codeFigure() {
               type: "element",
               tagName: "figcaption",
               properties: {},
-              children: [{ type: "element", tagName: "span", properties: {}, children: [{ type: "text", value: caption }] }],
+              children: [
+                { type: "element", tagName: "span", properties: {}, children: [{ type: "text", value: caption }] },
+              ],
             },
-            ...root.children,
+            ...root.children.filter(child => child.type !== "doctype"),
           ],
         },
       ];

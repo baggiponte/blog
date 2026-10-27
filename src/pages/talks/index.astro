@@ -1,13 +1,13 @@
 ---
-import { readdir } from "node:fs/promises";
-
 import Base from "../../layouts/Base.astro";
 import "../../styles/talks.css";
-import { renderCatalog } from "../../talks/catalog";
+import { renderCatalog } from "../../talks/catalog.ts";
+import { listDecks } from "../../talks/decks.ts";
 
-// Every deck in decks/ must be listed in content/talks/talks.json, and every /talks/<slug>/ link must have a deck.
-const decks = (await readdir("decks")).sort();
-const views = await renderCatalog(process.cwd(), decks);
+// Astro builds from the repository root. Every deck in decks/ must be listed in content/talks/talks.json,
+// and every /talks/<slug>/ link must have a deck.
+const root = process.cwd();
+const views = await renderCatalog(root, await listDecks(root));
 ---
 
 <Base title="talks" description="slides, code and recordings from luca baggi's talks.">
@@ -32,6 +32,6 @@ const views = await renderCatalog(process.cwd(), decks);
   </div>
 
   <script>
-    import "../../scripts/talks";
+    import "../../scripts/talks.ts";
   </script>
 </Base>

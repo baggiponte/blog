@@ -2,31 +2,94 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
-    // The code that came from the talks site, the build and the tests. The blog's own files and the .astro pages
-    // (whose frontmatter Biome doesn't link to the template yet) aren't covered yet. Decks are kept as imported.
-    "includes": [
-      "*.ts",
-      "biome.jsonc",
-      "scripts/**",
-      "tests/**",
-      "src/talks/**",
-      "src/scripts/talks.ts",
-      "src/styles/talks.css"
-    ]
+    // Everything but content and the decks, which are kept as imported (AGENTS.md).
+    "includes": ["**", "!content", "!decks", "!public"]
   },
   "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
   "javascript": { "formatter": { "arrowParentheses": "asNeeded" } },
-  "html": { "formatter": { "enabled": true }, "linter": { "enabled": true } },
+  // Lint and format .astro files too, with the frontmatter linked to the template, so a variable used only in the
+  // markup isn't reported as unused.
+  "html": { "experimentalFullSupportEnabled": true, "formatter": { "enabled": true }, "linter": { "enabled": true } },
   "linter": {
     "rules": {
       "preset": "recommended",
+      "complexity": {
+        "noUselessStringConcat": "error",
+        "noUselessUndefinedInitialization": "error",
+        "useWhile": "error"
+      },
+      "correctness": {
+        // Relative imports spell out their extension, as Node needs to run the .ts scripts and tests.
+        "useImportExtensions": "error",
+        "noUndeclaredDependencies": "error",
+        "noUnusedFunctionParameters": "error",
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error"
+      },
+      "nursery": {
+        // Type-aware: an async call nobody awaits loses its errors.
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error",
+        "useExhaustiveSwitchCases": "error"
+      },
+      "performance": {
+        "noAccumulatingSpread": "error",
+        "noAwaitInLoops": "off",
+        "noBarrelFile": "error",
+        "noReExportAll": "error"
+      },
       "style": {
-        // `value!` says "this is never missing here"; the tests and the timeline lean on it.
-        "noNonNullAssertion": "off",
-        // The stylesheet relies on source order for overrides (phones, the map card), not on specificity.
+        // Braces on every if/for body, so adding a second line can't silently fall outside it.
+        "useBlockStatements": "error",
+        "useConsistentArrayType": { "level": "error", "options": { "syntax": "shorthand" } },
+        "useConsistentTypeDefinitions": { "level": "error", "options": { "style": "interface" } },
+        "useExportType": "error",
+        "useImportType": "error",
+        "useNodejsImportProtocol": "error",
+        "useNumberNamespace": "error",
+        "useThrowNewError": "error",
+        "useThrowOnlyError": "error",
+        "useCollapsedElseIf": "error",
+        "useDefaultParameterLast": "error",
+        "useSingleVarDeclarator": "error",
+        "useShorthandFunctionType": "error",
+        "useExplicitLengthCheck": "error",
+        "useAtIndex": "error",
+        "noParameterAssign": "error",
+        "noNestedTernary": "error",
+        "noUselessElse": "error",
+        "noInferrableTypes": "error",
+        "useErrorCause": "error",
+        // `value!` claims a value is never missing without checking; check it, or throw a clear error.
+        "noNonNullAssertion": "error",
+        // The stylesheets rely on source order for overrides (phones, the map card), not on specificity.
         "noDescendingSpecificity": "off"
+      },
+      "suspicious": {
+        "noConsole": { "level": "error", "options": { "allow": ["error", "warn", "log"] } },
+        "noEvolvingTypes": "error",
+        "noExplicitAny": "error",
+        "noImplicitAnyLet": "error",
+        "noSkippedTests": "error",
+        "noFocusedTests": "error",
+        "useAwait": "error",
+        "useErrorMessage": "error",
+        "useNumberToFixedDigitsArgument": "error"
       }
     }
   },
+  "overrides": [
+    {
+      // Biome's Astro formatter is experimental: it unindents expressions in the markup and moves text onto new lines,
+      // which changes the rendered whitespace. Lint .astro files, but don't format them yet.
+      "includes": ["**/*.astro"],
+      "formatter": { "enabled": false }
+    },
+    {
+      // The pages' and layouts' frontmatter imports Astro's virtual modules, which Biome can't resolve.
+      "includes": ["src/**/*.astro", "src/content.config.ts", "src/lib/posts.ts"],
+      "linter": { "rules": { "correctness": { "noUndeclaredDependencies": "off" } } }
+    }
+  ],
   "assist": { "actions": { "source": { "organizeImports": "on" } } }
 }

@@ -1,78 +1,138 @@
 // Theme toggle, ⌘K search, code block buttons, copy page, rotating bio.
-const root = document.documentElement;
+import { type SearchEntry, search } from "../lib/search.ts";
+import { element, find } from "./dom.ts";
 
-document.querySelector(".theme-toggle")?.addEventListener("click", () => {
+// ---- theme --------------------------------------------------------------
+// Base.astro applies the saved theme before the first paint; this only flips and saves it.
+const root = document.documentElement;
+find(".theme-toggle").addEventListener("click", () => {
   const next = root.dataset.theme === "dark" ? "light" : "dark";
   root.dataset.theme = next;
   try {
     localStorage.setItem("theme", next);
-  } catch {}
+  } catch {
+    // Private windows and blocked storage: the choice lasts until the page is left.
+  }
 });
 
 // ---- search -------------------------------------------------------------
-type Hit = { title: string; description: string; date: string; url: string; text: string };
-const modal = document.querySelector<HTMLElement>("[data-search]")!;
-const input = modal.querySelector<HTMLInputElement>("input")!;
-const list = modal.querySelector<HTMLUListElement>("ul")!;
-let index: Hit[] | null = null;
+const modal = find("[data-search]");
+const input = find<HTMLInputElement>("input", modal);
+const results = find("[role=listbox]", modal);
+// Fetched on first open and kept; dropped on failure so the next open tries again.
+let index: Promise<SearchEntry[]> | undefined;
+let entries: SearchEntry[] = [];
 let selected = 0;
 
-const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-
-function render() {
-  // Every word must appear in the title or the text, in any order; posts matching more words in the title come first, then newest.
-  const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
-  const titleScore = (p: Hit) => words.filter((w) => p.title.toLowerCase().includes(w)).length;
-  const hits = (index ?? [])
-    .filter((p) => words.every((w) => p.title.toLowerCase().includes(w) || p.text.includes(w)))
-    .sort((a, b) => titleScore(b) - titleScore(a));
-  selected = Math.min(selected, Math.max(hits.length - 1, 0));
-  list.innerHTML =
-    hits
-      .map(
-        (p, i) =>
-          `<li role="option" aria-selected="${i === selected}"><a href="${p.url}">${esc(p.title)}<small>${p.date}</small></a></li>`,
-      )
-      .join("") || `<li class="empty">nothing yet. maybe i should write that one.</li>`;
+async function loadIndex(): Promise<SearchEntry[]> {
+  const response = await fetch("/search.json");
+  if (!response.ok) {
+    throw new Error(`/search.json: ${response.status}`);
+  }
+  // Built by pages/search.json.ts from the same type in the same build.
+  return (await response.json()) as SearchEntry[];
 }
 
-async function openSearch() {
+function showNotice(text: string): void {
+  input.removeAttribute("aria-activedescendant");
+  results.replaceChildren(element("p", { className: "empty", textContent: text }));
+}
+
+function render(): void {
+  const hits = search(entries, input.value);
+  if (hits.length === 0) {
+    showNotice("nothing yet. maybe i should write that one.");
+    return;
+  }
+  selected = Math.min(selected, hits.length - 1);
+  results.replaceChildren(
+    ...hits.map((hit, i) => {
+      const option = element(
+        "a",
+        { href: hit.url, id: `search-hit-${i}`, role: "option" },
+        hit.title,
+        element("small", {}, hit.date),
+      );
+      option.setAttribute("aria-selected", String(i === selected));
+      return option;
+    }),
+  );
+  // Screen readers announce the highlighted result while focus stays in the box.
+  input.setAttribute("aria-activedescendant", `search-hit-${selected}`);
+}
+
+async function openSearch(): Promise<void> {
   modal.hidden = false;
   input.value = "";
   selected = 0;
   input.focus();
-  index ??= await fetch("/search.json").then((r) => r.json());
+  index ??= loadIndex();
+  try {
+    entries = await index;
+  } catch {
+    index = undefined;
+    showNotice("search is unavailable right now. try again in a bit.");
+    return;
+  }
   render();
 }
-const closeSearch = () => (modal.hidden = true);
 
-document.querySelector("[data-search-open]")?.addEventListener("click", openSearch);
+function closeSearch(): void {
+  modal.hidden = true;
+}
+
+find("[data-search-open]").addEventListener("click", () => {
+  void openSearch();
+});
 input.addEventListener("input", () => {
   selected = 0;
   render();
 });
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) closeSearch();
+// A click on the backdrop, outside the box, closes the palette.
+modal.addEventListener("click", event => {
+  if (event.target === modal) {
+    closeSearch();
+  }
 });
-document.addEventListener("keydown", (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-    e.preventDefault();
-    modal.hidden ? openSearch() : closeSearch();
+document.addEventListener("keydown", event => {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    if (modal.hidden) {
+      void openSearch();
+    } else {
+      closeSearch();
+    }
     return;
   }
-  if (modal.hidden) return;
-  const items = list.querySelectorAll("a");
-  if (e.key === "Escape") closeSearch();
-  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-    e.preventDefault();
-    selected = (selected + (e.key === "ArrowDown" ? 1 : items.length - 1)) % Math.max(items.length, 1);
-    render();
+  if (modal.hidden) {
+    return;
   }
-  if (e.key === "Enter" && items[selected]) location.href = items[selected].href;
+  const links = results.querySelectorAll("a");
+  switch (event.key) {
+    case "Escape":
+      closeSearch();
+      break;
+    case "ArrowDown":
+    case "ArrowUp":
+      event.preventDefault();
+      // Wraps around at both ends.
+      selected = (selected + (event.key === "ArrowDown" ? 1 : links.length - 1)) % Math.max(links.length, 1);
+      render();
+      break;
+    case "Enter": {
+      const link = links[selected];
+      if (link !== undefined) {
+        location.href = link.href;
+      }
+      break;
+    }
+    default:
+      break;
+  }
 });
 
 // ---- code blocks --------------------------------------------------------
-async function copyText(text: string) {
+async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
     return true;
@@ -81,86 +141,96 @@ async function copyText(text: string) {
   }
 }
 
-function flash(button: HTMLElement, label: string, done: string) {
-  button.textContent = done;
-  button.classList.add("done");
+// Shows "copied" (or "failed") on the element for a moment, then its label again.
+function flash(target: HTMLElement, label: string, copied: boolean): void {
+  target.textContent = copied ? "copied" : "failed";
+  target.classList.add("done");
   setTimeout(() => {
-    button.textContent = label;
-    button.classList.remove("done");
+    target.textContent = label;
+    target.classList.remove("done");
   }, 1400);
 }
 
-document.querySelectorAll<HTMLElement>("figure.code").forEach((figure) => {
-  const pre = figure.querySelector("pre")!;
-  const caption = figure.querySelector("figcaption")!;
-  const wrap = Object.assign(document.createElement("button"), { type: "button", className: "code-btn", textContent: "wrap" });
-  const copy = Object.assign(document.createElement("button"), { type: "button", className: "code-btn", textContent: "copy" });
+for (const figure of document.querySelectorAll<HTMLElement>("figure.code")) {
+  const pre = find("pre", figure);
+  const wrap = element("button", { type: "button", className: "code-btn", textContent: "wrap" });
+  const copy = element("button", { type: "button", className: "code-btn", textContent: "copy" });
   wrap.setAttribute("aria-pressed", "false");
-  caption.append(wrap, copy);
+  find("figcaption", figure).append(wrap, copy);
 
   // The fade on the right edge shows while there is code left to scroll to.
-  const edge = () =>
-    figure.classList.toggle(
-      "more",
-      !figure.classList.contains("wrapped") && pre.scrollLeft + pre.clientWidth < pre.scrollWidth - 2,
-    );
+  const edge = (): void => {
+    const hidden = pre.scrollLeft + pre.clientWidth < pre.scrollWidth - 2;
+    figure.classList.toggle("more", !figure.classList.contains("wrapped") && hidden);
+  };
   wrap.addEventListener("click", () => {
-    const on = figure.classList.toggle("wrapped");
-    wrap.setAttribute("aria-pressed", String(on));
-    wrap.textContent = on ? "unwrap" : "wrap";
+    const wrapped = figure.classList.toggle("wrapped");
+    wrap.setAttribute("aria-pressed", String(wrapped));
+    wrap.textContent = wrapped ? "unwrap" : "wrap";
     edge();
   });
-  copy.addEventListener("click", async () => {
-    if (await copyText(pre.innerText)) flash(copy, "copy", "copied");
+  copy.addEventListener("click", () => {
+    void copyText(pre.innerText).then(copied => flash(copy, "copy", copied));
   });
   pre.addEventListener("scroll", edge, { passive: true });
   new ResizeObserver(edge).observe(pre);
-});
+}
 
 // ---- copy page ----------------------------------------------------------
-const cp = document.querySelector<HTMLElement>("[data-copy-page]");
-if (cp) {
-  const main = cp.querySelector<HTMLButtonElement>(".cp-main")!;
-  const label = main.querySelector("span")!;
-  const more = cp.querySelector<HTMLButtonElement>(".cp-more")!;
-  const menu = cp.querySelector<HTMLElement>(".cp-menu")!;
-  const source = cp.dataset.copyPage!;
-  // Fetch early so the click handler can write to the clipboard synchronously enough for Safari.
-  const markdown = fetch(source).then((r) => r.text());
-  const setMenu = (open: boolean) => {
+const copyPage = document.querySelector<HTMLElement>("[data-copy-page]");
+if (copyPage !== null) {
+  const main = find<HTMLButtonElement>(".cp-main", copyPage);
+  const label = find("span", main);
+  const more = find<HTMLButtonElement>(".cp-more", copyPage);
+  const menu = find(".cp-menu", copyPage);
+  const source = copyPage.dataset.copyPage ?? "";
+  // Fetched early so the click handler can write to the clipboard soon enough for Safari, which only allows it
+  // shortly after the click. A failed fetch shows as a failed copy.
+  const markdown = fetch(source).then(async response => (response.ok ? response.text() : null));
+  const setMenu = (open: boolean): void => {
     menu.hidden = !open;
     more.setAttribute("aria-expanded", String(open));
   };
-  const copyPage = async () => {
-    if (await copyText(await markdown)) flash(label, "copy page", "copied");
+  const copyMarkdown = async (): Promise<void> => {
+    const text = await markdown.catch(() => null);
+    flash(label, "copy page", text !== null && (await copyText(text)));
   };
-  main.addEventListener("click", copyPage);
-  more.addEventListener("click", (e) => {
-    e.stopPropagation();
-    setMenu(Boolean(menu.hidden));
+  main.addEventListener("click", () => {
+    void copyMarkdown();
   });
-  menu.querySelector("[data-act=copy]")?.addEventListener("click", () => {
-    copyPage();
+  more.addEventListener("click", event => {
+    // The document listener below would close the menu again straight away.
+    event.stopPropagation();
+    // `hidden` can also be "until-found"; any hidden state opens the menu.
+    setMenu(menu.hidden !== false);
+  });
+  find("[data-act=copy]", menu).addEventListener("click", () => {
     setMenu(false);
+    void copyMarkdown();
   });
-  document.addEventListener("click", (e) => {
-    if (!cp.contains(e.target as Node)) setMenu(false);
+  document.addEventListener("click", event => {
+    if (!(event.target instanceof Node && copyPage.contains(event.target))) {
+      setMenu(false);
+    }
   });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") setMenu(false);
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      setMenu(false);
+    }
   });
 }
 
 // ---- rotating bio -------------------------------------------------------
 const lately = document.querySelector<HTMLElement>("[data-lately]");
-if (lately && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  const lines: string[] = JSON.parse(lately.dataset.lately!);
-  let i = 0;
+// index.astro writes site.lately here as a JSON array of strings.
+const lines = JSON.parse(lately?.dataset.lately ?? "[]") as string[];
+if (lately !== null && lines.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  let current = 0;
   setInterval(() => {
     lately.classList.add("swap");
     setTimeout(() => {
-      i = (i + 1) % lines.length;
-      lately.textContent = lines[i];
+      current = (current + 1) % lines.length;
+      lately.textContent = lines[current] ?? "";
       lately.classList.remove("swap");
     }, 300);
   }, 5000);

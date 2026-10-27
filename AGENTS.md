@@ -17,3 +17,11 @@
 * Add talks and editions in `content/talks/talks.json`; deck links are `/talks/<slug>/`.
 * Keep Slidev decks in `decks/` as imported, apart from build fixes.
 * Run `pnpm lint`, `pnpm typecheck`, `pnpm test:unit` and `pnpm test` after changing the talks page or the build.
+
+# Code
+
+* Run `pnpm lint`, `pnpm typecheck`, `pnpm test:unit` and `pnpm test` (after `pnpm build`) after changing code.
+* Keep logic in `.ts` modules and `.astro` frontmatter to wiring: `tsc` doesn't check `.astro` files yet.
+* Write relative imports with their `.ts` extension; Node runs the build script and the unit tests without a bundler.
+* Fix lint errors rather than silencing them; a `biome-ignore` needs a reason that says why the rule doesn't apply.
+* Test behaviour, not the renderer restating itself: a test must be able to fail when the code is wrong.

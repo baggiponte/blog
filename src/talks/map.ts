@@ -32,9 +32,11 @@ const projection = geoConicConformal()
   ]);
 
 export function locate(name: string, at: [number, number]): [number, number] {
-  const [x, y] = projection(at) ?? [NaN, NaN];
-  if (!(x >= 0 && x <= width && y >= 0 && y <= height))
+  const [x, y] = projection(at) ?? [Number.NaN, Number.NaN];
+  // NaN, for a point the projection can't place, fails these comparisons too.
+  if (!(x >= 0 && x <= width && y >= 0 && y <= height)) {
     throw new Error(`content/talks/cities.json: ${name} falls outside the map`);
+  }
   return [x, y];
 }
 
@@ -42,6 +44,10 @@ export function locate(name: string, at: [number, number]): [number, number] {
 export function landDots() {
   // The JSON import is typed by its contents; topojson-client wants its own Topology type.
   const topology = land as unknown as Parameters<typeof feature>[0];
+  const coastlines = topology.objects.land;
+  if (coastlines === undefined) {
+    throw new Error("world-atlas/land-50m.json has no land object");
+  }
   const rings: [number, number][][] = [];
   let ring: [number, number][] = [];
   geoPath(projection, {
@@ -55,7 +61,7 @@ export function landDots() {
     closePath() {},
     beginPath() {},
     arc() {},
-  })(feature(topology, topology.objects.land));
+  })(feature(topology, coastlines));
   // Even-odd ray casting against the projected, clipped coastlines.
   const inside = (x: number, y: number) => {
     let hit = false;
@@ -63,16 +69,21 @@ export function landDots() {
       // Each edge runs from the previous point to this one, starting with the closing edge.
       let [xj, yj] = polygon.at(-1) ?? [0, 0];
       for (const [xi, yi] of polygon) {
-        if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) hit = !hit;
+        if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+          hit = !hit;
+        }
         [xj, yj] = [xi, yi];
       }
     }
     return hit;
   };
   let d = "";
-  for (let y = step / 2; y < height; y += step)
+  for (let y = step / 2; y < height; y += step) {
     for (let x = step / 2; x < width; x += step) {
-      if (inside(x, y)) d += `M${x} ${y}h0`;
+      if (inside(x, y)) {
+        d += `M${x} ${y}h0`;
+      }
     }
+  }
   return d;
 }

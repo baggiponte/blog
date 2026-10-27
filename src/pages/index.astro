@@ -1,16 +1,17 @@
 ---
 import Base from "../layouts/Base.astro";
-import { formatDate, getPosts, markdownOf, readingMinutes, slugOf } from "../lib/posts";
-import { site } from "../site";
+import { formatDate } from "../lib/dates.ts";
+import { getPosts, markdownOf, readingMinutes, urlOf } from "../lib/posts.ts";
+import { site } from "../site.ts";
 
 const all = await getPosts();
 const posts = await Promise.all(
   all
-    .filter((p) => p.data.format === "post")
+    .filter((post) => post.data.format === "post")
     .map(async (post) => ({ post, minutes: readingMinutes(await markdownOf(post)) })),
 );
 // Tidbits are numbered oldest first, so #1 stays #1 forever.
-const tidbits = all.filter((p) => p.data.format === "tidbits");
+const tidbits = all.filter((post) => post.data.format === "tidbits");
 const number = (i: number) => tidbits.length - i;
 ---
 
@@ -30,7 +31,7 @@ const number = (i: number) => tidbits.length - i;
         {
           posts.map(({ post, minutes }) => (
             <li>
-              <a href={`/blog/${slugOf(post)}/`}>
+              <a href={urlOf(post)}>
                 <time datetime={post.data.date.toISOString()}>
                   {formatDate(post.data.date)} · {minutes} min
                 </time>
@@ -53,7 +54,7 @@ const number = (i: number) => tidbits.length - i;
           <ul class="bits">
             {tidbits.map((post, i) => (
               <li>
-                <a href={`/blog/${slugOf(post)}/`}>
+                <a href={urlOf(post)}>
                   <span class="num">#{number(i)}</span>
                   <div>
                     <h3>{post.data.title}</h3>

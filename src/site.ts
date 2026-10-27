@@ -1,5 +1,21 @@
+interface Link {
+  label: string;
+  href: string;
+}
+
+interface Site {
+  name: string;
+  title: string;
+  description: string;
+  bio: { lead: string; rest: string };
+  lately: [string, ...string[]];
+  nav: Link[];
+  links: Link[];
+  footnote: string;
+}
+
 // Everything a visitor reads outside of posts lives here, so copy edits never touch templates.
-export const site = {
+export const site: Site = {
   name: "luca baggi",
   title: "luca baggi",
   description: "product-minded data scientist writing about ai, genai and the engineering around them.",

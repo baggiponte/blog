@@ -22,7 +22,7 @@ const venues = {
 };
 const cities = { Florence: { at: [11.25, 43.77] }, London: { at: [-0.13, 51.51] } };
 
-// A content/talks/ directory with the given data files.
+// A content/talks/ directory with the given data files; a string is written as is, anything else as JSON.
 async function fixture(data: { talks?: unknown; venues?: unknown; cities?: unknown } = {}) {
   const root = await mkdtemp(join(tmpdir(), "talks-"));
   await mkdir(join(root, "content/talks"), { recursive: true });
@@ -31,8 +31,9 @@ async function fixture(data: { talks?: unknown; venues?: unknown; cities?: unkno
     "venues.json": data.venues ?? venues,
     "cities.json": data.cities ?? cities,
   };
-  for (const [file, value] of Object.entries(files))
-    await writeFile(join(root, "content/talks", file), JSON.stringify(value));
+  for (const [file, value] of Object.entries(files)) {
+    await writeFile(join(root, "content/talks", file), typeof value === "string" ? value : JSON.stringify(value));
+  }
   return root;
 }
 
@@ -80,6 +81,13 @@ test("a malformed entry fails with its path", async () => {
   await assert.rejects(
     renderCatalog(await fixture({ talks }), ["pyconit-polars"]),
     /content\/talks\/talks.json:[\s\S]*at \[0\]\.given\[0\]\.date/,
+  );
+});
+
+test("a file that isn't JSON fails with its name", async () => {
+  await assert.rejects(
+    renderCatalog(await fixture({ cities: '{ "Florence": { "at": [11.25, 43.77] }, }' }), ["pyconit-polars"]),
+    /content\/talks\/cities.json: .*JSON/,
   );
 });
 

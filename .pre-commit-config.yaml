@@ -16,7 +16,7 @@ repos:
         name: biome check
         entry: pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true
         language: system
-        types_or: [javascript, ts, json, css]
+        types_or: [javascript, ts, json, css, astro]
       - id: marimo-export-notebooks
         name: Export marimo notebooks to markdown
         language: system
