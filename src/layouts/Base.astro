@@ -36,7 +36,7 @@ const active = (href: string): boolean => (href === "/" ? path === "/" || path.s
     <script is:inline>
       try {
         const saved = localStorage.getItem("theme");
-        if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
+        if (saved === "dark" || saved === "light") { document.documentElement.dataset.theme = saved; }
       } catch {}
     </script>
   </head>

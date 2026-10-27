@@ -9,8 +9,9 @@ const isView = (name: string): name is View => (views as readonly string[]).incl
 const route = (): void => {
   const name = location.hash.slice(1);
   page.dataset.view = isView(name) ? name : "map";
-  for (const view of document.querySelectorAll<HTMLElement>(".views a"))
+  for (const view of document.querySelectorAll<HTMLElement>(".views a")) {
     view.toggleAttribute("aria-current", view.dataset.view === page.dataset.view);
+  }
 };
 window.addEventListener("hashchange", route);
 route();
@@ -33,21 +34,28 @@ const highlight = (section: HTMLElement, show: Show, { linger = 0 } = {}) => {
   section.addEventListener("pointerover", event => {
     clearTimeout(fallback);
     const mark = markOf(event);
-    if (mark || !linger) show(mark ?? pinned);
-    else fallback = setTimeout(() => show(pinned), linger);
+    if (mark || !linger) {
+      show(mark ?? pinned);
+    } else {
+      fallback = setTimeout(() => show(pinned), linger);
+    }
   });
   section.addEventListener("pointerleave", restore);
   section.addEventListener("focusin", preview);
   section.addEventListener("focusout", restore);
   section.addEventListener("click", event => {
     // Links navigate, and a city's card stays open while you use it.
-    if (targetOf(event)?.closest("a, .card")) return;
+    if (targetOf(event)?.closest("a, .card")) {
+      return;
+    }
     const mark = markOf(event);
     pinned = mark && key(mark) !== key(pinned) ? mark : null;
     show(pinned);
   });
   window.addEventListener("keydown", event => {
-    if (event.key !== "Escape") return;
+    if (event.key !== "Escape") {
+      return;
+    }
     pinned = null;
     show(null);
   });
@@ -79,8 +87,9 @@ const timelineCaption = captioner(timeline);
 highlight(timeline, mark => {
   const talk = mark?.dataset.talk ?? null;
   timeline.classList.toggle("active", talk !== null);
-  for (const each of timeline.querySelectorAll<HTMLElement>("[data-talk]"))
+  for (const each of timeline.querySelectorAll<HTMLElement>("[data-talk]")) {
     each.classList.toggle("on", each.dataset.talk === talk);
+  }
   timelineCaption(talk);
 });
 
@@ -95,15 +104,18 @@ highlight(
     const talk = mark?.dataset.talk ?? null;
     const city = talk === null ? (mark?.dataset.city ?? null) : null;
     map.classList.toggle("active", mark !== null);
-    for (const row of map.querySelectorAll<HTMLElement>("li[data-talk]"))
+    for (const row of map.querySelectorAll<HTMLElement>("li[data-talk]")) {
       row.classList.toggle("on", row.dataset.talk === talk || row.dataset.city === city);
-    for (const place of map.querySelectorAll<HTMLElement>(".place"))
+    }
+    for (const place of map.querySelectorAll<HTMLElement>(".place")) {
       place.classList.toggle(
         "on",
         place.dataset.city === city || (talk !== null && (place.dataset.talks ?? "").split(" ").includes(talk)),
       );
-    for (const card of map.querySelectorAll<HTMLElement>(".card"))
+    }
+    for (const card of map.querySelectorAll<HTMLElement>(".card")) {
       card.classList.toggle("on", card.dataset.city === city);
+    }
     const places = [...map.querySelectorAll<HTMLElement>(".place.on")].map(place => place.dataset.city ?? "");
     mapCaption(talk, ` in ${listOf(places)}`);
   },

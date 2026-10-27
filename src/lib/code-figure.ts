@@ -19,7 +19,9 @@ export function codeFigure(): ShikiTransformer {
               type: "element",
               tagName: "figcaption",
               properties: {},
-              children: [{ type: "element", tagName: "span", properties: {}, children: [{ type: "text", value: caption }] }],
+              children: [
+                { type: "element", tagName: "span", properties: {}, children: [{ type: "text", value: caption }] },
+              ],
             },
             ...root.children.filter(child => child.type !== "doctype"),
           ],

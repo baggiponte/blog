@@ -5,7 +5,7 @@ import { height, landDots, locate, width } from "./map.ts";
 
 // Markup built with html`` is kept as is; every other interpolated value is escaped, arrays are joined.
 class Html {
-  markup: string;
+  readonly markup: string;
   constructor(markup: string) {
     this.markup = markup;
   }
@@ -13,14 +13,15 @@ class Html {
 type Value = Html | string | number | null | undefined | Value[];
 const escapes: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
 const escapeHtml = (text: string | number) => String(text).replace(/[&<>"]/g, c => escapes[c] ?? c);
-const render = (value: Value): string =>
-  value instanceof Html
-    ? value.markup
-    : Array.isArray(value)
-      ? value.map(render).join("")
-      : value == null
-        ? ""
-        : escapeHtml(value);
+function render(value: Value): string {
+  if (value instanceof Html) {
+    return value.markup;
+  }
+  if (Array.isArray(value)) {
+    return value.map(render).join("");
+  }
+  return value === null || value === undefined ? "" : escapeHtml(value);
+}
 const html = (strings: TemplateStringsArray, ...values: Value[]) =>
   new Html(String.raw({ raw: strings }, ...values.map(render)));
 
@@ -69,25 +70,34 @@ export async function renderCatalog(root: string, decks: string[]) {
   for (const talk of talks) {
     talk.given.sort(newestFirst);
     for (const { slides } of talk.given) {
-      if (!slides?.startsWith("/")) continue;
+      if (!slides?.startsWith("/")) {
+        continue;
+      }
       const slug = slides.slice("/talks/".length, -1);
-      if (!decks.includes(slug)) throw new Error(`content/talks/talks.json: no deck for ${slides}`);
+      if (!decks.includes(slug)) {
+        throw new Error(`content/talks/talks.json: no deck for ${slides}`);
+      }
       linked.add(slug);
     }
   }
   const missing = decks.filter(slug => !linked.has(slug));
-  if (missing.length) throw new Error(`content/talks/talks.json: decks not listed: ${missing.join(", ")}`);
+  if (missing.length > 0) {
+    throw new Error(`content/talks/talks.json: decks not listed: ${missing.join(", ")}`);
+  }
   talks.sort((a, b) => newestFirst(a.given[0], b.given[0]));
 
   const appearances: Appearance[] = talks
     .flatMap(({ title, given }) =>
       given.map(given => {
         const city = lookup(given.venue, "city");
-        if (!city) throw new Error(`content/talks/venues.json: no city for ${given.venue}`);
-        if (city !== "online" && !cities[city])
+        if (!city) {
+          throw new Error(`content/talks/venues.json: no city for ${given.venue}`);
+        }
+        if (city !== "online" && !cities[city]) {
           throw new Error(
             `content/talks/venues.json: ${given.venue} is in ${city}, which is not in content/talks/cities.json`,
           );
+        }
         return { ...given, talk: slugify(title), title, city };
       }),
     )
@@ -122,7 +132,9 @@ function renderTalks(talks: Talk[], venueLabel: Label) {
 // Every appearance on one time axis, plus the same appearances listed by year.
 function renderTimeline(talks: Talk[], appearances: Appearance[], venueLabel: Label) {
   const [newest, oldest] = [appearances[0], appearances.at(-1)];
-  if (!newest || !oldest) throw new Error("content/talks/talks.json: no talks to show");
+  if (!(newest && oldest)) {
+    throw new Error("content/talks/talks.json: no talks to show");
+  }
   const first = Number(oldest.date.slice(0, 4));
   const last = Number(newest.date.slice(0, 4)) + 1;
   const start = Date.UTC(first, 0, 1);
@@ -134,7 +146,9 @@ function renderTimeline(talks: Talk[], appearances: Appearance[], venueLabel: La
   const dots = appearances.toReversed().map(given => {
     const left = x(given.date);
     let row = rows.findIndex(end => left - end >= gap);
-    if (row < 0) row = rows.length;
+    if (row < 0) {
+      row = rows.length;
+    }
     rows[row] = left;
     return html`
         <button type="button" data-talk="${given.talk}" style="left: ${left.toFixed(2)}%; --row: ${row}" aria-label="${given.title}, ${given.venue}, ${date(given.date)}"></button>`;

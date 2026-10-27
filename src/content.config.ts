@@ -1,5 +1,5 @@
-import { dirname } from "node:path";
 import { defineCollection } from "astro:content";
+import { dirname } from "node:path";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 

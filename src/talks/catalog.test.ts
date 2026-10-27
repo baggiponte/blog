@@ -31,8 +31,9 @@ async function fixture(data: { talks?: unknown; venues?: unknown; cities?: unkno
     "venues.json": data.venues ?? venues,
     "cities.json": data.cities ?? cities,
   };
-  for (const [file, value] of Object.entries(files))
+  for (const [file, value] of Object.entries(files)) {
     await writeFile(join(root, "content/talks", file), JSON.stringify(value));
+  }
   return root;
 }
 

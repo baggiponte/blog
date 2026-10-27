@@ -44,7 +44,11 @@ function render(): void {
   }
   list.replaceChildren(
     ...hits.map((hit, i) => {
-      const item = element("li", { role: "option" }, element("a", { href: hit.url }, hit.title, element("small", {}, hit.date)));
+      const item = element(
+        "li",
+        { role: "option" },
+        element("a", { href: hit.url }, hit.title, element("small", {}, hit.date)),
+      );
       item.setAttribute("aria-selected", String(i === selected));
       return item;
     }),
