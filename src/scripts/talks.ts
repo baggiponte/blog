@@ -1,29 +1,19 @@
-// The page script. The build strips its types into dist/main.js; tsc checks it with the rest.
+// The talks page's views: switching between them and lighting up talks and cities. The theme toggle is in site.ts.
 
 // The element matching selector, which the page always has.
 const find = <T extends Element = HTMLElement>(selector: string, root: ParentNode = document): T => {
   const element = root.querySelector<T>(selector);
-  if (!element) throw new Error(`site/index.html: no ${selector}`);
+  if (!element) throw new Error(`talks page: no ${selector}`);
   return element;
 };
 const targetOf = (event: Event) => (event.target instanceof Element ? event.target : null);
 
-// Light or dark, saved under the same "theme" key as the blog; the inline script in site/index.html applies it before paint.
-const root = document.documentElement;
-find(".theme-toggle").addEventListener("click", () => {
-  const next = root.dataset.theme === "dark" ? "light" : "dark";
-  root.dataset.theme = next;
-  try {
-    localStorage.setItem("theme", next);
-  } catch {}
-});
-
 // The map is the default view (also "#map"); "#talks" and "#timeline" switch to the others. They match no element id, so the page does not scroll.
-const main = find("main");
+const page = find(".talks");
 const route = () => {
-  main.dataset.view = ["#talks", "#timeline"].includes(location.hash) ? location.hash.slice(1) : "map";
+  page.dataset.view = ["#talks", "#timeline"].includes(location.hash) ? location.hash.slice(1) : "map";
   for (const view of document.querySelectorAll<HTMLElement>(".views a"))
-    view.toggleAttribute("aria-current", view.dataset.view === main.dataset.view);
+    view.toggleAttribute("aria-current", view.dataset.view === page.dataset.view);
 };
 addEventListener("hashchange", route);
 route();
@@ -82,7 +72,7 @@ const captioner = (section: HTMLElement) => {
 };
 
 // Timeline: a talk lights up every dot and row of its appearances.
-const timeline = find(".timeline", main);
+const timeline = find(".timeline", page);
 const timelineCaption = captioner(timeline);
 highlight(timeline, mark => {
   const talk = mark?.dataset.talk ?? null;
@@ -95,7 +85,7 @@ highlight(timeline, mark => {
 // Map: a city shows the talks given there; a talk lights up every city it went to.
 // Rows carry data-talk; city circles and their cards carry only data-city.
 // Crossing the bare map between a circle and its card lingers, so the card stays reachable.
-const map = find(".map", main);
+const map = find(".map", page);
 const mapCaption = captioner(map);
 highlight(
   map,

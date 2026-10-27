@@ -1,6 +1,4 @@
-// Renders site/talks.json into the <!-- talks -->, <!-- timeline --> and <!-- map --> placeholders of site/index.html.
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+// Renders content/talks/*.json into the markup of the talks page's three views: by talk, timeline and map.
 import { Cities, type Edition, load, slugify, type Talk, Talks, Venues } from "./data.ts";
 import { height, landDots, locate, width } from "./map.ts";
 
@@ -68,7 +66,7 @@ export async function renderCatalog(root: string, decks: string[]) {
   const venueLogo = (venue: string, alt = "") => {
     const logo = lookup(venue, "logo");
     return logo
-      ? html`<img class="logo" src="/logos/${logo}" alt="${alt}" title="${venue}" width="20" height="20">`
+      ? html`<img class="logo" src="/talks/logos/${logo}" alt="${alt}" title="${venue}" width="20" height="20">`
       : html`<span class="logo"></span>`;
   };
   const venueLabel: Label = venue => html`${venueLogo(venue)}${venue}`;
@@ -78,43 +76,34 @@ export async function renderCatalog(root: string, decks: string[]) {
     talk.given.sort(newestFirst);
     for (const { slides } of talk.given) {
       if (!slides?.startsWith("/")) continue;
-      const slug = slides.slice(1, -1);
-      if (!decks.includes(slug)) throw new Error(`site/talks.json: no deck for ${slides}`);
+      const slug = slides.slice("/talks/".length, -1);
+      if (!decks.includes(slug)) throw new Error(`content/talks/talks.json: no deck for ${slides}`);
       linked.add(slug);
     }
   }
   const missing = decks.filter(slug => !linked.has(slug));
-  if (missing.length) throw new Error(`site/talks.json: decks not listed: ${missing.join(", ")}`);
+  if (missing.length) throw new Error(`content/talks/talks.json: decks not listed: ${missing.join(", ")}`);
   talks.sort((a, b) => newestFirst(a.given[0], b.given[0]));
 
   const appearances: Appearance[] = talks
     .flatMap(({ title, given }) =>
       given.map(given => {
         const city = lookup(given.venue, "city");
-        if (!city) throw new Error(`site/venues.json: no city for ${given.venue}`);
+        if (!city) throw new Error(`content/talks/venues.json: no city for ${given.venue}`);
         if (city !== "online" && !cities[city])
-          throw new Error(`site/venues.json: ${given.venue} is in ${city}, which is not in site/cities.json`);
+          throw new Error(
+            `content/talks/venues.json: ${given.venue} is in ${city}, which is not in content/talks/cities.json`,
+          );
         return { ...given, talk: slugify(title), title, city };
       }),
     )
     .sort(newestFirst);
 
-  const page = await readFile(resolve(root, "site/index.html"), "utf8");
-  return fill(page, {
-    talks: renderTalks(talks, venueLabel),
-    timeline: renderTimeline(talks, appearances, venueLabel),
-    map: renderMap(appearances, cities, venueLogo, venueLabel, await landDots()),
-  });
-}
-
-// Each placeholder must be there exactly once, on a line of its own, so a template edit can't silently drop a view.
-function fill(page: string, views: Record<string, Html>) {
-  for (const [name, markup] of Object.entries(views)) {
-    const parts = page.split(new RegExp(`^[ \\t]*<!-- ${name} -->\n`, "m"));
-    if (parts.length !== 2) throw new Error(`site/index.html: expected one <!-- ${name} --> placeholder`);
-    page = parts.join(`${markup.markup}\n`);
-  }
-  return page;
+  return {
+    talks: renderTalks(talks, venueLabel).markup,
+    timeline: renderTimeline(talks, appearances, venueLabel).markup,
+    map: renderMap(appearances, cities, venueLogo, venueLabel, landDots()).markup,
+  };
 }
 
 function renderTalks(talks: Talk[], venueLabel: Label) {
@@ -139,7 +128,7 @@ function renderTalks(talks: Talk[], venueLabel: Label) {
 // Every appearance on one time axis, plus the same appearances listed by year.
 function renderTimeline(talks: Talk[], appearances: Appearance[], venueLabel: Label) {
   const [newest, oldest] = [appearances[0], appearances.at(-1)];
-  if (!newest || !oldest) throw new Error("site/talks.json: no talks to show");
+  if (!newest || !oldest) throw new Error("content/talks/talks.json: no talks to show");
   const first = Number(oldest.date.slice(0, 4));
   const last = Number(newest.date.slice(0, 4)) + 1;
   const start = Date.UTC(first, 0, 1);

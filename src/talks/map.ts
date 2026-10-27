@@ -1,8 +1,7 @@
 // Geometry for the map view: Europe as a grid of dots, and where each city falls on it.
-import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import { geoConicConformal, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
+import land from "world-atlas/land-50m.json" with { type: "json" };
 
 export const width = 960;
 export const height = 620;
@@ -35,14 +34,14 @@ const projection = geoConicConformal()
 export function locate(name: string, at: [number, number]): [number, number] {
   const [x, y] = projection(at) ?? [NaN, NaN];
   if (!(x >= 0 && x <= width && y >= 0 && y <= height))
-    throw new Error(`site/cities.json: ${name} falls outside the map`);
+    throw new Error(`content/talks/cities.json: ${name} falls outside the map`);
   return [x, y];
 }
 
 // One dot per grid cell whose centre is on land, as a single path of zero-length round-capped strokes.
-export async function landDots() {
-  const atlas = createRequire(import.meta.url).resolve("world-atlas/land-50m.json");
-  const topology = JSON.parse(await readFile(atlas, "utf8"));
+export function landDots() {
+  // The JSON import is typed by its contents; topojson-client wants its own Topology type.
+  const topology = land as unknown as Parameters<typeof feature>[0];
   const rings: [number, number][][] = [];
   let ring: [number, number][] = [];
   geoPath(projection, {

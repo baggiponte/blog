@@ -17,7 +17,7 @@ export const site = {
   nav: [
     { label: "writing", href: "/" },
     { label: "about", href: "/about/" },
-    { label: "talks", href: "https://talks.baggiponte.com/", external: true },
+    { label: "talks", href: "/talks/" },
   ],
   links: [
     { label: "rss", href: "/rss.xml" },

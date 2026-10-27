@@ -1,4 +1,4 @@
-// The shape of the site/*.json data files, checked on every build.
+// The shape of the content/talks/*.json data files, checked on every build.
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { z } from "zod";
@@ -8,8 +8,8 @@ const Edition = z.strictObject({
   venue: z.string().min(1),
   // Kept for the record when an edition was named differently; not shown.
   title: z.string().optional(),
-  // "/<slug>/" for a deck in decks/, or any external URL.
-  slides: z.union([z.string().regex(/^\/[\w-]+\/$/, "a /<slug>/ deck path"), z.url()]).optional(),
+  // "/talks/<slug>/" for a deck in decks/, or any external URL.
+  slides: z.union([z.string().regex(/^\/talks\/[\w-]+\/$/, "a /talks/<slug>/ deck path"), z.url()]).optional(),
   recording: z.url().optional(),
   source: z.url().optional(),
 });
@@ -44,7 +44,7 @@ export const Venues = z.record(
     city: z.string().optional(),
     logo: z
       .string()
-      .regex(/^[\w-]+\.(png|svg)$/, "a file in site/logos/")
+      .regex(/^[\w-]+\.(png|svg)$/, "a file in public/talks/logos/")
       .optional(),
     source: z.url().optional(),
     note: z.string().optional(),
@@ -72,7 +72,7 @@ export const slugify = (title: string) =>
     .replace(/^-|-$/g, "");
 
 export async function load<T>(root: string, file: string, schema: z.ZodType<T>): Promise<T> {
-  const parsed = schema.safeParse(JSON.parse(await readFile(resolve(root, "site", file), "utf8")));
-  if (!parsed.success) throw new Error(`site/${file}:\n${z.prettifyError(parsed.error)}`);
+  const parsed = schema.safeParse(JSON.parse(await readFile(resolve(root, "content/talks", file), "utf8")));
+  if (!parsed.success) throw new Error(`content/talks/${file}:\n${z.prettifyError(parsed.error)}`);
   return parsed.data;
 }
