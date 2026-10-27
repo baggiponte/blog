@@ -28,6 +28,7 @@ test("code blocks are captioned with the marimo cell name, else the language", a
 });
 
 test("the plain export drops marimo cell attributes and separators", () => {
-  const notebook = '```python {.marimo name="setup"}\nimport polars\n```\n\n<!---->\n\n\n```python {.marimo}\nx = 1\n```';
+  const notebook =
+    '```python {.marimo name="setup"}\nimport polars\n```\n\n<!---->\n\n\n```python {.marimo}\nx = 1\n```';
   assert.equal(plainMarkdown(notebook), "```python\nimport polars\n```\n\n```python\nx = 1\n```");
 });
