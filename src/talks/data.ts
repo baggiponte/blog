@@ -72,8 +72,18 @@ export const slugify = (title: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
+// Reads content/talks/<file> and checks it against schema; every error names the file.
 export async function load<T>(root: string, file: string, schema: z.ZodType<T>): Promise<T> {
-  const parsed = schema.safeParse(JSON.parse(await readFile(resolve(root, "content/talks", file), "utf8")));
+  const text = await readFile(resolve(root, "content/talks", file), "utf8");
+  let json: unknown;
+  try {
+    json = JSON.parse(text);
+  } catch (error) {
+    throw new Error(`content/talks/${file}: ${error instanceof Error ? error.message : "not valid JSON"}`, {
+      cause: error,
+    });
+  }
+  const parsed = schema.safeParse(json);
   if (!parsed.success) {
     throw new Error(`content/talks/${file}:\n${z.prettifyError(parsed.error)}`);
   }
