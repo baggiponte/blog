@@ -1,0 +1,54 @@
+---
+import { render } from "astro:content";
+
+import Base from "../../layouts/Base.astro";
+import { bodyEntry, formatDate, getPosts, markdownOf, readingMinutes, slugOf, type Post } from "../../lib/posts";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: slugOf(post) }, props: { post } }));
+}
+
+const { post } = Astro.props as { post: Post };
+const { Content } = await render(await bodyEntry(post));
+const minutes = readingMinutes(await markdownOf(post));
+const coffees = Math.max(1, Math.round(minutes / 3));
+const source = `/blog/${slugOf(post)}.md`;
+---
+
+<Base title={post.data.title} description={post.data.description}>
+  <article class="post">
+    <header class="post-h">
+      <div class="crumb"><a href="/">writing</a> / {post.data.format === "tidbits" ? "tidbits" : "posts"}</div>
+      <h1>{post.data.title}</h1>
+      <p class="sub">{post.data.description}</p>
+      <div class="meta">
+        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{minutes} min, or {coffees} {coffees === 1 ? "coffee" : "coffees"}</span>
+        <div class="cp" data-copy-page={source}>
+          <button class="cp-main" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"></rect><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"></path></svg>
+            <span>copy page</span>
+          </button>
+          <button class="cp-more" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="more ways to read this page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+          </button>
+          <div class="cp-menu" role="menu" hidden>
+            <button class="cp-item" role="menuitem" type="button" data-act="copy">
+              <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"></rect><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"></path></svg></i>
+              <span><b>copy page</b><small>copy page as markdown for llms</small></span>
+            </button>
+            <a class="cp-item" role="menuitem" href={source} target="_blank" rel="noopener">
+              <i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"></rect><path d="M6 15V9l2.5 3L11 9v6M15.5 9v6m-2-2 2 2 2-2"></path></svg></i>
+              <span><b>view as markdown ↗</b><small>view this page as plain text</small></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Base>

@@ -2,28 +2,31 @@
 marimo := "0.25.2"
 prek := "0.5.7"
 
-# Run marimo notebook export hook, then launch a local hugo server
+# Run marimo notebook export hook, then launch the astro dev server (drafts included)
 serve:
     uvx --from prek=={{ prek }} prek run marimo-export-notebooks
-    hugo server --buildDrafts --disableFastRender
+    pnpm dev
 
-# Update hugo modules
+# Update pre-commit hooks (Renovate handles the rest)
 update:
-    hugo mod get -u
-    hugo mod get -u github.com/imfing/hextra
-
     uvx --from prek=={{ prek }} prek autoupdate
 
 # Create a new blog post
 new slug:
-    hugo new content/{{ slug }}.md && nvim $_
+    just _bundle "{{ slug }}" post && nvim "content/blog/{{ slug }}/index.md"
 
-# Create a new TIL
-til slug:
-    hugo new content/til/{{ slug }}.md && nvim $_
+# Create a new tidbits entry
+tidbit slug:
+    just _bundle "{{ slug }}" tidbits && nvim "content/blog/{{ slug }}/index.md"
 
 # Create a notebook post and open it in a sandbox; marimo writes the PEP 723 header
 notebook slug name:
+    just _bundle "{{ slug }}" post "{{ name }}.md"
+    uvx marimo=={{ marimo }} edit --sandbox "content/blog/{{ slug }}/{{ name }}.py"
+
+# Write a draft bundle's index.md; the body is the notebook export when one is given
+[private]
+_bundle slug format notebook="":
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -33,9 +36,17 @@ notebook slug name:
       exit 1
     fi
 
-    hugo new "$dir/index.md"
-    printf '\n{{{{< include-md "%s" >}}\n' "{{ name }}.md" >> "$dir/index.md"
-    uvx marimo=={{ marimo }} edit --sandbox "$dir/{{ name }}.py"
+    mkdir -p "$dir"
+    {
+      echo "---"
+      echo "title: \"{{ replace(slug, '-', ' ') }}\""
+      echo "description: \"\""
+      echo "date: $(date +%Y-%m-%d)"
+      echo "format: {{ format }}"
+      if [ -n "{{ notebook }}" ]; then echo "notebook: {{ notebook }}"; fi
+      echo "draft: true"
+      echo "---"
+    } > "$dir/index.md"
 
 # Export marimo notebooks to Markdown in-place; defaults to all blog notebooks
 marimo-export *notebooks:

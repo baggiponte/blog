@@ -1,0 +1,15 @@
+---
+import { getEntry, render } from "astro:content";
+
+import Base from "../layouts/Base.astro";
+
+const about = (await getEntry("pages", "about"))!;
+const { Content } = await render(about);
+---
+
+<Base title="about">
+  <section class="page">
+    <h1>about me, briefly.</h1>
+    <div class="prose"><Content /></div>
+  </section>
+</Base>
