@@ -17,7 +17,7 @@ Its build settings live in the Cloudflare dashboard:
 | setting | value |
 | --- | --- |
 | Git repository | `baggiponte/blog`, production branch `main` |
-| Build command | `node scripts/build.mjs` |
+| Build command | `node scripts/build.ts` |
 | Deploy command | `pnpm run deploy` |
 | Non-production branch builds | off (GitHub CI checks PRs) |
 

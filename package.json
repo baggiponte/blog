@@ -5,11 +5,11 @@
   "packageManager": "pnpm@12.15.0",
   "engines": { "node": ">=22.18.0" },
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "check": "node scripts/build.mjs && cf deploy --prebuilt --dry-run",
+    "build": "node scripts/build.ts",
+    "check": "node scripts/build.ts && cf deploy --prebuilt --dry-run",
     "deploy": "cf deploy --prebuilt",
     "dev": "astro dev",
-    "preview": "node scripts/build.mjs && astro preview"
+    "preview": "node scripts/build.ts && astro preview"
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "7.3.2",
