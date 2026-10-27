@@ -179,32 +179,28 @@
       justify-items: start;
     }
   }
-  /* Timeline view: every appearance as a dot on one time axis, stacked where dates are close, then listed by year. */
+  /* View switcher: plain words with the site nav's pastel marker on the active one, flush with the heading. */
   .views {
     display: flex;
     justify-content: start;
-    gap: 6px;
+    gap: 24px;
     margin: 0 0 20px;
     font-size: 15px;
   }
   .views a {
-    padding: 5px 14px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
+    padding-block: 5px;
     color: var(--muted);
     text-decoration: none;
-    transition:
-      color 0.2s,
-      border-color 0.2s;
+    transition: color 0.2s;
   }
   .views a:hover {
     color: var(--ink);
-    border-color: var(--ink);
   }
   .views a[aria-current] {
     color: var(--ink);
-    border-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    text-decoration: underline 0.5em var(--mark);
+    text-underline-offset: -0.3em;
+    text-decoration-skip-ink: none;
   }
   &:not([data-view="timeline"]) > .timeline,
   &:not([data-view="map"]) > .map,
@@ -215,6 +211,7 @@
     padding-top: 32px;
     border-top: 1px solid var(--rule);
   }
+  /* Timeline view: every appearance as a dot on one time axis, stacked where dates are close, then listed by year. */
   .axis {
     position: relative;
     height: calc(var(--rows) * 16px + 40px);
