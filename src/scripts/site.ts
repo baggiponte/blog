@@ -20,8 +20,12 @@ let selected = 0;
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
 function render() {
-  const q = input.value.trim().toLowerCase();
-  const hits = (index ?? []).filter((p) => !q || p.title.toLowerCase().includes(q) || p.text.includes(q));
+  // Every word must appear in the title or the text, in any order; posts matching more words in the title come first, then newest.
+  const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+  const titleScore = (p: Hit) => words.filter((w) => p.title.toLowerCase().includes(w)).length;
+  const hits = (index ?? [])
+    .filter((p) => words.every((w) => p.title.toLowerCase().includes(w) || p.text.includes(w)))
+    .sort((a, b) => titleScore(b) - titleScore(a));
   selected = Math.min(selected, Math.max(hits.length - 1, 0));
   list.innerHTML =
     hits
