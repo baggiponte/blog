@@ -68,3 +68,14 @@ test("a directory without its slash redirects permanently, and unknown posts are
   expect(about.headers().location).toBe("/about/");
   expect((await request.get("/blog/not-a-post/")).status()).toBe(404);
 });
+
+test("tabs read luca baggi's blog, after the page's own title", async ({ page, request }) => {
+  const [post] = await searchIndex(request);
+  if (post === undefined) {
+    throw new Error("no published posts");
+  }
+  await page.goto("/");
+  await expect(page).toHaveTitle("luca baggi's blog");
+  await page.goto(post.url);
+  await expect(page).toHaveTitle(`${post.title} · luca baggi's blog`);
+});

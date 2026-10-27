@@ -17,7 +17,8 @@ interface Site {
 // Everything a visitor reads outside of posts lives here, so copy edits never touch templates.
 export const site: Site = {
   name: "luca baggi",
-  title: "luca baggi",
+  // The browser tab and feed name; a page's own title goes in front, as in "about · luca baggi's blog".
+  title: "luca baggi's blog",
   description: "product-minded data scientist writing about ai, genai and the engineering around them.",
   bio: {
     lead: "product-minded data scientist",
