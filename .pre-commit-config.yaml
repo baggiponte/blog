@@ -11,6 +11,12 @@ repos:
       - id: gitleaks
   - repo: local
     hooks:
+      # Formats and lints the staged files Biome covers (see biome.jsonc) with the Biome in package.json.
+      - id: biome
+        name: biome check
+        entry: pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true
+        language: system
+        types_or: [javascript, ts, json, css]
       - id: marimo-export-notebooks
         name: Export marimo notebooks to markdown
         language: system
