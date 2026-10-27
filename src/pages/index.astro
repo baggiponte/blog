@@ -1,0 +1,70 @@
+---
+import Base from "../layouts/Base.astro";
+import { formatDate, getPosts, markdownOf, readingMinutes, slugOf } from "../lib/posts";
+import { site } from "../site";
+
+const all = await getPosts();
+const posts = await Promise.all(
+  all
+    .filter((p) => p.data.format === "post")
+    .map(async (post) => ({ post, minutes: readingMinutes(await markdownOf(post)) })),
+);
+// Tidbits are numbered oldest first, so #1 stays #1 forever.
+const tidbits = all.filter((p) => p.data.format === "tidbits");
+const number = (i: number) => tidbits.length - i;
+---
+
+<Base>
+  <section class="intro">
+    <h1>hi, i'm luca <span class="wave" aria-hidden="true">👋</span></h1>
+    <p>
+      <b>{site.bio.lead}</b>{site.bio.rest}{" "}
+      <span class="lately" data-lately={JSON.stringify(site.lately)}>{site.lately[0]}</span>
+    </p>
+  </section>
+
+  <div class="streams">
+    <section aria-labelledby="posts-h">
+      <div class="s-head"><h2 id="posts-h">posts</h2><span>the long ones. grab a coffee.</span></div>
+      <ul class="posts">
+        {
+          posts.map(({ post, minutes }) => (
+            <li>
+              <a href={`/blog/${slugOf(post)}/`}>
+                <time datetime={post.data.date.toISOString()}>
+                  {formatDate(post.data.date)} · {minutes} min
+                </time>
+                <h3>
+                  {post.data.title} <span class="arr" aria-hidden="true">→</span>
+                </h3>
+                <p>{post.data.description}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+    <section aria-labelledby="tidbits-h">
+      <div class="s-head"><h2 id="tidbits-h">tidbits</h2><span>every other week, give or take.</span></div>
+      {
+        tidbits.length === 0 ? (
+          <p class="empty">the first one is on its way.</p>
+        ) : (
+          <ul class="bits">
+            {tidbits.map((post, i) => (
+              <li>
+                <a href={`/blog/${slugOf(post)}/`}>
+                  <span class="num">#{number(i)}</span>
+                  <div>
+                    <h3>{post.data.title}</h3>
+                    <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </section>
+  </div>
+</Base>

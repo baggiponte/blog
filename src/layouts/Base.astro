@@ -1,0 +1,94 @@
+---
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/instrument-sans";
+import "../styles/global.css";
+
+import { site } from "../site";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+const pageTitle = title ? `${title} · ${site.title}` : site.title;
+const path = Astro.url.pathname;
+const active = (href: string) => (href === "/" ? path === "/" || path.startsWith("/blog/") : path.startsWith(href));
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(path, Astro.site)} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="/favicon-dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
+    <link rel="alternate" type="application/rss+xml" title={site.title} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:title" content={title ?? site.title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <!-- Light by default; a saved choice wins. Runs before paint to avoid a flash. -->
+    <script is:inline>
+      try {
+        const saved = localStorage.getItem("theme");
+        if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">skip to content</a>
+    <header class="top">
+      <div class="wrap bar">
+        <a class="brand" href="/">{site.name}<i>.</i></a>
+        <nav class="tabs" aria-label="main">
+          {
+            site.nav.map((item) => (
+              <a
+                class:list={["tab", { active: !item.external && active(item.href) }]}
+                href={item.href}
+                aria-current={!item.external && active(item.href) ? "page" : undefined}
+              >
+                {item.label}
+                {item.external && " ↗"}
+              </a>
+            ))
+          }
+        </nav>
+        <button class="search" type="button" data-search-open aria-label="search posts">
+          <span class="lbl">search</span><kbd>⌘K</kbd>
+        </button>
+        <button class="theme-toggle" type="button" aria-label="toggle dark mode">
+          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.5 6.5 0 0 0 10 10z"></path></svg>
+          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+
+    <footer>
+      <div class="wrap foot">
+        <span>© {new Date().getFullYear()} {site.name} · {site.footnote}</span>
+        <span class="links">{site.links.map((link) => <a href={link.href}>{link.label}</a>)}</span>
+      </div>
+    </footer>
+
+    <div class="search-modal" data-search hidden>
+      <div class="search-box" role="dialog" aria-modal="true" aria-label="search posts">
+        <input id="search-input" type="search" placeholder="search posts…" autocomplete="off" aria-label="search posts" />
+        <ul class="search-results" role="listbox"></ul>
+        <div class="search-foot"><span><kbd>↑↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
+      </div>
+    </div>
+
+    <script>
+      import "../scripts/site";
+    </script>
+  </body>
+</html>

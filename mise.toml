@@ -1,5 +1,0 @@
-# Local toolchain only: Workers Builds uses HUGO_VERSION/GO_VERSION build variables,
-# and CI pins its own versions in .github/workflows/check.yaml.
-[tools]
-go = "1.24"
-hugo-extended = "0.168.0"

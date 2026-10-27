@@ -1,8 +1,5 @@
 ---
-date: '2025-06-13T19:50:00+02:00'
-draft: false
-title: 'about'
-type: about
+title: about
 ---
 
 I'm an AI engineer and open-source enthusiast. I write about machine
