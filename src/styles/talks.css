@@ -215,7 +215,7 @@
   /* Timeline view: every appearance as a dot on one time axis, stacked where dates are close, then listed by year. */
   .axis {
     position: relative;
-    height: calc(var(--rows) * 16px + 40px);
+    height: calc(var(--rows, 1) * 16px + 40px);
     margin: 0 6px;
   }
   .axis::before {
@@ -249,7 +249,7 @@
   }
   .axis button {
     position: absolute;
-    bottom: calc(28px + var(--row) * 16px);
+    bottom: calc(28px + var(--row, 0) * 16px);
     width: 12px;
     height: 12px;
     padding: 0;
@@ -376,7 +376,7 @@
     position: absolute;
     left: var(--x);
     top: var(--y);
-    width: max(10px, calc(var(--r) * 200cqw / 960));
+    width: max(10px, calc(var(--r, 7) * 200cqw / 960));
     aspect-ratio: 1;
     translate: -50% -50%;
     padding: 0;
