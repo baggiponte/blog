@@ -832,6 +832,24 @@ footer {
     font-size: 14px;
   }
 }
+/* 280px screens (a folded Galaxy Fold): tighter still, or the row runs 19px past the edge */
+@media (max-width: 300px) {
+  .bar {
+    gap: 0;
+  }
+  .brand {
+    font-size: 17px;
+  }
+  .tab {
+    padding-inline: 4px;
+    font-size: 13.5px;
+  }
+  .search,
+  .theme-toggle {
+    width: 32px;
+    height: 32px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
