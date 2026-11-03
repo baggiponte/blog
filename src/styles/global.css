@@ -603,6 +603,8 @@ header.top {
 
 /* code blocks: same width as the text; vitesse colours until the syntax theme round */
 figure.code {
+  /* the caption's height, which the scroll fade starts below */
+  --caption: 37px;
   position: relative;
   margin: 28px 0;
   border: 1px solid var(--code-line);
@@ -614,6 +616,7 @@ figure.code figcaption {
   display: flex;
   align-items: center;
   gap: 4px;
+  height: var(--caption);
   padding: 8px 14px;
   border-bottom: 1px solid var(--code-line);
   font: 500 12px / 1 var(--mono);
@@ -670,7 +673,7 @@ figure.code.wrapped pre {
 figure.code::after {
   content: "";
   position: absolute;
-  top: 37px;
+  top: var(--caption);
   right: 0;
   bottom: 0;
   width: 40px;
