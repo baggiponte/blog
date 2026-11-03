@@ -581,6 +581,9 @@ header.top {
   max-width: 100%;
   height: auto;
   border-radius: 12px;
+  /* a thin inner edge so screenshots with a white background don't melt into the page */
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
 }
 .prose hr {
   border: 0;
