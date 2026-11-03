@@ -133,9 +133,11 @@ header.top {
     color 0.2s,
     background 0.2s;
 }
-.tab:hover {
-  color: var(--ink);
-  background: color-mix(in srgb, var(--ink) 5%, transparent);
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
 }
 /* the active tab gets the same pastel marker stroke as the rotating bio */
 .tab.active {
@@ -157,9 +159,11 @@ header.top {
   font-size: 14px;
   color: var(--muted);
 }
-.search:hover {
-  border-color: var(--ink);
-  color: var(--ink);
+@media (hover: hover) {
+  .search:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
 }
 .search .glass {
   display: none;
@@ -177,8 +181,10 @@ header.top {
   color: var(--ink);
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.theme-toggle:hover {
-  transform: rotate(-25deg);
+@media (hover: hover) {
+  .theme-toggle:hover {
+    transform: rotate(-25deg);
+  }
 }
 .theme-toggle svg {
   width: 19px;
@@ -428,10 +434,14 @@ header.top {
 .cp-more[aria-expanded="true"] svg {
   transform: rotate(180deg);
 }
-.cp-main:hover,
-.cp-more:hover,
 .cp-more[aria-expanded="true"] {
   background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+@media (hover: hover) {
+  .cp-main:hover,
+  .cp-more:hover {
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
 }
 .cp-main span.done {
   color: var(--accent);
@@ -469,8 +479,10 @@ header.top {
   border-radius: 11px;
   color: var(--ink);
 }
-.cp-item:hover {
-  background: color-mix(in srgb, var(--ink) 5%, transparent);
+@media (hover: hover) {
+  .cp-item:hover {
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
 }
 .cp-item:focus-visible {
   outline: 2px solid var(--accent);
@@ -485,9 +497,11 @@ header.top {
   border-radius: 9px;
   color: var(--muted);
 }
-.cp-item:hover i {
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+@media (hover: hover) {
+  .cp-item:hover i {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
 }
 .cp-item b {
   display: block;
@@ -618,11 +632,16 @@ figure.code figcaption span {
   padding: 4px 6px;
   border-radius: 6px;
 }
-.code-btn:hover,
 .code-btn.done,
 .code-btn[aria-pressed="true"] {
   color: var(--ink);
   background: var(--code-line);
+}
+@media (hover: hover) {
+  .code-btn:hover {
+    color: var(--ink);
+    background: var(--code-line);
+  }
 }
 .code-btn:focus-visible {
   outline: 2px solid var(--accent);
@@ -731,9 +750,13 @@ footer {
   border-radius: 10px;
   font-size: 14.5px;
 }
-.search-results [aria-selected="true"],
-.search-results a:hover {
+.search-results [aria-selected="true"] {
   background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+@media (hover: hover) {
+  .search-results a:hover {
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
 }
 .search-results small {
   color: var(--muted);
