@@ -40,6 +40,8 @@
 }
 html {
   -webkit-text-size-adjust: 100%;
+  /* short pages keep the scrollbar's space, so the column doesn't shift between pages */
+  scrollbar-gutter: stable;
 }
 body {
   margin: 0;
