@@ -116,7 +116,8 @@
   }
   .editions .links {
     display: grid;
-    grid-template-columns: repeat(3, 3.25rem);
+    /* fixed slots so slides / video / code line up down the list; a longer label grows its slot instead of overlapping */
+    grid-template-columns: repeat(3, minmax(3.25rem, max-content));
     gap: 8px;
     justify-items: end;
   }
