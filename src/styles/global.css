@@ -604,6 +604,11 @@ figure.code figcaption {
 }
 figure.code figcaption span {
   margin-right: auto;
+  /* a long filename shortens with an ellipsis so the wrap and copy buttons stay in view */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .code-btn {
   all: unset;
