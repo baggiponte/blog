@@ -739,7 +739,8 @@ footer {
 .search-results {
   margin: 0;
   padding: 6px;
-  max-height: 320px;
+  /* on a short screen (landscape phone, keyboard up) the list shrinks so the box ends on screen */
+  max-height: min(320px, calc(100dvh - 14vh - 130px));
   overflow: auto;
 }
 .search-results a {
