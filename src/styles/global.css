@@ -47,6 +47,8 @@ body {
   color: var(--ink);
   font: 16.5px / 1.65 var(--sans);
   -webkit-font-smoothing: antialiased;
+  /* a long word in any title breaks at the edge instead of widening the page */
+  overflow-wrap: break-word;
   transition:
     background 0.3s,
     color 0.3s;
@@ -503,7 +505,6 @@ header.top {
   font-size: 17.5px;
   line-height: 1.75;
   padding-block: 36px 80px;
-  overflow-wrap: break-word;
 }
 .prose > :first-child {
   margin-top: 0;
