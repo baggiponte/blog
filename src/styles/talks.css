@@ -164,7 +164,7 @@
   }
   @media (max-width: 640px) {
     article {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
     article > time {
       grid-column: 1;
@@ -172,7 +172,7 @@
       justify-self: start;
     }
     .editions li {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       padding: 6px 0;
     }
     .editions .links {
@@ -353,7 +353,7 @@
   }
   @media (max-width: 640px) {
     :is(.timeline, .map) li {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
   /* Map view: Europe as dots, a circle per city sized by its talks; a city shows its talks, a talk lights its cities. */

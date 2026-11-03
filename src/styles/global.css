@@ -315,7 +315,7 @@ header.top {
 }
 .bits a {
   display: grid;
-  grid-template-columns: 44px 1fr;
+  grid-template-columns: 44px minmax(0, 1fr);
   gap: 0 10px;
   padding-block: 18px;
   border-bottom: 1px solid var(--line);
