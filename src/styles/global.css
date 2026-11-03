@@ -40,6 +40,8 @@
 }
 html {
   -webkit-text-size-adjust: 100%;
+  /* short pages keep the scrollbar's space, so the column doesn't shift between pages */
+  scrollbar-gutter: stable;
 }
 body {
   margin: 0;
@@ -47,6 +49,8 @@ body {
   color: var(--ink);
   font: 16.5px / 1.65 var(--sans);
   -webkit-font-smoothing: antialiased;
+  /* a long word in any title breaks at the edge instead of widening the page */
+  overflow-wrap: break-word;
   transition:
     background 0.3s,
     color 0.3s;
@@ -131,9 +135,11 @@ header.top {
     color 0.2s,
     background 0.2s;
 }
-.tab:hover {
-  color: var(--ink);
-  background: color-mix(in srgb, var(--ink) 5%, transparent);
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
 }
 /* the active tab gets the same pastel marker stroke as the rotating bio */
 .tab.active {
@@ -155,9 +161,11 @@ header.top {
   font-size: 14px;
   color: var(--muted);
 }
-.search:hover {
-  border-color: var(--ink);
-  color: var(--ink);
+@media (hover: hover) {
+  .search:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
 }
 .search .glass {
   display: none;
@@ -175,8 +183,10 @@ header.top {
   color: var(--ink);
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.theme-toggle:hover {
-  transform: rotate(-25deg);
+@media (hover: hover) {
+  .theme-toggle:hover {
+    transform: rotate(-25deg);
+  }
 }
 .theme-toggle svg {
   width: 19px;
@@ -305,7 +315,7 @@ header.top {
 }
 .bits a {
   display: grid;
-  grid-template-columns: 44px 1fr;
+  grid-template-columns: 44px minmax(0, 1fr);
   gap: 0 10px;
   padding-block: 18px;
   border-bottom: 1px solid var(--line);
@@ -426,10 +436,14 @@ header.top {
 .cp-more[aria-expanded="true"] svg {
   transform: rotate(180deg);
 }
-.cp-main:hover,
-.cp-more:hover,
 .cp-more[aria-expanded="true"] {
   background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+@media (hover: hover) {
+  .cp-main:hover,
+  .cp-more:hover {
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
 }
 .cp-main span.done {
   color: var(--accent);
@@ -467,8 +481,10 @@ header.top {
   border-radius: 11px;
   color: var(--ink);
 }
-.cp-item:hover {
-  background: color-mix(in srgb, var(--ink) 5%, transparent);
+@media (hover: hover) {
+  .cp-item:hover {
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
 }
 .cp-item:focus-visible {
   outline: 2px solid var(--accent);
@@ -483,9 +499,11 @@ header.top {
   border-radius: 9px;
   color: var(--muted);
 }
-.cp-item:hover i {
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+@media (hover: hover) {
+  .cp-item:hover i {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
 }
 .cp-item b {
   display: block;
@@ -503,7 +521,6 @@ header.top {
   font-size: 17.5px;
   line-height: 1.75;
   padding-block: 36px 80px;
-  overflow-wrap: break-word;
 }
 .prose > :first-child {
   margin-top: 0;
@@ -564,6 +581,9 @@ header.top {
   max-width: 100%;
   height: auto;
   border-radius: 12px;
+  /* a thin inner edge so screenshots with a white background don't melt into the page */
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
 }
 .prose hr {
   border: 0;
@@ -573,6 +593,7 @@ header.top {
 .prose table {
   display: block;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   border-collapse: collapse;
   font-size: 15px;
 }
@@ -585,6 +606,8 @@ header.top {
 
 /* code blocks: same width as the text; vitesse colours until the syntax theme round */
 figure.code {
+  /* the caption's height, which the scroll fade starts below */
+  --caption: 37px;
   position: relative;
   margin: 28px 0;
   border: 1px solid var(--code-line);
@@ -596,6 +619,7 @@ figure.code figcaption {
   display: flex;
   align-items: center;
   gap: 4px;
+  height: var(--caption);
   padding: 8px 14px;
   border-bottom: 1px solid var(--code-line);
   font: 500 12px / 1 var(--mono);
@@ -603,6 +627,11 @@ figure.code figcaption {
 }
 figure.code figcaption span {
   margin-right: auto;
+  /* a long filename shortens with an ellipsis so the wrap and copy buttons stay in view */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .code-btn {
   all: unset;
@@ -612,11 +641,16 @@ figure.code figcaption span {
   padding: 4px 6px;
   border-radius: 6px;
 }
-.code-btn:hover,
 .code-btn.done,
 .code-btn[aria-pressed="true"] {
   color: var(--ink);
   background: var(--code-line);
+}
+@media (hover: hover) {
+  .code-btn:hover {
+    color: var(--ink);
+    background: var(--code-line);
+  }
 }
 .code-btn:focus-visible {
   outline: 2px solid var(--accent);
@@ -629,6 +663,8 @@ figure.code pre {
   background: transparent !important;
   font: 13.5px / 1.7 var(--mono);
   scrollbar-width: thin;
+  /* a sideways swipe past the end of the code doesn't trigger back navigation */
+  overscroll-behavior-x: contain;
 }
 figure.code pre code {
   font: inherit;
@@ -640,7 +676,7 @@ figure.code.wrapped pre {
 figure.code::after {
   content: "";
   position: absolute;
-  top: 37px;
+  top: var(--caption);
   right: 0;
   bottom: 0;
   width: 40px;
@@ -714,8 +750,11 @@ footer {
 .search-results {
   margin: 0;
   padding: 6px;
-  max-height: 320px;
+  /* on a short screen (landscape phone, keyboard up) the list shrinks so the box ends on screen */
+  max-height: min(320px, calc(100dvh - 14vh - 130px));
   overflow: auto;
+  /* reaching the end of the results doesn't scroll the page behind the modal */
+  overscroll-behavior: contain;
 }
 .search-results a {
   display: flex;
@@ -725,9 +764,13 @@ footer {
   border-radius: 10px;
   font-size: 14.5px;
 }
-.search-results [aria-selected="true"],
-.search-results a:hover {
+.search-results [aria-selected="true"] {
   background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+@media (hover: hover) {
+  .search-results a:hover {
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+  }
 }
 .search-results small {
   color: var(--muted);
@@ -824,6 +867,24 @@ footer {
   .tab {
     padding-inline: 5px;
     font-size: 14px;
+  }
+}
+/* 280px screens (a folded Galaxy Fold): tighter still, or the row runs 19px past the edge */
+@media (max-width: 300px) {
+  .bar {
+    gap: 0;
+  }
+  .brand {
+    font-size: 17px;
+  }
+  .tab {
+    padding-inline: 4px;
+    font-size: 13.5px;
+  }
+  .search,
+  .theme-toggle {
+    width: 32px;
+    height: 32px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
