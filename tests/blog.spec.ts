@@ -79,3 +79,9 @@ test("tabs read luca baggi's blog, after the page's own title", async ({ page, r
   await page.goto(post.url);
   await expect(page).toHaveTitle(`${post.title} · luca baggi's blog`);
 });
+
+test("the drafting editor only exists in astro dev, never on the built site", async ({ request }) => {
+  for (const path of ["/editor/", "/__editor/posts"]) {
+    expect((await request.get(path)).status(), path).toBe(404);
+  }
+});
