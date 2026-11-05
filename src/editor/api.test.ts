@@ -61,3 +61,14 @@ test("bad requests get an error, not a crash", async () => {
   assert.equal((await fetch(`${base}/posts/hello`, { method: "DELETE" })).status, 405);
   assert.equal((await fetch(`${base}/nothing`)).status, 404);
 });
+
+test("images next to index.md are served for the editor, nothing else is", async () => {
+  await writeFile(join(blogDir, "hello", "shot.png"), new Uint8Array([1, 2]));
+  const image = await fetch(`${base}/posts/hello/images/shot.png`);
+  assert.equal(image.headers.get("content-type"), "image/png");
+  assert.deepEqual([...new Uint8Array(await image.arrayBuffer())], [1, 2]);
+  assert.equal((await fetch(`${base}/posts/hello/images/missing.png`)).status, 404);
+  for (const sneaky of ["index.md", "..%2Findex.md", "%2E%2E%2F..%2Fsecret.png", ".hidden.png", "%E0%A4%A"]) {
+    assert.equal((await fetch(`${base}/posts/hello/images/${sneaky}`)).status, 400, sneaky);
+  }
+});

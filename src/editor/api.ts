@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-import { createPost, EditorError, type Format, listPosts, readPost, saveImage, writePost } from "./posts.ts";
+import { createPost, EditorError, type Format, listPosts, readImage, readPost, saveImage, writePost } from "./posts.ts";
 
 // The editor's API, mounted at apiBase (base.ts) on the dev server only:
 //   GET  /posts                    every hand-written post
@@ -8,6 +8,7 @@ import { createPost, EditorError, type Format, listPosts, readPost, saveImage, w
 //   GET  /posts/<dir>              its index.md
 //   PUT  /posts/<dir>              replaces its index.md
 //   POST /posts/<dir>/images?name= saves the image in the body next to index.md
+//   GET  /posts/<dir>/images/<name> an image next to index.md, for the editor to show inline
 
 const maxBody = 50 * 1024 * 1024;
 
@@ -50,7 +51,7 @@ const isFormat = (value: unknown): value is Format => value === "post" || value 
 
 async function route(blogDir: string, request: IncomingMessage, response: ServerResponse): Promise<void> {
   const url = new URL(request.url ?? "/", "http://editor");
-  const [resource, dir, sub, ...rest] = url.pathname.split("/").filter(Boolean);
+  const [resource, dir, sub, file, ...rest] = url.pathname.split("/").filter(Boolean).map(decodeURIComponent);
   const method = request.method ?? "GET";
   if (resource !== "posts" || rest.length > 0) {
     throw new EditorError(404, `no such route: ${url.pathname}`);
@@ -79,6 +80,14 @@ async function route(blogDir: string, request: IncomingMessage, response: Server
       await writePost(blogDir, dir, (await readBody(request)).toString("utf8"));
       return send(response, 204);
     }
+  } else if (sub === "images" && file !== undefined) {
+    if (method === "GET") {
+      const { bytes, type } = await readImage(blogDir, dir, file);
+      response.setHeader("Content-Type", type);
+      response.setHeader("Cache-Control", "no-cache");
+      response.end(bytes);
+      return;
+    }
   } else if (sub === "images" && method === "POST") {
     const name = url.searchParams.get("name") ?? "";
     return send(response, 201, { name: await saveImage(blogDir, dir, name, await readBody(request)) });
@@ -90,8 +99,8 @@ async function route(blogDir: string, request: IncomingMessage, response: Server
 export function editorApi(blogDir: string) {
   return (request: IncomingMessage, response: ServerResponse): void => {
     route(blogDir, request, response).catch((error: unknown) => {
-      // A SyntaxError is a request body that isn't JSON.
-      let status = error instanceof SyntaxError ? 400 : 500;
+      // A SyntaxError is a request body that isn't JSON, a URIError a path that isn't URL-encoded.
+      let status = error instanceof SyntaxError || error instanceof URIError ? 400 : 500;
       if (error instanceof EditorError) {
         status = error.status;
       }

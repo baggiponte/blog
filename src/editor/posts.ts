@@ -17,7 +17,15 @@ export type Format = "post" | "tidbits";
 const dirPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const isBundleDir = (dir: string): boolean => dirPattern.test(dir);
 
-const imageExtensions = new Set([".avif", ".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"]);
+const imageTypes: Record<string, string> = {
+  ".avif": "image/avif",
+  ".gif": "image/gif",
+  ".jpeg": "image/jpeg",
+  ".jpg": "image/jpeg",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".webp": "image/webp",
+};
 
 // "Café au lait!" -> "cafe-au-lait".
 export function slugify(text: string): string {
@@ -138,7 +146,7 @@ export async function createPost(
 // "Screenshot 2026-11-05 at 10.00.PNG" -> "screenshot-2026-11-05-at-10-00.png".
 export function imageFileName(original: string): string {
   const extension = extname(original).toLowerCase();
-  if (!imageExtensions.has(extension)) {
+  if (imageTypes[extension] === undefined) {
     throw new EditorError(415, `not an image: ${original}`);
   }
   const base = slugify(original.slice(0, -extension.length)) || "image";
@@ -162,4 +170,18 @@ export async function saveImage(blogDir: string, dir: string, original: string, 
       }
     }
   }
+}
+
+// An image next to a post's index.md, by its plain file name: no folders, no dotfiles, image types only.
+export async function readImage(blogDir: string, dir: string, name: string): Promise<{ bytes: Buffer; type: string }> {
+  await bundlePath(blogDir, dir);
+  const type = imageTypes[extname(name).toLowerCase()];
+  if (!/^[\w][\w.-]*$/.test(name) || type === undefined) {
+    throw new EditorError(400, `not an image in the post's folder: ${name}`);
+  }
+  const path = join(blogDir, dir, name);
+  if (!(await exists(path))) {
+    throw new EditorError(404, `no ${name} in content/blog/${dir}`);
+  }
+  return { bytes: await readFile(path), type };
 }
