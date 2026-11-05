@@ -5,6 +5,11 @@
 * Delete branches after merging
 * Commit frequently and atomically - Each commit should represent one logical change
 
+# Drafting editor
+
+* The editor at `/editor/` lives in `src/editor/` and only runs in `astro dev`; keep it out of the build.
+* It edits hand-written bundles only, writing `index.md` and images next to it; never let it touch notebook posts.
+
 # Marimo notebook posts
 
 * Edit post metadata in the bundle's `index.md`, and notebook content in its `.py`.
