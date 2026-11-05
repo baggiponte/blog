@@ -2,12 +2,12 @@ import { type CollectionEntry, getCollection, getEntry } from "astro:content";
 import type { GetStaticPaths } from "astro";
 
 import { plainMarkdown } from "./markdown.ts";
+import { slugOfDir } from "./slugs.ts";
 
 export type Post = CollectionEntry<"blog">;
 type Body = Post | CollectionEntry<"notebooks">;
 
-// Bundle directories keep their ordering prefix on disk (01-groundup-...); URLs drop it.
-export const slugOf = (post: Post): string => post.id.replace(/^\d+-/, "");
+export const slugOf = (post: Post): string => slugOfDir(post.id);
 export const urlOf = (post: Post): string => `/blog/${slugOf(post)}/`;
 export const markdownUrlOf = (post: Post): string => `/blog/${slugOf(post)}.md`;
 
