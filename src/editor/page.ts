@@ -24,12 +24,14 @@ export const editorPage = `
       <select id="post" aria-label="post"></select>
       <button id="create" type="button">new post</button>
       <output id="status" aria-live="polite"></output>
+      <button id="vim" type="button" aria-pressed="false" title="vim keys">vim</button>
+      <button id="show-preview" type="button" aria-pressed="false" title="show the post as the site renders it">preview</button>
       <a id="open" href="/" target="_blank" rel="noopener">open post ↗</a>
     </header>
 
     <main class="panes">
       <section id="source" aria-label="markdown"></section>
-      <iframe id="preview" title="preview"></iframe>
+      <iframe id="preview" title="preview" hidden></iframe>
     </main>
 
     <dialog id="new" aria-labelledby="new-h">

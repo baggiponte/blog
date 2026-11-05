@@ -54,56 +54,139 @@ dialog button {
   color: var(--muted);
 }
 
+.bar button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+/* One pane by default; "preview" adds the rendered post beside it (below it on narrow screens). */
 .panes {
   flex: 1;
   min-height: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.panes[data-preview] {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 @media (max-width: 900px) {
-  .panes {
+  .panes[data-preview] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 #source {
   min-height: 0;
-  border-right: 1px solid var(--line);
   outline-offset: -6px;
+}
+.panes[data-preview] #source {
+  border-right: 1px solid var(--line);
 }
 #source[data-dropping] {
   outline: 2px dashed var(--accent);
 }
 #source .cm-editor {
   height: 100%;
-  background: var(--code-bg);
+  background: var(--paper);
   color: var(--ink);
-  font-size: 15px;
 }
+/* The text reads like the post: its font, size and column. */
 #source .cm-scroller {
-  font-family: var(--mono);
-  line-height: 1.6;
+  font: 17.5px / 1.75 var(--sans);
+  /* centres the post's column; CodeMirror sizes .cm-content itself */
+  padding-inline: max(var(--gutter), calc((100% - var(--col)) / 2));
 }
 #source .cm-content {
-  max-width: 80ch;
-  padding: 24px 8px 40vh;
+  padding: 40px 0 40vh;
   caret-color: var(--accent);
 }
 #source .cm-gutters {
-  background: var(--code-bg);
-  border-right-color: var(--code-line);
-  color: var(--code-muted);
+  display: none;
 }
-#source .cm-activeLine,
-#source .cm-activeLineGutter {
-  background: color-mix(in srgb, var(--ink) 4%, transparent);
+#source .cm-activeLine {
+  background: transparent;
 }
 #source .cm-cursor {
   border-left-color: var(--accent);
 }
+#source .cm-fat-cursor {
+  background: var(--accent);
+  color: var(--paper);
+}
 #source .cm-focused .cm-selectionBackground,
 #source .cm-selectionBackground {
   background: var(--mark);
+}
+#source .cm-vim-panel {
+  font-family: var(--mono);
+  background: var(--code-bg);
+}
+
+/* Live preview (live-preview.ts) */
+#source .cm-lp-h1,
+#source .cm-lp-h2,
+#source .cm-lp-h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+#source .cm-lp-h1 {
+  font-size: 40px;
+  line-height: 1.15;
+}
+#source .cm-lp-h2 {
+  font-size: 28px;
+  line-height: 1.3;
+  padding-top: 20px;
+}
+#source .cm-lp-h3 {
+  font-size: 22px;
+  line-height: 1.4;
+  padding-top: 12px;
+}
+#source .cm-lp-h4 {
+  font-weight: 700;
+}
+#source .cm-lp-quote {
+  border-left: 3px solid var(--rule);
+  padding-left: 16px;
+  color: var(--muted);
+}
+#source .cm-lp-code,
+#source .cm-lp-frontmatter {
+  font: 14.5px / 1.65 var(--mono);
+  background: var(--code-bg);
+  padding-inline: 16px;
+}
+#source .cm-lp-frontmatter {
+  color: var(--muted);
+}
+#source .cm-lp-rule {
+  color: var(--muted);
+}
+#source .cm-lp-mark {
+  background: var(--mark);
+  border-radius: 2px;
+}
+#source .cm-lp-link {
+  text-decoration: underline 1px var(--accent);
+  text-underline-offset: 3px;
+}
+#source .cm-lp-bullet {
+  color: var(--accent);
+  font-weight: 700;
+  padding-right: 0.1em;
+}
+#source .cm-lp-image {
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+  margin: 8px 0;
+  border-radius: 10px;
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
+  cursor: text;
 }
 #preview {
   width: 100%;

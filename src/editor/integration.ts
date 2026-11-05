@@ -11,6 +11,27 @@ export function editor(): AstroIntegration {
   return {
     name: "editor",
     hooks: {
+      // Vite only finds dependencies to pre-bundle by crawling pages it serves, and it never serves this one. Without
+      // this list, the first visit after a change makes Vite re-bundle mid-load and the page fails until reloaded.
+      "astro:config:setup": ({ updateConfig }) => {
+        updateConfig({
+          vite: {
+            optimizeDeps: {
+              include: [
+                "@codemirror/lang-markdown",
+                "@codemirror/lang-yaml",
+                "@codemirror/language",
+                "@codemirror/language-data",
+                "@codemirror/state",
+                "@codemirror/view",
+                "@lezer/highlight",
+                "@replit/codemirror-vim",
+                "codemirror",
+              ],
+            },
+          },
+        });
+      },
       "astro:server:setup": ({ server }) => {
         const blogDir = fileURLToPath(new URL("../../content/blog/", import.meta.url));
         server.middlewares.use(apiBase, editorApi(blogDir));

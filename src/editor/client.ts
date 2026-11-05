@@ -1,14 +1,17 @@
-import { markdown } from "@codemirror/lang-markdown";
+import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { yamlFrontmatter } from "@codemirror/lang-yaml";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
+import { Compartment } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
+import { vim } from "@replit/codemirror-vim";
 import { basicSetup } from "codemirror";
 
 import { find as $ } from "../scripts/dom.ts";
 import { apiBase } from "./base.ts";
 import { imageInsert } from "./insert.ts";
+import { livePreview, postImageUrl, revealOnClick } from "./live-preview.ts";
 import type { DraftSummary, Format } from "./posts.ts";
 
 const select = $<HTMLSelectElement>("#post");
@@ -18,6 +21,9 @@ const open = $<HTMLAnchorElement>("#open");
 const dialog = $<HTMLDialogElement>("#new");
 const form = $<HTMLFormElement>("#new form");
 const pane = $<HTMLElement>("#source");
+const vimToggle = $<HTMLButtonElement>("#vim");
+const previewToggle = $<HTMLButtonElement>("#show-preview");
+const panes = $<HTMLElement>(".panes");
 
 const saveDelay = 600;
 let current: DraftSummary | undefined;
@@ -109,7 +115,13 @@ const highlight = HighlightStyle.define([
   { tag: [tags.strong], fontWeight: "700" },
   { tag: [tags.strikethrough], textDecoration: "line-through" },
   { tag: [tags.link, tags.url], color: "var(--accent)" },
-  { tag: [tags.monospace], color: "var(--ink)", background: "var(--code-line)", borderRadius: "3px" },
+  {
+    tag: [tags.monospace],
+    fontFamily: "var(--mono)",
+    fontSize: "0.88em",
+    background: "var(--code-line)",
+    borderRadius: "3px",
+  },
   { tag: [tags.quote], color: "var(--muted)", fontStyle: "italic" },
   { tag: [tags.processingInstruction, tags.meta, tags.contentSeparator, tags.punctuation], color: "var(--code-muted)" },
   { tag: [tags.propertyName, tags.definition(tags.propertyName)], color: "var(--accent)" },
@@ -118,12 +130,37 @@ const highlight = HighlightStyle.define([
   { tag: [tags.comment], color: "var(--code-muted)", fontStyle: "italic" },
 ]);
 
+// Per-browser choices: vim keys, and whether the rendered post shows next to the editor.
+function remembered(key: string, fallback: boolean): boolean {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value === "true";
+  } catch {
+    return fallback;
+  }
+}
+function remember(key: string, value: boolean): void {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {
+    // Private windows may refuse; the choice just isn't kept.
+  }
+}
+
+const keys = new Compartment();
+let vimOn = remembered("editor-vim", false);
+let previewOn = remembered("editor-preview", false);
+
 const view = new EditorView({
   parent: pane,
   extensions: [
+    // Vim's keymap goes before the default one, so its keys win.
+    keys.of(vimOn ? vim() : []),
     basicSetup,
     // index.md is YAML frontmatter, then the Markdown body.
-    yamlFrontmatter({ content: markdown({ codeLanguages: languages }) }),
+    yamlFrontmatter({ content: markdown({ base: markdownLanguage, codeLanguages: languages }) }),
+    livePreview(url => postImageUrl(apiBase, current?.dir ?? "", url)),
+    revealOnClick,
     syntaxHighlighting(highlight),
     EditorView.lineWrapping,
     keymap.of([
@@ -172,11 +209,37 @@ const view = new EditorView({
           return false;
         }
         event.preventDefault();
-        void addImages(files, editor.state.selection.main.head);
+        // At the end of the cursor's line: an image is a paragraph of its own, so it shouldn't split a sentence (in
+        // vim's normal mode the cursor sits on a character, not between two).
+        void addImages(files, editor.state.doc.lineAt(editor.state.selection.main.head).to);
         return true;
       },
     }),
   ],
+});
+
+function showVim(): void {
+  vimToggle.setAttribute("aria-pressed", String(vimOn));
+  view.dispatch({ effects: keys.reconfigure(vimOn ? vim() : []) });
+}
+function showPreview(): void {
+  previewToggle.setAttribute("aria-pressed", String(previewOn));
+  panes.toggleAttribute("data-preview", previewOn);
+  preview.hidden = !previewOn;
+  if (previewOn && current !== undefined && preview.getAttribute("src") !== current.url) {
+    preview.src = current.url;
+  }
+}
+vimToggle.addEventListener("click", () => {
+  vimOn = !vimOn;
+  remember("editor-vim", vimOn);
+  showVim();
+  view.focus();
+});
+previewToggle.addEventListener("click", () => {
+  previewOn = !previewOn;
+  remember("editor-preview", previewOn);
+  showPreview();
 });
 
 function renderList(): void {
@@ -200,7 +263,10 @@ async function openPost(dir: string): Promise<void> {
   select.value = post.dir;
   open.href = post.url;
   previewScroll = 0;
-  preview.src = post.url;
+  // A hidden preview loads once it's shown.
+  if (previewOn) {
+    preview.src = post.url;
+  }
   history.replaceState(null, "", `#${post.dir}`);
   say("saved");
 }
@@ -253,5 +319,7 @@ addEventListener("pagehide", () => {
   }
 });
 
+showPreview();
+vimToggle.setAttribute("aria-pressed", String(vimOn));
 await refresh();
 await openPost(decodeURIComponent(location.hash.slice(1)));
