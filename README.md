@@ -79,15 +79,19 @@ page button uses.
 ### Editor
 
 `pnpm dev` (or `just serve`) also serves a drafting editor at
-<http://localhost:4321/editor/>: the post's `index.md` on the left, the post as
-the dev server renders it on the right. It saves as you type (⌘S saves at
-once), and the preview reloads with each save. "new post" writes the same
-draft bundle as `just new`. Drag or paste images into the text: each one is
-saved next to `index.md` with a slugified name and linked as
-`![](./<name>)`, with the cursor between the brackets for the alt text.
-Notebook posts aren't listed, since marimo writes them. The editor and its API
-(`src/editor/`) exist only in the dev server, never in the built site; nothing
-is committed, so review and commit the bundle as usual.
+<http://localhost:4321/editor/>. It edits the post's `index.md` in one pane with
+a live preview: away from the cursor the Markdown syntax hides and the text
+reads like the post (headings, emphasis, `==highlights==`, links, images
+inline), while the lines under the cursor show their Markdown to edit. The
+"preview" button adds the post as the dev server renders it beside the text,
+and "vim" turns on vim keys; both choices are remembered. It saves as you type
+(⌘S saves at once). "new post" writes the same draft bundle as `just new`.
+Drag or paste images into the text: each one is saved next to `index.md` with
+a slugified name and linked as `![](./<name>)`, with the cursor between the
+brackets for the alt text. Notebook posts aren't listed, since marimo writes
+them. The editor and its API (`src/editor/`) exist only in the dev server,
+never in the built site; nothing is committed, so review and commit the bundle
+as usual.
 
 ## Marimo Notebook Posts
 
