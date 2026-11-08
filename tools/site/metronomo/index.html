@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="it" data-theme="light">
+  <head>
+    <!-- head: metronomo · luca baggi | un metronomo con tempi in chiave, suddivisioni, accento sul primo e tap tempo. -->
+    <link rel="stylesheet" href="/metronomo/style.css">
+  </head>
+  <body>
+    <!-- header -->
+    <main id="main" class="wrap metro">
+      <div class="tool-head">
+        <h1>metronomo<i>.</i></h1>
+        <fieldset class="segmented" aria-label="tempo in chiave">
+          <button type="button" data-beats="2" aria-pressed="false">2/4</button>
+          <button type="button" data-beats="3" aria-pressed="false">3/4</button>
+          <button type="button" data-beats="4" aria-pressed="true">4/4</button>
+          <button type="button" data-beats="6" aria-pressed="false">6/8</button>
+        </fieldset>
+      </div>
+
+      <div class="stage" aria-hidden="true">
+        <div class="arc"></div>
+        <div class="arm" id="arm"></div>
+      </div>
+
+      <div class="beats" id="beats"></div>
+
+      <section class="tempo" aria-label="tempo">
+        <div class="bpm-row">
+          <button type="button" class="step" id="minus" aria-label="diminuisci i bpm">−</button>
+          <output class="bpm" id="bpm" aria-live="polite">96</output>
+          <button type="button" class="step" id="plus" aria-label="aumenta i bpm">+</button>
+        </div>
+        <div class="marking"><b id="mark">andante</b><small>bpm</small></div>
+      </section>
+
+      <div>
+        <input type="range" id="slider" min="30" max="250" value="96" aria-label="bpm">
+        <div class="scale"><span>30</span><span>60</span><span>120</span><span>180</span><span>250</span></div>
+      </div>
+
+      <div class="options">
+        <button type="button" class="opt" id="sub"><span>suddivisione</span><b id="sub-label">♩ semiminime</b></button>
+        <button type="button" class="opt" id="accent">
+          <span>accento sul primo</span><b id="accent-label">attivo</b>
+        </button>
+      </div>
+
+      <div class="controls">
+        <button type="button" class="btn ghost tap" id="tap">tap</button>
+        <button type="button" class="btn play" id="play">
+          <svg id="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>
+          <span id="play-label">avvia</span>
+        </button>
+      </div>
+      <p class="keys"><kbd>spazio</kbd> avvia e ferma · <kbd>↑</kbd> <kbd>↓</kbd> cambiano i bpm</p>
+    </main>
+    <!-- footer -->
+    <script src="/metronomo/app.js"></script>
+  </body>
+</html>

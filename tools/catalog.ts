@@ -7,6 +7,11 @@ export interface Tool {
 }
 
 export const tools: Tool[] = [
+  {
+    slug: "metronomo",
+    name: "metronomo",
+    description: "a metronome with time signatures, subdivisions, an accent on the downbeat and tap tempo.",
+  },
 ];
 
 interface Link {
