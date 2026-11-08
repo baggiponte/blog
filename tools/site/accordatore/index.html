@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="it" data-theme="light">
+  <head>
+    <!-- head: accordatore · luca baggi | accorda una chitarra a sei corde a orecchio, con le note di riferimento, o con il microfono. -->
+    <link rel="stylesheet" href="/accordatore/style.css">
+  </head>
+  <body>
+    <!-- header -->
+    <main id="main" class="wrap tuner">
+      <div class="tool-head">
+        <h1>accordatore<i>.</i></h1>
+        <button type="button" class="auto" id="auto" aria-pressed="true">auto <span class="switch"></span></button>
+      </div>
+      <p class="sub"><b>chitarra 6 corde</b> · standard (E A D G B E) · la = 440 Hz</p>
+
+      <div class="meter">
+        <svg class="ticks" id="ticks" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <span class="flat" aria-hidden="true">♭</span><span class="sharp" aria-hidden="true">♯</span>
+        <div class="center-line"></div>
+        <div class="needle" id="needle">–</div>
+      </div>
+      <div class="readout" id="readout">&nbsp;</div>
+      <div class="status" id="status" role="status">tocca una corda per sentire la nota di riferimento</div>
+      <button type="button" class="btn mic" id="mic">usa il microfono</button>
+
+      <div class="head">
+        <div class="col">
+          <button type="button" class="str" data-i="2">D<small>146.8</small></button>
+          <button type="button" class="str" data-i="1">A<small>110.0</small></button>
+          <button type="button" class="str" data-i="0">E<small>82.4</small></button>
+        </div>
+        <canvas id="headstock" aria-hidden="true"></canvas>
+        <div class="col">
+          <button type="button" class="str" data-i="3">G<small>196.0</small></button>
+          <button type="button" class="str" data-i="4">B<small>246.9</small></button>
+          <button type="button" class="str" data-i="5">E<small>329.6</small></button>
+        </div>
+      </div>
+      <p class="hint">corda 6 (mi grave) in basso a sinistra · corda 1 (mi cantino) in basso a destra</p>
+    </main>
+    <!-- footer -->
+    <script src="/accordatore/app.js"></script>
+  </body>
+</html>

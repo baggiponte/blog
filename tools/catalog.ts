@@ -12,6 +12,11 @@ export const tools: Tool[] = [
     name: "metronomo",
     description: "a metronome with time signatures, subdivisions, an accent on the downbeat and tap tempo.",
   },
+  {
+    slug: "accordatore",
+    name: "accordatore",
+    description: "tune a six-string guitar by ear with reference notes, or with the microphone.",
+  },
 ];
 
 interface Link {
