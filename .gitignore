@@ -10,3 +10,7 @@ node_modules/
 /test-results/
 .env*
 .dev.vars*
+# tools.baggiponte.com build output
+/tools/dist/
+/tools/.wrangler/
+/tools/.cloudflare/
