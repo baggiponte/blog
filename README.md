@@ -124,6 +124,34 @@ name the venue.
 The talks used to live in `baggiponte/talks` at `talks.baggiponte.com`; their
 history is in this repo's log under `talks/`, before the move into this layout.
 
+## Tools
+
+<https://tools.baggiponte.com> is a separate Worker, `tools`, built from `tools/`: small static tools (the
+formatter, preferiresti, metronomo, accordatore) and an index that lists them. Each tool is a folder in
+`tools/site/<slug>/` with its `index.html`, `style.css` and `app.js`, and an entry in `tools/catalog.ts`, which the
+index is generated from. `tools/build.ts` copies the blog's palette, fonts, header and footer from
+`src/styles/global.css` and the fontsource packages into every page, so the tools look like the blog and follow its
+changes.
+
+```bash
+pnpm tools:build    # tools/dist/, packaged for Cloudflare in tools/.cloudflare/
+pnpm tools:check    # build and Cloudflare dry-run
+pnpm tools:deploy   # upload the last build (Workers Builds runs this on main)
+```
+
+Workers Builds deploys it from `main` with these settings:
+
+| setting | value |
+| --- | --- |
+| Git repository | `baggiponte/blog`, production branch `main` |
+| Root directory | `/` |
+| Build command | `pnpm tools:build` |
+| Deploy command | `pnpm tools:deploy` |
+| Build watch paths | `tools/*`, `src/styles/global.css`, `package.json`, `pnpm-lock.yaml` |
+
+`pnpm test` serves `tools/dist/` next to the blog and runs `tests/tools.spec.ts`; set `TOOLS_BASE_URL` to test the
+deployed site.
+
 ## Docs
 
 `docs/` holds standalone reference pages that are not part of the site. Open them

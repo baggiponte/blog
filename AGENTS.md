@@ -18,6 +18,12 @@
 * Keep Slidev decks in `decks/` as imported, apart from build fixes.
 * Run `pnpm lint`, `pnpm typecheck`, `pnpm test:unit` and `pnpm test` after changing the talks page or the build.
 
+# Tools
+
+* Add a tool as `tools/site/<slug>/` (`index.html`, `style.css`, `app.js`) plus an entry in `tools/catalog.ts`.
+* Style tools with the blog's tokens (`--paper`, `--ink`, `--accent`, …) and the shared `tools.css`; never copy colours or fonts in.
+* Run `pnpm tools:build` before `pnpm test`, which serves `tools/dist/`.
+
 # Code
 
 * Run `pnpm lint`, `pnpm typecheck`, `pnpm test:unit` and `pnpm test` (after `pnpm build`) after changing code.
