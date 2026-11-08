@@ -8,6 +8,11 @@ export interface Tool {
 
 export const tools: Tool[] = [
   {
+    slug: "formatter",
+    name: "formatter",
+    description: "write a linkedin post with bold, italic and lists, then copy it as text linkedin keeps.",
+  },
+  {
     slug: "metronomo",
     name: "metronomo",
     description: "a metronome with time signatures, subdivisions, an accent on the downbeat and tap tempo.",
