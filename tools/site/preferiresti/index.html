@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="it" data-theme="light">
+  <head>
+    <!-- head: preferiresti · luca baggi | trasforma un dilemma in una storia 1080×1920 con uno sfondo sfumato, ed esportala in png. -->
+    <link rel="stylesheet" href="/preferiresti/style.css">
+  </head>
+  <body>
+    <!-- header -->
+    <main id="main" class="wrap pref">
+      <div class="tool-head">
+        <h1>preferiresti<i>.</i></h1>
+        <button type="button" class="btn export" id="download" disabled>
+          <span aria-hidden="true">↓</span>
+          scarica png
+        </button>
+      </div>
+      <div class="layout">
+        <aside>
+          <p class="intro">
+            <b>le tue opzioni, una storia.</b>
+            Scegli lo sfondo, scrivi il dilemma.<br>La tua storia è già pronta.
+          </p>
+          <section class="section">
+            <h2>01 · sfondo</h2>
+            <fieldset class="presets" id="presets" aria-label="gradienti predefiniti"></fieldset>
+            <div class="colors">
+              <label
+                ><span class="color-label">In alto</span
+                ><span class="color-field"
+                  ><input type="color" id="top" aria-label="Colore in alto"><span class="hex" id="topHex"></span></span
+                ></label
+              ><button type="button" class="swap" id="swap" title="Scambia i colori" aria-label="Scambia i colori">
+                ⇅
+              </button><label
+                ><span class="color-label">In basso</span
+                ><span class="color-field"
+                  ><input type="color" id="bottom" aria-label="Colore in basso">
+                  <span class="hex" id="bottomHex"></span></span
+                ></label
+              >
+            </div>
+            <label class="glow"><input id="glow" type="checkbox"> Luce calda, come nel riferimento</label>
+          </section>
+          <section class="section">
+            <h2>02 · il dilemma</h2>
+            <label class="field">Titolo<input id="title" maxlength="160" value="Preferiresti:"></label>
+            <div id="options"></div>
+            <button type="button" class="add-option" id="addOption">+ Aggiungi opzione</button>
+          </section>
+          <section class="section">
+            <h2>03 · testo</h2>
+            <div class="row"><label for="size">Dimensione</label><output id="sizeValue" for="size"></output></div>
+            <input type="range" id="size" min="30" max="84" value="68" aria-label="Dimensione del testo">
+            <p class="hint left">Il testo si adatta in automatico se è troppo lungo.</p>
+          </section>
+          <details class="details">
+            <summary>Font originale</summary>
+            <p>
+              Il font incluso è Barlow Condensed, una variante libera simile al riferimento. Se hai
+              <a href="https://a2-type.co.uk/aveny-t" target="_blank" rel="noopener noreferrer">Aveny-T</a>, puoi
+              caricarlo qui (.otf, .ttf, .woff, .woff2). Rimane su questo dispositivo.
+            </p>
+            <input type="file" class="font-input" id="font" accept=".otf,.ttf,.woff,.woff2">
+            <label class="font-button" for="font">Carica font</label>
+            <p id="fontName">Barlow Condensed · incluso</p>
+            <button type="button" class="reset" id="resetFont">Usa il font incluso</button>
+          </details>
+          <button type="button" class="reset" id="reset">Ripristina esempio</button>
+        </aside>
+        <div class="preview-area">
+          <div class="preview-meta"><span>storia · 9:16</span><span class="live">anteprima live</span></div>
+          <canvas
+            id="story"
+            width="1080"
+            height="1920"
+            role="img"
+            aria-label="Anteprima della storia Preferiresti"
+          ></canvas>
+          <p class="hint">
+            1080 × 1920 px · Senza watermark<br>Le modifiche si salvano automaticamente su questo browser.
+          </p>
+          <p class="status" id="status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </main>
+    <!-- footer -->
+    <script src="/preferiresti/app.js"></script>
+  </body>
+</html>

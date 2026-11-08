@@ -13,6 +13,11 @@ export const tools: Tool[] = [
     description: "write a linkedin post with bold, italic and lists, then copy it as text linkedin keeps.",
   },
   {
+    slug: "preferiresti",
+    name: "preferiresti",
+    description: "turn a would-you-rather dilemma into a 1080×1920 story with a gradient background.",
+  },
+  {
     slug: "metronomo",
     name: "metronomo",
     description: "a metronome with time signatures, subdivisions, an accent on the downbeat and tap tempo.",
