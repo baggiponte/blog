@@ -10,6 +10,7 @@ import { basicSetup } from "codemirror";
 
 import { find as $, element } from "../scripts/dom.ts";
 import { apiBase } from "./base.ts";
+import { enterKeys } from "./enter.ts";
 import { formatKeys } from "./format.ts";
 import { imageInsert } from "./insert.ts";
 import { livePreview, postImageUrl, revealOnClick } from "./live-preview.ts";
@@ -168,8 +169,8 @@ const view = new EditorView({
     revealOnClick,
     syntaxHighlighting(highlight),
     EditorView.lineWrapping,
-    // Above the default keymap, which has ⌘I and ⌘U for selecting syntax and undoing selections.
-    Prec.high(keymap.of(formatKeys)),
+    // Above the default keymap, which has ⌘I and ⌘U for selecting syntax and undoing selections, and its own Enter.
+    Prec.high(keymap.of([...formatKeys, ...enterKeys])),
     keymap.of([
       {
         key: "Mod-s",
