@@ -115,11 +115,11 @@ export function livePreviewDecorations(state: EditorState, imageSource: ImageSou
         styleLines(node.from, node.name === "Frontmatter" ? node.to - 1 : node.to, cls);
       }
       if (node.name === "Paragraph") {
-        // A single newline continues the paragraph, which the site renders as one block: marked so it isn't
-        // mistaken for a paragraph break.
+        // Each line is a paragraph on the site (src/lib/remark-line-paragraphs.ts), so it gets a paragraph's
+        // space below it, though Markdown parses the lines as one paragraph.
         const last = state.doc.lineAt(node.to).number;
         for (let n = state.doc.lineAt(node.from).number; n < last; n++) {
-          decorations.push(line("cm-lp-soft").range(state.doc.line(n).from));
+          decorations.push(line("cm-lp-split").range(state.doc.line(n).from));
         }
       }
       if (node.name === "Frontmatter" || node.name === "FencedCode" || node.name === "InlineCode") {
@@ -167,6 +167,10 @@ export function livePreviewDecorations(state: EditorState, imageSource: ImageSou
   const inCode = (position: number): boolean => code.some(([from, to]) => position >= from && position < to);
   for (let n = 1; n <= state.doc.lines; n++) {
     const { from, text } = state.doc.line(n);
+    // A blank line between blocks is as tall as the space between two paragraphs.
+    if (text.trim() === "" && !inCode(from)) {
+      decorations.push(line("cm-lp-blank").range(from));
+    }
     for (const match of text.matchAll(markPattern)) {
       const start = from + match.index;
       const end = start + match[0].length;

@@ -294,13 +294,12 @@ dialog button {
 #source .cm-lp-frontmatter {
   color: var(--muted);
 }
-/* A line that runs on into the same paragraph (live-preview.ts). */
-#source .cm-lp-soft::after {
-  content: "↵";
-  margin-left: 0.35em;
-  color: var(--muted);
-  opacity: 0.45;
-  font-size: 0.8em;
+/* Paragraph spacing as on the site (.prose p): below each line of text, and as the height of a blank line. */
+#source .cm-lp-split {
+  padding-bottom: 22px;
+}
+#source .cm-lp-blank {
+  line-height: 22px;
 }
 #source .cm-lp-rule {
   color: var(--muted);
