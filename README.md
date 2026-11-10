@@ -72,7 +72,8 @@ just notebook <slug> <name>  # marimo notebook post
 Each entry is a bundle under `content/blog/<slug>/` whose `index.md` holds the
 front matter: `title`, `description`, `date`, `format` (`post` or `tidbits`),
 `draft` and, for notebook posts, `notebook`. New entries start as drafts, which
-show up only in `pnpm dev`. Wrap text in `==double equals==` to highlight it.
+show up only in `pnpm dev`; a draft may keep a capitalised title or an empty
+description, which a published post may not. Wrap text in `==double equals==` to highlight it.
 Every post is also served as raw Markdown at `/blog/<slug>.md`, which the copy
 page button uses.
 

@@ -3,6 +3,8 @@ import { dirname } from "node:path";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
+import { postSchema } from "./lib/post-schema.ts";
+
 // Every post is a bundle: content/blog/<slug>/index.md holds the metadata (and the body,
 // unless the post is a marimo notebook, whose generated <name>.md is named in `notebook`).
 const blog = defineCollection({
@@ -12,22 +14,7 @@ const blog = defineCollection({
     // "01-groundup-linear-regression/index.md" has the id "01-groundup-linear-regression".
     generateId: ({ entry }) => dirname(entry),
   }),
-  schema: z.object({
-    // Titles are lowercase, like the rest of the site (AGENTS.md).
-    title: z
-      .string()
-      .min(1)
-      .refine(title => title === title.toLowerCase(), "titles are lowercase"),
-    description: z.string().min(1),
-    date: z.coerce.date(),
-    format: z.enum(["post", "tidbits"]).default("post"),
-    // The export next to index.md, as `just notebook` writes it: "<name>.md".
-    notebook: z
-      .string()
-      .regex(/^[\w-]+\.md$/, "a <name>.md file next to index.md")
-      .optional(),
-    draft: z.boolean().default(false),
-  }),
+  schema: postSchema,
 });
 
 // Markdown exported by `just marimo-export`; never edited by hand.
