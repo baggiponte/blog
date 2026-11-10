@@ -18,16 +18,18 @@ async function blog(posts: Record<string, string>): Promise<string> {
 const frontmatter = (fields: string): string => `---\n${fields}\n---\n\nbody\n`;
 const may5 = new Date("2026-05-05T10:00:00Z");
 
-test("lists hand-written posts newest folder first, without notebook posts", async () => {
+test("lists hand-written posts newest date first, without notebook posts", async () => {
   const dir = await blog({
-    "01-first": frontmatter('title: "first post"\ndraft: false'),
+    "01-first": frontmatter('title: "first post"\ndate: 2026-03-01\ndraft: false'),
     "02-notebook": frontmatter("title: notebook\nnotebook: nb.md"),
-    "03-third": frontmatter("title: 'third: the sequel'\ndraft: true"),
+    "03-third": frontmatter("title: 'third: the sequel'\ndate: 2026-01-01\ndraft: true"),
+    "zz-undated": frontmatter("title: undated"),
   });
   await mkdir(join(dir, "empty-folder"));
   assert.deepEqual(await listPosts(dir), [
-    { dir: "03-third", title: "third: the sequel", draft: true, url: "/blog/third/" },
-    { dir: "01-first", title: "first post", draft: false, url: "/blog/first/" },
+    { dir: "01-first", title: "first post", date: "2026-03-01", draft: false, url: "/blog/first/" },
+    { dir: "03-third", title: "third: the sequel", date: "2026-01-01", draft: true, url: "/blog/third/" },
+    { dir: "zz-undated", title: "undated", date: "", draft: false, url: "/blog/zz-undated/" },
   ]);
 });
 
