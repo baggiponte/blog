@@ -294,6 +294,13 @@ dialog button {
 #source .cm-lp-frontmatter {
   color: var(--muted);
 }
+/* Paragraph spacing as on the site (.prose p): below each line of text, and as the height of a blank line. */
+#source .cm-lp-split {
+  padding-bottom: 22px;
+}
+#source .cm-lp-blank {
+  line-height: 22px;
+}
 #source .cm-lp-rule {
   color: var(--muted);
 }

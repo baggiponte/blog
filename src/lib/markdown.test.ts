@@ -21,6 +21,21 @@ test("several highlights in one paragraph, and inside a link", async () => {
   );
 });
 
+test("a single newline starts a new paragraph, as a blank line does", async () => {
+  assert.equal(await html("one\ntwo **bold**\n\nthree"), "<p>one</p>\n<p>two <strong>bold</strong></p>\n<p>three</p>");
+});
+
+test("lines in list items and quotes become paragraphs too, code blocks keep their lines", async () => {
+  assert.equal(await html("> one\n> two"), "<blockquote>\n<p>one</p>\n<p>two</p>\n</blockquote>");
+  const code = await html("```\na\nb\n```");
+  assert.doesNotMatch(code, /<p>/);
+  assert.equal(code.match(/class="line"/g)?.length, 2);
+});
+
+test("a hard break stays a line break inside the paragraph", async () => {
+  assert.equal(await html("one\\\ntwo"), "<p>one<br>\ntwo</p>");
+});
+
 test("code blocks are captioned with the marimo cell name, else the language", async () => {
   const page = await html('```python {.marimo name="setup"}\nx = 1\n```\n\n```js\n1\n```\n\n```\nplain\n```');
   const captions = [...page.matchAll(/<figcaption><span>([^<]*)<\/span><\/figcaption>/g)].map(match => match[1]);

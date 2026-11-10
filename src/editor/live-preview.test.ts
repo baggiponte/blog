@@ -89,3 +89,15 @@ test("images in the post's folder are served by the editor API; others stay put"
   assert.equal(postImageUrl("/api", "my-post", "/favicon.svg"), "/favicon.svg");
   assert.equal(postImageUrl("/api", "my-post", "https://x.y/a.png"), "https://x.y/a.png");
 });
+
+test("each line of text gets a paragraph's space below it, and blank lines are marked", () => {
+  const text = "one\ntwo\nthree\n\nfour\n";
+  let state = EditorState.create({ doc: text, extensions: [markdown({ base: markdownLanguage })] });
+  ensureSyntaxTree(state, state.doc.length, 5000);
+  state = state.update({}).state;
+  const lines: Record<string, number[]> = { "cm-lp-split": [], "cm-lp-blank": [] };
+  livePreviewDecorations(state, url => url).between(0, text.length, (from, _to, value) => {
+    lines[value.spec.class as string]?.push(state.doc.lineAt(from).number);
+  });
+  assert.deepEqual(lines, { "cm-lp-split": [1, 2], "cm-lp-blank": [4, 6] });
+});
