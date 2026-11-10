@@ -1,10 +1,12 @@
 # Checks only: production is deployed by Cloudflare Workers Builds on push to main
-# (see README), so PRs are the only place these need to run.
+# (see README), so PRs and the merge queue are the only places these need to run.
 name: Check blog
 
 on:
   pull_request:
     branches: ["main"]
+  # The merge queue runs the same checks on each PR merged onto the latest main.
+  merge_group:
   workflow_dispatch:
 
 permissions: {}
