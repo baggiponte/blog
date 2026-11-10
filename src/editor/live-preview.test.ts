@@ -89,3 +89,17 @@ test("images in the post's folder are served by the editor API; others stay put"
   assert.equal(postImageUrl("/api", "my-post", "/favicon.svg"), "/favicon.svg");
   assert.equal(postImageUrl("/api", "my-post", "https://x.y/a.png"), "https://x.y/a.png");
 });
+
+test("lines that run on into the same paragraph are marked, paragraph ends are not", () => {
+  const text = "one\ntwo\nthree\n\nfour\n";
+  let state = EditorState.create({ doc: text, extensions: [markdown({ base: markdownLanguage })] });
+  ensureSyntaxTree(state, state.doc.length, 5000);
+  state = state.update({}).state;
+  const soft: number[] = [];
+  livePreviewDecorations(state, url => url).between(0, text.length, (from, _to, value) => {
+    if (value.spec.class === "cm-lp-soft") {
+      soft.push(state.doc.lineAt(from).number);
+    }
+  });
+  assert.deepEqual(soft, [1, 2]);
+});

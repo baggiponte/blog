@@ -114,6 +114,14 @@ export function livePreviewDecorations(state: EditorState, imageSource: ImageSou
         // A frontmatter's closing line ends with its newline, which belongs to the next line.
         styleLines(node.from, node.name === "Frontmatter" ? node.to - 1 : node.to, cls);
       }
+      if (node.name === "Paragraph") {
+        // A single newline continues the paragraph, which the site renders as one block: marked so it isn't
+        // mistaken for a paragraph break.
+        const last = state.doc.lineAt(node.to).number;
+        for (let n = state.doc.lineAt(node.from).number; n < last; n++) {
+          decorations.push(line("cm-lp-soft").range(state.doc.line(n).from));
+        }
+      }
       if (node.name === "Frontmatter" || node.name === "FencedCode" || node.name === "InlineCode") {
         code.push([node.from, node.to]);
       }
