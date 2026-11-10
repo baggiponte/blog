@@ -277,16 +277,19 @@ dialog button {
 #source .cm-lp-h4 {
   font-weight: 700;
 }
+/* Lines keep CodeMirror's own padding: it draws the selection from the padding of the first line on screen, so
+   a line with more padding shifts every selection sideways. Insets are borders instead. */
 #source .cm-lp-quote {
-  border-left: 3px solid var(--rule);
-  padding-left: 16px;
+  /* the 3px rule, painted over the border's inset */
+  border-left: 19px solid transparent;
+  background: linear-gradient(var(--rule), var(--rule)) 0 0 / 3px 100% no-repeat border-box;
   color: var(--muted);
 }
 #source .cm-lp-code,
 #source .cm-lp-frontmatter {
   font: 14.5px / 1.65 var(--mono);
   background: var(--code-bg);
-  padding-inline: 16px;
+  border-inline: 16px solid var(--code-bg);
 }
 #source .cm-lp-frontmatter {
   color: var(--muted);
