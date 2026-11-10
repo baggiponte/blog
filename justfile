@@ -2,6 +2,8 @@
 marimo := "0.25.2"
 prek := "0.5.7"
 
+set quiet
+
 # Run marimo notebook export hook, then launch the astro dev server (drafts included)
 serve:
     uvx --from prek=={{ prek }} prek run marimo-export-notebooks
