@@ -98,6 +98,8 @@ brackets for the alt text. Notebook posts aren't listed, since marimo writes
 them. The editor and its API (`src/editor/`) exist only in the dev server,
 never in the built site; nothing is committed, so review and commit the bundle
 as usual.
+Changes to the editor's own code, page and API included, apply on a browser
+refresh, without restarting `astro dev`.
 
 ## Marimo Notebook Posts
 
