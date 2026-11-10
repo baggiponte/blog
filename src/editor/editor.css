@@ -267,12 +267,12 @@ dialog button {
 #source .cm-lp-h2 {
   font-size: 28px;
   line-height: 1.3;
-  padding-top: 20px;
+  padding-block: 20px 8px;
 }
 #source .cm-lp-h3 {
   font-size: 22px;
   line-height: 1.4;
-  padding-top: 12px;
+  padding-block: 12px 6px;
 }
 #source .cm-lp-h4 {
   font-weight: 700;
