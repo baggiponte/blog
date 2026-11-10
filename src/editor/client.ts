@@ -1,0 +1,325 @@
+import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
+import { yamlFrontmatter } from "@codemirror/lang-yaml";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { languages } from "@codemirror/language-data";
+import { Compartment } from "@codemirror/state";
+import { EditorView, keymap } from "@codemirror/view";
+import { tags } from "@lezer/highlight";
+import { vim } from "@replit/codemirror-vim";
+import { basicSetup } from "codemirror";
+
+import { find as $ } from "../scripts/dom.ts";
+import { apiBase } from "./base.ts";
+import { imageInsert } from "./insert.ts";
+import { livePreview, postImageUrl, revealOnClick } from "./live-preview.ts";
+import type { DraftSummary, Format } from "./posts.ts";
+
+const select = $<HTMLSelectElement>("#post");
+const status = $<HTMLElement>("#status");
+const preview = $<HTMLIFrameElement>("#preview");
+const open = $<HTMLAnchorElement>("#open");
+const dialog = $<HTMLDialogElement>("#new");
+const form = $<HTMLFormElement>("#new form");
+const pane = $<HTMLElement>("#source");
+const vimToggle = $<HTMLButtonElement>("#vim");
+const previewToggle = $<HTMLButtonElement>("#show-preview");
+const panes = $<HTMLElement>(".panes");
+
+const saveDelay = 600;
+let current: DraftSummary | undefined;
+let posts: DraftSummary[] = [];
+let timer: ReturnType<typeof setTimeout> | undefined;
+let saved = "";
+// The preview reloads on every save; it comes back where it was.
+let previewScroll = 0;
+
+function say(text: string, tone: "ok" | "busy" | "error" = "ok"): void {
+  status.textContent = text;
+  status.setAttribute("data-tone", tone);
+}
+
+async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${apiBase}${path}`, init);
+  if (!response.ok) {
+    const { error } = (await response.json().catch(() => ({ error: response.statusText }))) as { error: string };
+    throw new Error(error);
+  }
+  const type = response.headers.get("Content-Type") ?? "";
+  return (type.includes("json") ? response.json() : response.text()) as Promise<T>;
+}
+
+async function save(): Promise<void> {
+  clearTimeout(timer);
+  timer = undefined;
+  const text = view.state.doc.toString();
+  if (current === undefined || text === saved) {
+    return;
+  }
+  say("saving…", "busy");
+  try {
+    rememberScroll();
+    await api(`/posts/${current.dir}`, { method: "PUT", body: text });
+    saved = text;
+    say("saved");
+  } catch (error) {
+    say(`not saved: ${(error as Error).message}`, "error");
+  }
+}
+
+function rememberScroll(): void {
+  try {
+    previewScroll = preview.contentWindow?.scrollY ?? previewScroll;
+  } catch {
+    // A cross-origin page (an error overlay never is, but be safe) keeps the last known position.
+  }
+}
+
+preview.addEventListener("load", () => {
+  preview.contentWindow?.scrollTo(0, previewScroll);
+});
+
+// Dropped or pasted images are saved next to index.md, then linked where they landed.
+async function addImages(files: File[], position: number): Promise<void> {
+  const images = files.filter(file => file.type.startsWith("image/"));
+  if (current === undefined || images.length === 0) {
+    return;
+  }
+  const dir = current.dir;
+  say(images.length === 1 ? "adding the image…" : `adding ${images.length} images…`, "busy");
+  try {
+    const names: string[] = [];
+    for (const image of images) {
+      const name = image.name || `pasted.${image.type.split("/")[1] ?? "png"}`;
+      const { name: savedAs } = await api<{ name: string }>(`/posts/${dir}/images?name=${encodeURIComponent(name)}`, {
+        method: "POST",
+        body: image,
+      });
+      names.push(savedAs);
+    }
+    if (current?.dir !== dir) {
+      return;
+    }
+    const { text, altFrom } = imageInsert(view.state.doc.toString(), position, names);
+    view.dispatch({ changes: { from: position, insert: text }, selection: { anchor: position + altFrom } });
+    view.focus();
+    say(names.length === 1 ? `added ${names[0]}` : `added ${names.length} images`);
+  } catch (error) {
+    say(`image not added: ${(error as Error).message}`, "error");
+  }
+}
+
+// Colours from the site's tokens (editor.css), so the source reads in light and dark alike.
+const highlight = HighlightStyle.define([
+  { tag: [tags.heading], fontWeight: "700", color: "var(--ink)" },
+  { tag: [tags.emphasis], fontStyle: "italic" },
+  { tag: [tags.strong], fontWeight: "700" },
+  { tag: [tags.strikethrough], textDecoration: "line-through" },
+  { tag: [tags.link, tags.url], color: "var(--accent)" },
+  {
+    tag: [tags.monospace],
+    fontFamily: "var(--mono)",
+    fontSize: "0.88em",
+    background: "var(--code-line)",
+    borderRadius: "3px",
+  },
+  { tag: [tags.quote], color: "var(--muted)", fontStyle: "italic" },
+  { tag: [tags.processingInstruction, tags.meta, tags.contentSeparator, tags.punctuation], color: "var(--code-muted)" },
+  { tag: [tags.propertyName, tags.definition(tags.propertyName)], color: "var(--accent)" },
+  { tag: [tags.keyword, tags.operator], color: "var(--accent)" },
+  { tag: [tags.string, tags.number, tags.bool, tags.atom], color: "var(--muted)" },
+  { tag: [tags.comment], color: "var(--code-muted)", fontStyle: "italic" },
+]);
+
+// Per-browser choices: vim keys, and whether the rendered post shows next to the editor.
+function remembered(key: string, fallback: boolean): boolean {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value === "true";
+  } catch {
+    return fallback;
+  }
+}
+function remember(key: string, value: boolean): void {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {
+    // Private windows may refuse; the choice just isn't kept.
+  }
+}
+
+const keys = new Compartment();
+let vimOn = remembered("editor-vim", false);
+let previewOn = remembered("editor-preview", false);
+
+const view = new EditorView({
+  parent: pane,
+  extensions: [
+    // Vim's keymap goes before the default one, so its keys win.
+    keys.of(vimOn ? vim() : []),
+    basicSetup,
+    // index.md is YAML frontmatter, then the Markdown body.
+    yamlFrontmatter({ content: markdown({ base: markdownLanguage, codeLanguages: languages }) }),
+    livePreview(url => postImageUrl(apiBase, current?.dir ?? "", url)),
+    revealOnClick,
+    syntaxHighlighting(highlight),
+    EditorView.lineWrapping,
+    keymap.of([
+      {
+        key: "Mod-s",
+        preventDefault: true,
+        run: () => {
+          void save();
+          return true;
+        },
+      },
+    ]),
+    EditorView.updateListener.of(update => {
+      if (update.docChanged && current !== undefined) {
+        clearTimeout(timer);
+        timer = setTimeout(() => void save(), saveDelay);
+        say("editing…", "busy");
+      }
+    }),
+    EditorView.domEventHandlers({
+      dragover: event => {
+        if (event.dataTransfer?.types.includes("Files")) {
+          event.preventDefault();
+          pane.toggleAttribute("data-dropping", true);
+        }
+        return false;
+      },
+      dragleave: () => {
+        pane.toggleAttribute("data-dropping", false);
+        return false;
+      },
+      drop: (event, editor) => {
+        pane.toggleAttribute("data-dropping", false);
+        const files = [...(event.dataTransfer?.files ?? [])];
+        if (files.length === 0) {
+          return false;
+        }
+        event.preventDefault();
+        const position = editor.posAtCoords({ x: event.clientX, y: event.clientY }) ?? editor.state.selection.main.head;
+        void addImages(files, position);
+        return true;
+      },
+      paste: (event, editor) => {
+        const files = [...(event.clipboardData?.files ?? [])];
+        if (files.length === 0) {
+          return false;
+        }
+        event.preventDefault();
+        // At the end of the cursor's line: an image is a paragraph of its own, so it shouldn't split a sentence (in
+        // vim's normal mode the cursor sits on a character, not between two).
+        void addImages(files, editor.state.doc.lineAt(editor.state.selection.main.head).to);
+        return true;
+      },
+    }),
+  ],
+});
+
+function showVim(): void {
+  vimToggle.setAttribute("aria-pressed", String(vimOn));
+  view.dispatch({ effects: keys.reconfigure(vimOn ? vim() : []) });
+}
+function showPreview(): void {
+  previewToggle.setAttribute("aria-pressed", String(previewOn));
+  panes.toggleAttribute("data-preview", previewOn);
+  preview.hidden = !previewOn;
+  if (previewOn && current !== undefined && preview.getAttribute("src") !== current.url) {
+    preview.src = current.url;
+  }
+}
+vimToggle.addEventListener("click", () => {
+  vimOn = !vimOn;
+  remember("editor-vim", vimOn);
+  showVim();
+  view.focus();
+});
+previewToggle.addEventListener("click", () => {
+  previewOn = !previewOn;
+  remember("editor-preview", previewOn);
+  showPreview();
+});
+
+function renderList(): void {
+  select.replaceChildren(...posts.map(post => new Option(post.draft ? `${post.title} · draft` : post.title, post.dir)));
+  if (current !== undefined) {
+    select.value = current.dir;
+  }
+}
+
+async function openPost(dir: string): Promise<void> {
+  await save();
+  const post = posts.find(candidate => candidate.dir === dir) ?? posts[0];
+  if (post === undefined) {
+    say("no posts yet: start one with “new post”");
+    return;
+  }
+  const text = await api<string>(`/posts/${post.dir}`);
+  current = post;
+  saved = text;
+  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
+  select.value = post.dir;
+  open.href = post.url;
+  previewScroll = 0;
+  // A hidden preview loads once it's shown.
+  if (previewOn) {
+    preview.src = post.url;
+  }
+  history.replaceState(null, "", `#${post.dir}`);
+  say("saved");
+}
+
+// A new post's page exists once the dev server has picked up its folder, a moment after it's written.
+async function waitForPage(url: string): Promise<void> {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    if ((await fetch(url, { method: "HEAD" })).ok) {
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+}
+
+async function refresh(): Promise<void> {
+  posts = await api<DraftSummary[]>("/posts");
+  renderList();
+}
+
+select.addEventListener("change", () => void openPost(select.value));
+$<HTMLButtonElement>("#create").addEventListener("click", () => dialog.showModal());
+$<HTMLButtonElement>("#cancel").addEventListener("click", () => dialog.close());
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  const data = new FormData(form);
+  const body = {
+    title: String(data.get("title") ?? ""),
+    description: String(data.get("description") ?? ""),
+    format: String(data.get("format") ?? "post") as Format,
+  };
+  void (async () => {
+    try {
+      const { dir } = await api<{ dir: string }>("/posts", { method: "POST", body: JSON.stringify(body) });
+      dialog.close();
+      form.reset();
+      await refresh();
+      await waitForPage(posts.find(post => post.dir === dir)?.url ?? "/");
+      await openPost(dir);
+      view.dispatch({ selection: { anchor: view.state.doc.length } });
+      view.focus();
+    } catch (error) {
+      $<HTMLElement>("#new-error").textContent = (error as Error).message;
+    }
+  })();
+});
+// Closing the tab mid-sentence still writes the last words.
+addEventListener("pagehide", () => {
+  if (current !== undefined && view.state.doc.toString() !== saved) {
+    void fetch(`${apiBase}/posts/${current.dir}`, { method: "PUT", body: view.state.doc.toString(), keepalive: true });
+  }
+});
+
+showPreview();
+vimToggle.setAttribute("aria-pressed", String(vimOn));
+await refresh();
+await openPost(decodeURIComponent(location.hash.slice(1)));
