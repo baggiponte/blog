@@ -1,6 +1,7 @@
 # General directives
 
 * Titles, both for the blog and the articles, should be lowercase.
+* In posts every line of text is its own paragraph: write one paragraph per line and never hard-wrap prose.
 * Work on feature branches, never directly on `main`
 * Delete branches after merging
 * Commit frequently and atomically - Each commit should represent one logical change

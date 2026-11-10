@@ -74,6 +74,9 @@ front matter: `title`, `description`, `date`, `format` (`post` or `tidbits`),
 `draft` and, for notebook posts, `notebook`. New entries start as drafts, which
 show up only in `pnpm dev`; a draft may keep a capitalised title or an empty
 description, which a published post may not. Wrap text in `==double equals==` to highlight it.
+Each line of text is its own paragraph: write one paragraph per line, with no
+blank line needed between them (`src/lib/remark-line-paragraphs.ts`), so don't
+hard-wrap prose.
 Every post is also served as raw Markdown at `/blog/<slug>.md`, which the copy
 page button uses.
 
@@ -87,9 +90,7 @@ inline), while the lines under the cursor show their Markdown to edit. The
 "preview" button adds the post as the dev server renders it beside the text,
 and "vim" turns on vim keys; both choices are remembered. It saves as you type
 (⌘S saves at once). ⌘B, ⌘I, ⌘U and ⌘⇧X toggle bold, italic, `==highlight==`
-and strikethrough on the selection, with or without vim. Enter in a paragraph
-starts a new one (a blank line, as Markdown needs); Shift+Enter breaks the line
-within the paragraph. A sidebar lists the hand-written posts as a file tree,
+and strikethrough on the selection, with or without vim. A sidebar lists the hand-written posts as a file tree,
 newest first, with a "draft" tag on drafts; the button left of the title hides
 it. "+ new" writes the same draft bundle as `just new`.
 Drag or paste images into the text: each one is saved next to `index.md` with
