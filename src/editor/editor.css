@@ -60,9 +60,138 @@ dialog button {
   color: var(--paper);
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.bar .tree-toggle {
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  border-color: transparent;
+  color: var(--muted);
+}
+.bar .tree-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+.bar .tree-toggle[aria-pressed="true"] {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
+}
+
+/* The sidebar of posts beside the editor. */
+.workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+#posts {
+  flex: 0 0 clamp(220px, 20vw, 300px);
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-right: 1px solid var(--line);
+  padding: 12px 10px 24px;
+}
+#posts[hidden] {
+  display: none;
+}
+.tree-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px 10px;
+}
+.tree-root {
+  font: 12.5px / 1.2 var(--mono);
+  color: var(--muted);
+}
+#create {
+  font: 13px / 1 var(--sans);
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.tree {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 12px;
+  border-left: 1px solid var(--line);
+  margin-left: 12px;
+}
+.tree-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 8px;
+  align-items: baseline;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: var(--ink);
+}
+/* the branch from the tree's trunk to each post */
+.tree-item::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 1.05em;
+  width: 9px;
+  border-top: 1px solid var(--line);
+}
+.tree-dir {
+  grid-column: 1;
+  font: 12px / 1.4 var(--mono);
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tree-title {
+  grid-column: 1 / -1;
+  font-size: 14.5px;
+  line-height: 1.35;
+}
+.tag {
+  grid-column: 2;
+  grid-row: 1;
+  font: 600 10.5px / 1 var(--sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius: 999px;
+  padding: 3px 7px;
+}
+.tree-item[aria-current="page"] {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.tree-item[aria-current="page"] .tree-title {
+  font-weight: 600;
+}
+@media (hover: hover) {
+  .tree-item:hover {
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+  }
+  #create:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+}
+
 /* One pane by default; "preview" adds the rendered post beside it (below it on narrow screens). */
 .panes {
   flex: 1;
+  min-width: 0;
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -257,4 +386,18 @@ dialog button[type="submit"] {
 }
 #source .cm-editor.cm-focused {
   outline: none;
+}
+/* On a narrow window the sidebar floats over the text instead of squeezing it. */
+@media (max-width: 760px) {
+  .workspace {
+    position: relative;
+  }
+  #posts {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 5;
+    width: min(300px, 85vw);
+    background: var(--paper);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 18%, transparent);
+  }
 }

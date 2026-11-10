@@ -20,19 +20,30 @@ export const editorPage = `
   </head>
   <body>
     <header class="bar">
+      <button id="show-posts" class="tree-toggle" type="button" aria-pressed="true" aria-controls="posts" title="show the posts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"></rect><path d="M9.5 4.5v15"></path></svg>
+        <span class="visually-hidden">posts</span>
+      </button>
       <a class="brand" href="/">drafts<i>.</i></a>
-      <select id="post" aria-label="post"></select>
-      <button id="create" type="button">new post</button>
       <output id="status" aria-live="polite"></output>
       <button id="vim" type="button" aria-pressed="false" title="vim keys">vim</button>
       <button id="show-preview" type="button" aria-pressed="false" title="show the post as the site renders it">preview</button>
       <a id="open" href="/" target="_blank" rel="noopener">open post ↗</a>
     </header>
 
-    <main class="panes">
-      <section id="source" aria-label="markdown"></section>
-      <iframe id="preview" title="preview" hidden></iframe>
-    </main>
+    <div class="workspace">
+      <aside id="posts" aria-label="posts">
+        <div class="tree-head">
+          <span class="tree-root">content/blog/</span>
+          <button id="create" type="button" title="new post">+ new</button>
+        </div>
+        <ul class="tree" role="list"></ul>
+      </aside>
+      <main class="panes">
+        <section id="source" aria-label="markdown"></section>
+        <iframe id="preview" title="preview" hidden></iframe>
+      </main>
+    </div>
 
     <dialog id="new" aria-labelledby="new-h">
       <form method="dialog">

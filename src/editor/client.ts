@@ -8,13 +8,15 @@ import { tags } from "@lezer/highlight";
 import { vim } from "@replit/codemirror-vim";
 import { basicSetup } from "codemirror";
 
-import { find as $ } from "../scripts/dom.ts";
+import { find as $, element } from "../scripts/dom.ts";
 import { apiBase } from "./base.ts";
 import { imageInsert } from "./insert.ts";
 import { livePreview, postImageUrl, revealOnClick } from "./live-preview.ts";
 import type { DraftSummary, Format } from "./posts.ts";
 
-const select = $<HTMLSelectElement>("#post");
+const tree = $<HTMLUListElement>("#posts .tree");
+const sidebar = $<HTMLElement>("#posts");
+const postsToggle = $<HTMLButtonElement>("#show-posts");
 const status = $<HTMLElement>("#status");
 const preview = $<HTMLIFrameElement>("#preview");
 const open = $<HTMLAnchorElement>("#open");
@@ -61,6 +63,8 @@ async function save(): Promise<void> {
     await api(`/posts/${current.dir}`, { method: "PUT", body: text });
     saved = text;
     say("saved");
+    // A new title or draft flag shows in the sidebar.
+    await refresh();
   } catch (error) {
     say(`not saved: ${(error as Error).message}`, "error");
   }
@@ -242,12 +246,41 @@ previewToggle.addEventListener("click", () => {
   showPreview();
 });
 
+// The sidebar: one row per post folder, its title under the folder name, and a tag on drafts.
 function renderList(): void {
-  select.replaceChildren(...posts.map(post => new Option(post.draft ? `${post.title} · draft` : post.title, post.dir)));
-  if (current !== undefined) {
-    select.value = current.dir;
-  }
+  tree.replaceChildren(
+    ...posts.map(post => {
+      const row = element(
+        "a",
+        { className: "tree-item", href: `#${post.dir}` },
+        element("span", { className: "tree-dir" }, `${post.dir}/`),
+        element("span", { className: "tree-title" }, post.title),
+      );
+      if (post.draft) {
+        row.append(element("span", { className: "tag" }, "draft"));
+      }
+      if (post.dir === current?.dir) {
+        row.setAttribute("aria-current", "page");
+      }
+      row.addEventListener("click", event => {
+        event.preventDefault();
+        void openPost(post.dir);
+      });
+      return element("li", {}, row);
+    }),
+  );
 }
+
+let postsOn = remembered("editor-posts", true);
+function showPosts(): void {
+  postsToggle.setAttribute("aria-pressed", String(postsOn));
+  sidebar.hidden = !postsOn;
+}
+postsToggle.addEventListener("click", () => {
+  postsOn = !postsOn;
+  remember("editor-posts", postsOn);
+  showPosts();
+});
 
 async function openPost(dir: string): Promise<void> {
   await save();
@@ -260,7 +293,7 @@ async function openPost(dir: string): Promise<void> {
   current = post;
   saved = text;
   view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
-  select.value = post.dir;
+  renderList();
   open.href = post.url;
   previewScroll = 0;
   // A hidden preview loads once it's shown.
@@ -283,10 +316,10 @@ async function waitForPage(url: string): Promise<void> {
 
 async function refresh(): Promise<void> {
   posts = await api<DraftSummary[]>("/posts");
+  current = posts.find(post => post.dir === current?.dir) ?? current;
   renderList();
 }
 
-select.addEventListener("change", () => void openPost(select.value));
 $<HTMLButtonElement>("#create").addEventListener("click", () => dialog.showModal());
 $<HTMLButtonElement>("#cancel").addEventListener("click", () => dialog.close());
 form.addEventListener("submit", event => {
@@ -320,6 +353,7 @@ addEventListener("pagehide", () => {
 });
 
 showPreview();
+showPosts();
 vimToggle.setAttribute("aria-pressed", String(vimOn));
 await refresh();
 await openPost(decodeURIComponent(location.hash.slice(1)));
