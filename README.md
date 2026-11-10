@@ -87,7 +87,9 @@ inline), while the lines under the cursor show their Markdown to edit. The
 "preview" button adds the post as the dev server renders it beside the text,
 and "vim" turns on vim keys; both choices are remembered. It saves as you type
 (⌘S saves at once). ⌘B, ⌘I, ⌘U and ⌘⇧X toggle bold, italic, `==highlight==`
-and strikethrough on the selection, with or without vim. A sidebar lists the hand-written posts as a file tree,
+and strikethrough on the selection, with or without vim. Enter in a paragraph
+starts a new one (a blank line, as Markdown needs); Shift+Enter breaks the line
+within the paragraph. A sidebar lists the hand-written posts as a file tree,
 newest first, with a "draft" tag on drafts; the button left of the title hides
 it. "+ new" writes the same draft bundle as `just new`.
 Drag or paste images into the text: each one is saved next to `index.md` with
