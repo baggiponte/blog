@@ -6,6 +6,8 @@ import { urlOfDir } from "../lib/slugs.ts";
 // What the editor lists: every bundle written by hand. Notebook posts are written in marimo, so they're left out.
 export interface DraftSummary {
   dir: string;
+  // The frontmatter date as written, e.g. "2026-11-10"; empty when there is none.
+  date: string;
   title: string;
   draft: boolean;
   url: string;
@@ -73,7 +75,7 @@ async function bundlePath(blogDir: string, dir: string): Promise<string> {
   return path;
 }
 
-// Newest folder first, which is also the newest post for numbered and dated names alike.
+// Newest first by frontmatter date, then by folder name.
 export async function listPosts(blogDir: string): Promise<DraftSummary[]> {
   const entries = await readdir(blogDir, { withFileTypes: true });
   const posts: DraftSummary[] = [];
@@ -93,11 +95,12 @@ export async function listPosts(blogDir: string): Promise<DraftSummary[]> {
     posts.push({
       dir: entry.name,
       title: frontmatterValue(markdown, "title") || entry.name,
+      date: frontmatterValue(markdown, "date") ?? "",
       draft: frontmatterValue(markdown, "draft") === "true",
       url: urlOfDir(entry.name),
     });
   }
-  return posts.toSorted((a, b) => b.dir.localeCompare(a.dir));
+  return posts.toSorted((a, b) => b.date.localeCompare(a.date) || b.dir.localeCompare(a.dir));
 }
 
 export async function readPost(blogDir: string, dir: string): Promise<string> {

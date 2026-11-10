@@ -27,7 +27,7 @@ after(() => {
 
 test("posts round-trip through the API", async () => {
   const list = await (await fetch(`${base}/posts`)).json();
-  assert.deepEqual(list, [{ dir: "hello", title: "hello", draft: false, url: "/blog/hello/" }]);
+  assert.deepEqual(list, [{ dir: "hello", title: "hello", date: "", draft: false, url: "/blog/hello/" }]);
   const put = await fetch(`${base}/posts/hello`, { method: "PUT", body: "changed", headers: { Origin: base } });
   assert.equal(put.status, 204);
   assert.equal(await (await fetch(`${base}/posts/hello`)).text(), "changed");
