@@ -2,7 +2,7 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { yamlFrontmatter } from "@codemirror/lang-yaml";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
-import { Compartment } from "@codemirror/state";
+import { Compartment, Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
 import { vim } from "@replit/codemirror-vim";
@@ -10,6 +10,8 @@ import { basicSetup } from "codemirror";
 
 import { find as $, element } from "../scripts/dom.ts";
 import { apiBase } from "./base.ts";
+import { enterKeys } from "./enter.ts";
+import { formatKeys } from "./format.ts";
 import { imageInsert } from "./insert.ts";
 import { livePreview, postImageUrl, revealOnClick } from "./live-preview.ts";
 import type { DraftSummary, Format } from "./posts.ts";
@@ -167,6 +169,8 @@ const view = new EditorView({
     revealOnClick,
     syntaxHighlighting(highlight),
     EditorView.lineWrapping,
+    // Above the default keymap, which has ⌘I and ⌘U for selecting syntax and undoing selections, and its own Enter.
+    Prec.high(keymap.of([...formatKeys, ...enterKeys])),
     keymap.of([
       {
         key: "Mod-s",
