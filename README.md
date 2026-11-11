@@ -89,7 +89,7 @@ reads like the post (headings, emphasis, `==highlights==`, links, images
 inline), while the lines under the cursor show their Markdown to edit. The
 "preview" button adds the post as the dev server renders it beside the text,
 and "vim" turns on vim keys; both choices are remembered. It saves as you type
-(⌘S saves at once). ⌘B, ⌘I, ⌘U and ⌘⇧X toggle bold, italic, `==highlight==`
+(⌘S saves at once). ⌘B, ⌘I, ⌘U and ⌘⇧X toggle bold, italic (`_word_`, as oxfmt writes it), `==highlight==`
 and strikethrough on the selection, with or without vim. A sidebar lists the hand-written posts as a file tree,
 newest first, with a "draft" tag on drafts; the button left of the title hides
 it. "+ new" writes the same draft bundle as `just new`.
