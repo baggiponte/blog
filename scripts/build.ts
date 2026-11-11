@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
-import { deckEntry, listDecks } from "../src/talks/decks.ts";
+import { deckEntry, deckRewrites, listDecks } from "../src/talks/decks.ts";
 import { slideCount } from "../src/talks/slides.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -52,20 +52,10 @@ async function build(slug: string): Promise<string[]> {
     throw new Error(`${slug}: slidev build failed`, { cause: error });
   }
 
-  // Exact slide routes: no global SPA fallback swallowing other decks or missing assets.
-  const rewrites: string[] = [];
-  for (let slide = 1; slide <= slides; slide++) {
-    for (const suffix of [String(slide), `${slide}/`, `presenter/${slide}`, `presenter/${slide}/`]) {
-      rewrites.push(`${base}${suffix} ${base} 200`);
-    }
-  }
-  for (const suffix of ["presenter", "presenter/", "overview", "overview/", "notes", "notes/"]) {
-    rewrites.push(`${base}${suffix} ${base} 200`);
-  }
   // Slidev's GitHub Pages fallback must not turn unknown paths into an app shell.
   await rm(join(dist, base, "404.html"), { force: true });
   console.log(`${slug}: ${slides} slides`);
-  return rewrites;
+  return deckRewrites(slug, slides);
 }
 
 // Each Slidev build is mostly single-threaded, so run one per CPU.
