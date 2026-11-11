@@ -1,15 +1,28 @@
-// The shape of the content/talks/*.json data files, checked on every build.
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+// The shape of the content/talks/*.json data files, checked on every build. catalog.ts reads them and checks them
+// against each other.
 import { z } from "zod";
+
+import { slugify } from "../lib/slugs.ts";
+
+// Where an edition's slides are: a Slidev deck in decks/, served at /talks/<slug>/, or anywhere else on the web.
+// talks.json writes either as a string; parsing tells them apart once, so nothing downstream slices paths.
+export type Slides = { kind: "deck"; slug: string } | { kind: "external"; url: string };
+
+const deckPath = /^\/talks\/([\w-]+)\/$/;
+const Slides = z.union([
+  z
+    .string()
+    .regex(deckPath, "a /talks/<slug>/ deck path")
+    .transform((path): Slides => ({ kind: "deck", slug: path.slice("/talks/".length, -1) })),
+  z.url().transform((url): Slides => ({ kind: "external", url })),
+]);
 
 const Edition = z.strictObject({
   date: z.iso.date(),
   venue: z.string().min(1),
   // Kept for the record when an edition was named differently; not shown.
   title: z.string().optional(),
-  // "/talks/<slug>/" for a deck in decks/, or any external URL.
-  slides: z.union([z.string().regex(/^\/talks\/[\w-]+\/$/, "a /talks/<slug>/ deck path"), z.url()]).optional(),
+  slides: Slides.optional(),
   recording: z.url().optional(),
   source: z.url().optional(),
 });
@@ -19,7 +32,7 @@ const Talk = z.strictObject({
   description: z.string().min(1),
   // A hands-on workshop rather than a talk: tagged as such in the talks view.
   workshop: z.literal(true).optional(),
-  // Non-empty, so given[0] (the newest edition, once sorted) always exists.
+  // Non-empty, so every talk has a newest edition.
   given: z.tuple([Edition], Edition),
 });
 
@@ -60,32 +73,5 @@ export const Cities = z.record(
   }),
 );
 
-export type Talk = z.infer<typeof Talk>;
-export type Edition = z.infer<typeof Edition>;
 export type Venues = z.infer<typeof Venues>;
 export type Cities = z.infer<typeof Cities>;
-
-// A talk's id in the page (data-talk) and in tests: stable when talks are added or reordered.
-export const slugify = (title: string) =>
-  title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-// Reads content/talks/<file> and checks it against schema; every error names the file.
-export async function load<T>(root: string, file: string, schema: z.ZodType<T>): Promise<T> {
-  const text = await readFile(resolve(root, "content/talks", file), "utf8");
-  let json: unknown;
-  try {
-    json = JSON.parse(text);
-  } catch (error) {
-    throw new Error(`content/talks/${file}: ${error instanceof Error ? error.message : "not valid JSON"}`, {
-      cause: error,
-    });
-  }
-  const parsed = schema.safeParse(json);
-  if (!parsed.success) {
-    throw new Error(`content/talks/${file}:\n${z.prettifyError(parsed.error)}`);
-  }
-  return parsed.data;
-}

@@ -2,7 +2,7 @@ import { parseFrontmatter } from "@astrojs/markdown-remark";
 import { z } from "astro/zod";
 
 import { formatSchema, postSchema } from "../lib/post-schema.ts";
-import { urlOfDir } from "../lib/slugs.ts";
+import { slugify, urlOfDir } from "../lib/slugs.ts";
 
 // What a post is to the editor, with no storage and no HTTP: the rules here hold wherever posts are kept.
 
@@ -78,16 +78,6 @@ export function parseNewPost(input: unknown): NewPost {
     });
   }
   return result.data;
-}
-
-// "Café au lait!" -> "cafe-au-lait".
-export function slugify(text: string): string {
-  return text
-    .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 }
 
 // The folder a new post goes in: its title, slugified.

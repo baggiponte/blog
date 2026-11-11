@@ -1,100 +1,89 @@
-// Fast checks of the catalog renderer and the data validation, without Astro, Slidev or a browser: pnpm test:unit.
+// The checks on content/talks/*.json and how the catalog resolves them, from plain values: no files, no rendering.
 import assert from "node:assert/strict";
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { renderCatalog } from "./catalog.ts";
 
-const talk = {
-  title: "polars & friends",
-  description: "Dataframes, fast.",
-  given: [
-    { date: "2024-05-23", venue: "PyCon Italia 2024", slides: "/talks/pyconit-polars/" },
-    { date: "2025-06-06", venue: "PyData London 2025", slides: "https://example.com/slides" },
-  ],
-};
-const venues = {
-  "PyCon Italia": { logo: "pycon-italia.png" },
-  "PyCon Italia 2024": { city: "Florence" },
-  PyData: { logo: "pydata.png" },
-  "PyData London": { city: "London" },
-};
-const cities = { Florence: { at: [11.25, 43.77] }, London: { at: [-0.13, 51.51] } };
+import { loadCatalog, parseCatalog } from "./catalog.ts";
+import { cities, decks, files, talk, venues } from "./fixture.ts";
 
-// A content/talks/ directory with the given data files; a string is written as is, anything else as JSON.
-async function fixture(data: { talks?: unknown; venues?: unknown; cities?: unknown } = {}) {
-  const root = await mkdtemp(join(tmpdir(), "talks-"));
-  await mkdir(join(root, "content/talks"), { recursive: true });
-  const files = {
-    "talks.json": data.talks ?? [talk],
-    "venues.json": data.venues ?? venues,
-    "cities.json": data.cities ?? cities,
-  };
-  for (const [file, value] of Object.entries(files)) {
-    await writeFile(join(root, "content/talks", file), typeof value === "string" ? value : JSON.stringify(value));
-  }
-  return root;
-}
-
-test("renders every view, escapes data and ids talks by title", async () => {
-  const views = await renderCatalog(await fixture(), ["pyconit-polars"]);
-  const page = Object.values(views).join("\n");
-  assert.match(page, /<h2><a href="https:\/\/example.com\/slides">polars &amp; friends<\/a><\/h2>/);
-  assert.match(page, /data-talk="polars-friends"/);
-  // Logo from "PyData", city from "PyData London".
-  assert.match(page, /src="\/talks\/logos\/pydata.png" alt="" title="PyData London 2025"/);
-  assert.match(page, /data-city="London"/);
-  assert.match(page, /<strong>2 talks<\/strong> given in 2 cities</);
-});
-
-test("tags workshops in the talks view", async () => {
-  const { talks } = await renderCatalog(await fixture({ talks: [{ ...talk, workshop: true }] }), ["pyconit-polars"]);
-  assert.match(talks, /polars &amp; friends<\/a> <span class="kind">workshop<\/span><\/h2>/);
-});
-
-test("a deck missing from talks.json fails", async () => {
-  await assert.rejects(renderCatalog(await fixture(), ["pyconit-polars", "orphan"]), /decks not listed: orphan/);
-});
-
-test("a /talks/<slug>/ link without a deck fails", async () => {
-  await assert.rejects(renderCatalog(await fixture(), []), /no deck for \/talks\/pyconit-polars\//);
-});
-
-test("a venue without a city fails", async () => {
-  const { "PyData London": _, ...rest } = venues;
-  await assert.rejects(
-    renderCatalog(await fixture({ venues: rest }), ["pyconit-polars"]),
-    /no city for PyData London 2025/,
+test("venues resolve field by field from the longest prefix, and editions sort newest first", () => {
+  const { talks, editions } = parseCatalog(files, decks);
+  assert.equal(talks[0]?.id, "polars-friends");
+  assert.deepEqual(
+    editions.map(({ date, venue }) => [date, venue]),
+    [
+      ["2025-06-06", { name: "PyData London 2025", city: "London", logo: "pydata.png" }],
+      ["2024-05-23", { name: "PyCon Italia 2024", city: "Florence", logo: "pycon-italia.png" }],
+    ],
   );
 });
 
-test("a city missing from cities.json fails", async () => {
-  await assert.rejects(
-    renderCatalog(await fixture({ cities: { Florence: cities.Florence } }), ["pyconit-polars"]),
+test("slides are a deck in decks/ or a link elsewhere", () => {
+  const { editions } = parseCatalog(files, decks);
+  assert.deepEqual(
+    editions.map(edition => edition.slides),
+    [
+      { kind: "external", url: "https://example.com/slides" },
+      { kind: "deck", slug: "pyconit-polars" },
+    ],
+  );
+});
+
+test("talks sort by their newest edition", () => {
+  const older = { ...talk, title: "older", given: [{ date: "2023-01-01", venue: "PyData London 2023" }] };
+  const { talks } = parseCatalog({ ...files, talks: [older, talk] }, decks);
+  assert.deepEqual(
+    talks.map(each => each.id),
+    ["polars-friends", "older"],
+  );
+});
+
+test("a deck missing from talks.json fails", () => {
+  assert.throws(() => parseCatalog(files, [...decks, "orphan"]), /decks not listed: orphan/);
+});
+
+test("a /talks/<slug>/ link without a deck fails", () => {
+  assert.throws(() => parseCatalog(files, []), /no deck for \/talks\/pyconit-polars\//);
+});
+
+test("a venue without a city fails", () => {
+  const { "PyData London": _, ...rest } = venues;
+  assert.throws(() => parseCatalog({ ...files, venues: rest }, decks), /no city for PyData London 2025/);
+});
+
+test("a city missing from cities.json fails", () => {
+  assert.throws(
+    () => parseCatalog({ ...files, cities: { Florence: cities.Florence } }, decks),
     /PyData London 2025 is in London, which is not in content\/talks\/cities.json/,
   );
 });
 
-test("a malformed entry fails with its path", async () => {
+test("a malformed entry fails with its file and path", () => {
   const talks = [{ ...talk, given: [{ ...talk.given[0], date: "23 May 2024" }] }];
-  await assert.rejects(
-    renderCatalog(await fixture({ talks }), ["pyconit-polars"]),
+  assert.throws(
+    () => parseCatalog({ ...files, talks }, decks),
     /content\/talks\/talks.json:[\s\S]*at \[0\]\.given\[0\]\.date/,
   );
 });
 
-test("a file that isn't JSON fails with its name", async () => {
-  await assert.rejects(
-    renderCatalog(await fixture({ cities: '{ "Florence": { "at": [11.25, 43.77] }, }' }), ["pyconit-polars"]),
-    /content\/talks\/cities.json: .*JSON/,
-  );
+test("slides that are neither a deck path nor a URL fail", () => {
+  const talks = [{ ...talk, given: [{ ...talk.given[0], slides: "talks/pyconit-polars" }] }];
+  assert.throws(() => parseCatalog({ ...files, talks }, decks), /content\/talks\/talks.json:[\s\S]*slides/);
 });
 
-test("two talks with the same id fail", async () => {
+test("two talks with the same id fail", () => {
   const talks = [talk, { ...talk, title: "Polars, & friends!", given: [talk.given[1]] }];
-  await assert.rejects(
-    renderCatalog(await fixture({ talks }), ["pyconit-polars"]),
-    /two talks share the id polars-friends/,
-  );
+  assert.throws(() => parseCatalog({ ...files, talks }, decks), /two talks share the id polars-friends/);
+});
+
+// Reading the files is all loadCatalog adds; this is the one test that needs them on disk.
+test("a file that isn't JSON fails with its name", async () => {
+  const root = await mkdtemp(join(tmpdir(), "talks-"));
+  await mkdir(join(root, "content/talks"), { recursive: true });
+  await writeFile(join(root, "content/talks/talks.json"), JSON.stringify([talk]));
+  await writeFile(join(root, "content/talks/venues.json"), JSON.stringify(venues));
+  await writeFile(join(root, "content/talks/cities.json"), '{ "Florence": { "at": [11.25, 43.77] }, }');
+  await assert.rejects(loadCatalog(root, decks), /content\/talks\/cities.json: .*JSON/);
 });
