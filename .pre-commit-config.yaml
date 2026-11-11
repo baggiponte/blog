@@ -17,6 +17,13 @@ repos:
         entry: pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true
         language: system
         types_or: [javascript, ts, json, css, astro]
+      # Formats the hand-written Markdown (pages and each post's index.md) with the oxfmt in package.json. The
+      # Markdown marimo generates next to a notebook is left alone: `just marimo-export` writes it.
+      - id: oxfmt
+        name: oxfmt markdown
+        entry: pnpm exec oxfmt --write
+        language: system
+        files: ^content/([^/]+|blog/[^/]+/index)\.md$
       - id: marimo-export-notebooks
         name: Export marimo notebooks to markdown
         language: system

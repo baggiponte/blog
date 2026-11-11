@@ -1,0 +1,6 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  // Only the hand-written Markdown in content/ goes through oxfmt (package.json, .pre-commit-config.yaml); Biome
+  // formats the code. Every line of a post is its own paragraph (AGENTS.md), so lines are never rewrapped.
+  "proseWrap": "preserve"
+}
