@@ -4,25 +4,20 @@ import { join } from "node:path";
 
 import {
   type BundleDir,
-  dirForTitle,
   EditorError,
   type ImageName,
   imageName,
   imageType,
   isBundleDir,
-  type NewPost,
-  newPostMarkdown,
+  isConflict,
   numbered,
   type PostSummary,
   summarize,
+  type Version,
 } from "./post.ts";
 
 // Where posts are kept, as the API sees it. The API only talks to this interface, so its tests can hand it a small
 // in-memory store, and the files on disk are tested once, here, against a temporary folder.
-
-// A fingerprint of an index.md's content. The editor sends back the version it read with every save; if the file has
-// changed since, from another tab or another editor, the save is refused instead of overwriting it.
-export type Version = string & { readonly __brand: "Version" };
 
 export interface Stored {
   markdown: string;
@@ -38,9 +33,10 @@ export interface PostStore {
   // Every hand-written post, newest date first.
   list(): Promise<PostSummary[]>;
   read(dir: BundleDir): Promise<Stored>;
-  // Replaces index.md if it's still at `expected`, and returns the new version. Without `expected`, it always writes.
+  // Replaces index.md unless that would be a conflict (isConflict in post.ts), and returns the new version.
   write(dir: BundleDir, markdown: string, expected?: Version): Promise<Version>;
-  create(post: NewPost, date: Date): Promise<BundleDir>;
+  // Makes the bundle folder with this index.md; refused if the folder exists.
+  create(dir: BundleDir, markdown: string): Promise<void>;
   // Saves an image next to index.md, never over another file, and returns the name it got.
   addImage(dir: BundleDir, original: string, bytes: Uint8Array): Promise<ImageName>;
   readImage(dir: BundleDir, name: ImageName): Promise<Image>;
@@ -98,12 +94,8 @@ export function fileStore(blogDir: string): PostStore {
     async write(dir, markdown, expected) {
       const path = await indexOf(dir);
       const version = versionOf(markdown);
-      if (expected !== undefined) {
-        const current = (await read(dir)).version;
-        // The same text as on disk is never a conflict, even if the editor's version is stale (VS Code's rule).
-        if (current !== expected && current !== version) {
-          throw new EditorError(`content/blog/${dir}/index.md changed since it was opened`, { failure: "conflict" });
-        }
+      if (expected !== undefined && isConflict((await read(dir)).version, expected, version)) {
+        throw new EditorError(`content/blog/${dir}/index.md changed since it was opened`, { failure: "conflict" });
       }
       // Into a temporary file, then renamed over index.md: a crash mid-write leaves the old file whole, and the dev
       // server's watcher never sees a half-written one. The check above and this rename are still two steps, so a
@@ -114,8 +106,7 @@ export function fileStore(blogDir: string): PostStore {
       return version;
     },
 
-    async create(post, date) {
-      const dir = dirForTitle(post.title);
+    async create(dir, markdown) {
       try {
         await mkdir(join(blogDir, dir));
       } catch (error) {
@@ -124,8 +115,7 @@ export function fileStore(blogDir: string): PostStore {
         }
         throw error;
       }
-      await writeFile(join(blogDir, dir, "index.md"), newPostMarkdown(post, date));
-      return dir;
+      await writeFile(join(blogDir, dir, "index.md"), markdown);
     },
 
     async addImage(dir, original, bytes) {

@@ -1,5 +1,15 @@
-import { checkPost, EditorError, type Failure, parseBundleDir, parseImageName, parseNewPost } from "./post.ts";
-import type { PostStore, Version } from "./store.ts";
+import {
+  checkPost,
+  dirForTitle,
+  EditorError,
+  type Failure,
+  newPostMarkdown,
+  parseBundleDir,
+  parseImageName,
+  parseNewPost,
+  type Version,
+} from "./post.ts";
+import type { PostStore } from "./store.ts";
 
 // The editor's API, mounted at apiBase (base.ts) on the dev server only:
 //   GET  /posts                     every hand-written post
@@ -33,6 +43,12 @@ function statusOf(failure: Failure): number {
     case "unsupported":
       return 415;
   }
+}
+
+// What a failed request answers: the message to show, and the editor's reason when there is one.
+export interface ErrorBody {
+  error: string;
+  failure?: Failure;
 }
 
 class HttpError extends Error {
@@ -97,7 +113,9 @@ async function route(store: PostStore, request: Request, now: () => Date): Promi
     }
     if (method === "POST") {
       const post = parseNewPost(JSON.parse(await textOf(request)));
-      return json(201, { dir: await store.create(post, now()) });
+      const dir = dirForTitle(post.title);
+      await store.create(dir, newPostMarkdown(post, now()));
+      return json(201, { dir });
     }
   } else if (sub === undefined) {
     const dir = parseBundleDir(dirText);
@@ -135,16 +153,18 @@ export function editorApi(
     try {
       return await route(store, request, now);
     } catch (error) {
-      let status = 500;
+      const message = error instanceof Error ? error.message : String(error);
       if (error instanceof EditorError) {
-        status = statusOf(error.failure);
-      } else if (error instanceof HttpError) {
+        return json(statusOf(error.failure), { error: message, failure: error.failure } satisfies ErrorBody);
+      }
+      let status = 500;
+      if (error instanceof HttpError) {
         status = error.status;
       } else if (error instanceof SyntaxError || error instanceof URIError) {
         // A body that isn't JSON, or a path that isn't URL-encoded.
         status = 400;
       }
-      return json(status, { error: error instanceof Error ? error.message : String(error) });
+      return json(status, { error: message } satisfies ErrorBody);
     }
   };
 }

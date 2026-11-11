@@ -15,7 +15,7 @@ import { imageInsert } from "./insert.ts";
 import { livePreview, postImageUrl, revealOnClick } from "./live-preview.ts";
 import type { Format, PostSummary } from "./post.ts";
 import { ApiError, addImage, createPost, listPosts, postUrl, readPost, saveInit, writePost } from "./remote.ts";
-import type { Version } from "./store.ts";
+import { type OnDisk, opened, saveStep, shouldReload } from "./saving.ts";
 
 const tree = $<HTMLUListElement>("#posts .tree");
 const sidebar = $<HTMLElement>("#posts");
@@ -34,12 +34,9 @@ const saveDelay = 600;
 let current: PostSummary | undefined;
 let posts: PostSummary[] = [];
 let timer: ReturnType<typeof setTimeout> | undefined;
-// The text and version last read or saved: a save sends the version back, and the API refuses it if the file changed
-// elsewhere since (another tab, another editor).
-let saved = "";
-let version = "" as Version;
-// Set when a save was refused for that reason; autosave stops until the post is opened again.
-let conflicted = false;
+// The open post's file as last read or saved: a save sends its version back, and the API refuses it if the file
+// changed elsewhere since (another tab, another editor). The decisions on it are in saving.ts.
+let disk: OnDisk | undefined;
 // The preview reloads on every save; it comes back where it was.
 let previewScroll = 0;
 
@@ -52,25 +49,26 @@ async function save(): Promise<void> {
   clearTimeout(timer);
   timer = undefined;
   const text = view.state.doc.toString();
-  if (current === undefined || conflicted) {
+  if (current === undefined || disk === undefined) {
     return;
   }
-  // Typing back to what's on disk (an undo, say) needs no save, but the status shouldn't stay at "editing…".
-  if (text === saved) {
-    say("saved");
+  const step = saveStep(disk, text);
+  if (step !== "write") {
+    if (step === "unchanged") {
+      say("saved");
+    }
     return;
   }
   say("saving…", "busy");
   try {
     rememberScroll();
-    version = await writePost(current.dir, text, version);
-    saved = text;
+    disk = { ...disk, text, version: await writePost(current.dir, text, disk.version) };
     say("saved");
     // A new title or draft flag shows in the sidebar.
     await refresh();
   } catch (error) {
-    if (error instanceof ApiError && error.conflict) {
-      conflicted = true;
+    if (error instanceof ApiError && error.failure === "conflict") {
+      disk = { ...disk, conflicted: true };
       say("not saved: the file changed elsewhere. Copy your text, then reopen the post", "error");
       return;
     }
@@ -294,12 +292,9 @@ async function openPost(dir: string): Promise<void> {
     say("no posts yet: start one with “new post”");
     return;
   }
-  const { markdown: text, version: read } = await readPost(post.dir);
+  disk = opened(await readPost(post.dir));
   current = post;
-  saved = text;
-  version = read;
-  conflicted = false;
-  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
+  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: disk.text } });
   renderList();
   open.href = post.url;
   previewScroll = 0;
@@ -311,20 +306,17 @@ async function openPost(dir: string): Promise<void> {
   say("saved");
 }
 
-// Back on the tab after editing the post somewhere else: with no unsaved typing here, take the file as it is now on
-// disk, like Zed and VS Code reload a clean buffer. With unsaved typing, the next save reports the conflict instead.
+// Back on the tab after editing the post somewhere else (shouldReload in saving.ts).
 async function reloadIfClean(): Promise<void> {
-  if (current === undefined || view.state.doc.toString() !== saved) {
+  if (current === undefined || disk === undefined) {
     return;
   }
   const latest = await readPost(current.dir);
-  if (latest.version === version || view.state.doc.toString() !== saved) {
+  if (!shouldReload(disk, view.state.doc.toString(), latest.version)) {
     return;
   }
-  saved = latest.markdown;
-  version = latest.version;
-  conflicted = false;
-  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: latest.markdown } });
+  disk = opened(latest);
+  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: disk.text } });
   say("reloaded: the file changed elsewhere");
 }
 addEventListener("focus", () => void reloadIfClean().catch(() => undefined));
@@ -372,8 +364,9 @@ form.addEventListener("submit", event => {
 });
 // Closing the tab mid-sentence still writes the last words.
 addEventListener("pagehide", () => {
-  if (current !== undefined && !conflicted && view.state.doc.toString() !== saved) {
-    void fetch(postUrl(current.dir), { ...saveInit(view.state.doc.toString(), version), keepalive: true });
+  const text = view.state.doc.toString();
+  if (current !== undefined && disk !== undefined && saveStep(disk, text) === "write") {
+    void fetch(postUrl(current.dir), { ...saveInit(text, disk.version), keepalive: true });
   }
 });
 

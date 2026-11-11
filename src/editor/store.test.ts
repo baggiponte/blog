@@ -62,11 +62,10 @@ test("only existing posts are read or written", async () => {
 test("a new post can't take an existing folder", async () => {
   const root = await blog({});
   const store = fileStore(root);
-  const input = { title: "Hello World", description: "", format: "post" } as const;
-  const created = await store.create(input, new Date("2026-05-05"));
-  assert.equal(created, "hello-world");
-  assert.match(await readFile(join(root, "hello-world", "index.md"), "utf8"), /^title: "hello world"$/m);
-  await assert.rejects(store.create(input, new Date()), { failure: "exists" });
+  await store.create(dir("hello-world"), "first");
+  assert.equal(await readFile(join(root, "hello-world", "index.md"), "utf8"), "first");
+  await assert.rejects(store.create(dir("hello-world"), "second"), { failure: "exists" });
+  assert.equal(await readFile(join(root, "hello-world", "index.md"), "utf8"), "first");
 });
 
 test("images land next to index.md, never over another file", async () => {

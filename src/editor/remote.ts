@@ -1,28 +1,26 @@
+import type { ErrorBody } from "./api.ts";
 import { apiBase } from "./base.ts";
-import type { BundleDir, ImageName, NewPost, PostSummary } from "./post.ts";
-import type { Stored, Version } from "./store.ts";
+import type { BundleDir, Failure, ImageName, NewPost, PostSummary, Version } from "./post.ts";
+import type { Stored } from "./store.ts";
 
 // The editor API (api.ts) as the page calls it: one typed function per route, so the page never builds a URL or
-// reads a header itself. Only types come from post.ts and store.ts, so no Node code reaches the browser.
+// reads a header itself. Only types come from the server's modules, so no Node code reaches the browser.
 
-// A failed request, with the status kept so the page can tell a conflict from any other error.
+// A failed request. `failure` is the editor's own reason, as the API sent it, so the page tells a conflict from any
+// other error by the same Failure type the server threw, not by an HTTP status; requests the API turned down before
+// reaching a post (an unknown route, another origin) have none.
 export class ApiError extends Error {
-  readonly status: number;
-  constructor(status: number, message: string) {
-    super(message);
-    this.status = status;
-  }
-  // The post changed elsewhere since the page read it (api.ts answers 412).
-  get conflict(): boolean {
-    return this.status === 412;
+  readonly failure: Failure | undefined;
+  constructor({ error, failure }: ErrorBody) {
+    super(error);
+    this.failure = failure;
   }
 }
 
 async function call(path: string, init?: RequestInit): Promise<Response> {
   const response = await fetch(`${apiBase}${path}`, init);
   if (!response.ok) {
-    const { error } = (await response.json().catch(() => ({ error: response.statusText }))) as { error: string };
-    throw new ApiError(response.status, error);
+    throw new ApiError(await response.json().catch((): ErrorBody => ({ error: response.statusText })));
   }
   return response;
 }

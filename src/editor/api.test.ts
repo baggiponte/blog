@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { editorApi, maxUpload } from "./api.ts";
-import { type BundleDir, EditorError, type ImageName, type PostSummary } from "./post.ts";
-import { type PostStore, type Version, versionOf } from "./store.ts";
+import { type BundleDir, EditorError, type ImageName, isConflict, type PostSummary, type Version } from "./post.ts";
+import { type PostStore, versionOf } from "./store.ts";
 
 // The API alone, over posts kept in memory: these tests check what the API answers, and store.test.ts checks the
-// files on disk.
+// files on disk. The store's one rule, when a save is a conflict, is the same isConflict both stores use.
 function memoryStore(posts: Record<string, string>): PostStore & { posts: Map<string, string> } {
   const files = new Map(Object.entries(posts));
   const find = (dir: BundleDir): string => {
@@ -17,7 +17,7 @@ function memoryStore(posts: Record<string, string>): PostStore & { posts: Map<st
     return markdown;
   };
   const save = (dir: BundleDir, markdown: string, expected?: Version): Version => {
-    if (expected !== undefined && versionOf(find(dir)) !== expected) {
+    if (isConflict(versionOf(find(dir)), expected, versionOf(markdown))) {
       throw new EditorError("changed", { failure: "conflict" });
     }
     files.set(dir, markdown);
@@ -29,7 +29,7 @@ function memoryStore(posts: Record<string, string>): PostStore & { posts: Map<st
       [...files.keys()].map(dir => ({ dir, title: dir, date: "", draft: false, url: `/blog/${dir}/` }) as PostSummary),
     read: async dir => ({ markdown: find(dir), version: versionOf(find(dir)) }),
     write: async (dir, markdown, expected) => save(dir, markdown, expected),
-    create: async () => "new-post" as BundleDir,
+    create: async (dir, markdown) => void files.set(dir, markdown),
     addImage: async (_dir, original) => original as ImageName,
     readImage: async () => ({ bytes: new Uint8Array([1, 2]), type: "image/png" }),
   };
@@ -61,6 +61,9 @@ test("a post is read with its version, and saved only over that version", async 
   // The old version again: someone saved in between.
   const stale = await api(request("/posts/hello", write(valid, { "If-Match": etag })));
   assert.equal(stale.status, 412);
+  assert.deepEqual(await stale.json(), { error: "changed", failure: "conflict" });
+  // Saving the text already there is never a conflict, whatever version the page holds.
+  assert.equal((await api(request("/posts/hello", write(changed, { "If-Match": etag })))).status, 204);
   assert.equal(store.posts.get("hello"), changed);
 });
 
@@ -80,23 +83,13 @@ test("other sites open in the browser can't write", async () => {
   assert.equal(response.status, 403);
 });
 
-test("a new post answers with its folder, dated by the clock it's given", async () => {
-  let given: Date | undefined;
-  const store: PostStore = {
-    ...memoryStore({}),
-    create: (_post, date) => {
-      given = date;
-      return Promise.resolve("x" as BundleDir);
-    },
-  };
-  const now = new Date("2026-05-05");
-  const response = await editorApi(
-    store,
-    () => now,
-  )(request("/posts", { method: "POST", body: JSON.stringify({ title: "x", description: "", format: "post" }) }));
+test("a new post is a draft named after its title, dated by the clock it's given", async () => {
+  const store = memoryStore({});
+  const body = JSON.stringify({ title: "Hello World", description: "", format: "post" });
+  const response = await editorApi(store, () => new Date("2026-05-05"))(request("/posts", { method: "POST", body }));
   assert.equal(response.status, 201);
-  assert.deepEqual(await response.json(), { dir: "x" });
-  assert.equal(given, now);
+  assert.deepEqual(await response.json(), { dir: "hello-world" });
+  assert.match(store.posts.get("hello-world") ?? "", /^date: 2026-05-05$/m);
 });
 
 test("uploads over the limit are cut off", async () => {

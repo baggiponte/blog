@@ -1,6 +1,7 @@
 import { parseFrontmatter } from "@astrojs/markdown-remark";
+import { z } from "astro/zod";
 
-import { postSchema } from "../lib/post-schema.ts";
+import { formatSchema, postSchema } from "../lib/post-schema.ts";
 import { urlOfDir } from "../lib/slugs.ts";
 
 // What a post is to the editor, with no storage and no HTTP: the rules here hold wherever posts are kept.
@@ -30,7 +31,17 @@ export type BundleDir = string & { readonly __brand: "BundleDir" };
 // An image file name the editor wrote or accepts reading: same idea.
 export type ImageName = string & { readonly __brand: "ImageName" };
 
-export type Format = "post" | "tidbits";
+export type Format = z.infer<typeof formatSchema>;
+
+// A fingerprint of an index.md's content (store.ts computes it). The editor sends back the version it read with every
+// save; if the file has changed since, from another tab or another editor, the save is refused instead of overwriting.
+export type Version = string & { readonly __brand: "Version" };
+
+// Whether saving text with version `incoming`, over a file now at `current`, would overwrite someone else's change:
+// the editor read `expected`, and the file moved on since. The same text as on disk is never a conflict (VS Code's
+// rule), and a save without a version always goes through.
+export const isConflict = (current: Version, expected: Version | undefined, incoming: Version): boolean =>
+  expected !== undefined && current !== expected && current !== incoming;
 
 // What the sidebar shows for each hand-written post.
 export interface PostSummary {
@@ -43,11 +54,8 @@ export interface PostSummary {
 }
 
 // What the "new post" form sends.
-export interface NewPost {
-  title: string;
-  description: string;
-  format: Format;
-}
+const newPostSchema = z.object({ title: z.string(), description: z.string(), format: formatSchema });
+export type NewPost = z.infer<typeof newPostSchema>;
 
 // Lowercase words joined by dashes, like `01-groundup-linear-regression`: no `..`, no slashes, no dotfiles.
 const dirPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -62,11 +70,14 @@ export function parseBundleDir(text: string): BundleDir {
 }
 
 export function parseNewPost(input: unknown): NewPost {
-  const { title, description, format } = (input ?? {}) as Record<string, unknown>;
-  if (typeof title !== "string" || typeof description !== "string" || (format !== "post" && format !== "tidbits")) {
-    throw new EditorError("a post needs a title, a description and a format", { failure: "invalid" });
+  const result = newPostSchema.safeParse(input);
+  if (!result.success) {
+    throw new EditorError("a post needs a title, a description and a format", {
+      failure: "invalid",
+      cause: result.error,
+    });
   }
-  return { title, description, format };
+  return result.data;
 }
 
 // "Café au lait!" -> "cafe-au-lait".

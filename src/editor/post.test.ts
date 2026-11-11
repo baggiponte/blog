@@ -6,12 +6,14 @@ import {
   checkPost,
   dirForTitle,
   imageName,
+  isConflict,
   newPostMarkdown,
   numbered,
   parseBundleDir,
   parseImageName,
   parseNewPost,
   summarize,
+  type Version,
 } from "./post.ts";
 
 const dir = (text: string): BundleDir => parseBundleDir(text);
@@ -96,4 +98,16 @@ test("only plain image file names can be read back", () => {
   for (const sneaky of ["index.md", "../index.md", "../../secret.png", ".hidden.png", "a/b.png"]) {
     assert.throws(() => parseImageName(sneaky), { failure: "invalid" }, sneaky);
   }
+});
+
+test("a save conflicts only when the file moved on to other text", () => {
+  const read = "read" as Version;
+  const theirs = "theirs" as Version;
+  const mine = "mine" as Version;
+  assert.equal(isConflict(read, read, mine), false);
+  assert.equal(isConflict(theirs, read, mine), true);
+  // Writing what's already on disk loses nothing.
+  assert.equal(isConflict(theirs, read, theirs), false);
+  // A save that doesn't say what it read always goes through.
+  assert.equal(isConflict(theirs, undefined, mine), false);
 });

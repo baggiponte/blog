@@ -2,12 +2,15 @@ import { z } from "astro/zod";
 
 // A post's index.md frontmatter. Drafts only show in `astro dev`, so the rules readers would notice (a lowercase
 // title, a description) apply once a post is published: a half-written draft never stops the dev server.
+// Plain posts and short tidbits; the editor's "new post" form offers the same two.
+export const formatSchema = z.enum(["post", "tidbits"]);
+
 export const postSchema = z
   .object({
     title: z.string().min(1),
     description: z.string(),
     date: z.coerce.date(),
-    format: z.enum(["post", "tidbits"]).default("post"),
+    format: formatSchema.default("post"),
     // The export next to index.md, as `just notebook` writes it: "<name>.md".
     notebook: z
       .string()
