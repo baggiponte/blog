@@ -108,7 +108,7 @@ function frontmatterOf(markdown: string): Record<string, unknown> {
   try {
     return parseFrontmatter(markdown).frontmatter;
   } catch (error) {
-    const reason = error instanceof Error ? (error.message.split("\n")[0] ?? "") : String(error);
+    const reason = error instanceof Error ? (error.message.split("\n")[0] ?? "").replace(/:$/, "") : String(error);
     throw new EditorError(`the frontmatter isn't valid YAML: ${reason}`, { failure: "invalid", cause: error });
   }
 }

@@ -52,7 +52,12 @@ async function save(): Promise<void> {
   clearTimeout(timer);
   timer = undefined;
   const text = view.state.doc.toString();
-  if (current === undefined || text === saved || conflicted) {
+  if (current === undefined || conflicted) {
+    return;
+  }
+  // Typing back to what's on disk (an undo, say) needs no save, but the status shouldn't stay at "editing…".
+  if (text === saved) {
+    say("saved");
     return;
   }
   say("saving…", "busy");
