@@ -1,0 +1,22 @@
+{
+  "name": "slidev-theme-baggiponte",
+  "private": true,
+  "description": "The blog's palette, type and code blocks for Slidev decks",
+  "keywords": [
+    "slidev-theme"
+  ],
+  "engines": {
+    "slidev": ">=53.0.0"
+  },
+  "slidev": {
+    "colorSchema": "both",
+    "highlighter": "shiki",
+    "defaults": {
+      "fonts": {
+        "sans": "Instrument Sans Variable",
+        "mono": "SF Mono,JetBrains Mono,Menlo",
+        "provider": "none"
+      }
+    }
+  }
+}

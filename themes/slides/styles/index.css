@@ -1,0 +1,276 @@
+/* The blog's look on a 980×552 slide: Slidev loads this for every deck on the theme. */
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/instrument-sans";
+@import "../../../src/styles/tokens.css";
+
+:root {
+  --slidev-theme-primary: var(--accent);
+  /* the letterbox around the slide matches the paper, so the slide's edge doesn't show */
+  --slidev-slide-container-background: var(--paper);
+  --slidev-code-background: var(--code-bg);
+  --slidev-code-foreground: var(--ink);
+  --slidev-code-font-family: var(--mono);
+  --slidev-code-font-size: 15px;
+  --slidev-code-line-height: 1.7;
+  --slidev-code-padding: 16px 18px;
+  --slidev-code-radius: 16px;
+  --slidev-code-margin: 20px 0;
+  --slidev-code-tab-divider: var(--code-line);
+  --slidev-code-tab-text-color: var(--code-muted);
+  --slidev-code-tab-active-text-color: var(--ink);
+  --slidev-code-tab-font-size: 12px;
+}
+/* Slidev's own dark values sit on html.dark, which outranks :root; restate them from the tokens */
+html.dark {
+  --slidev-code-background: var(--code-bg);
+  --slidev-code-foreground: var(--ink);
+  --slidev-code-tab-divider: var(--code-line);
+  --slidev-code-tab-text-color: var(--code-muted);
+  --slidev-code-tab-active-text-color: var(--ink);
+}
+
+.slidev-layout {
+  height: 100%;
+  padding: 44px 56px 52px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 20px / 1.5 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+
+/* ---- type ---- */
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  text-wrap: balance;
+}
+.slidev-layout h1 {
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin: 0 0 28px;
+}
+.slidev-layout h2 {
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  margin: 28px 0 14px;
+}
+.slidev-layout h3 {
+  font-size: 23px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  margin: 22px 0 10px;
+}
+.slidev-layout h1 + p {
+  margin-top: -14px;
+  color: var(--muted);
+}
+.slidev-layout p {
+  margin: 14px 0;
+}
+.slidev-layout ul,
+.slidev-layout ol {
+  padding-left: 26px;
+}
+.slidev-layout ul {
+  list-style: disc;
+}
+.slidev-layout ol {
+  list-style: decimal;
+}
+.slidev-layout li + li {
+  margin-top: 8px;
+}
+.slidev-layout li::marker {
+  color: var(--accent);
+}
+.slidev-layout a {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 4px;
+}
+.slidev-layout a:hover {
+  color: var(--accent);
+}
+.slidev-layout strong {
+  font-weight: 650;
+}
+.slidev-layout mark {
+  color: inherit;
+  background: linear-gradient(transparent 55%, var(--mark) 55%);
+  padding: 0 2px;
+}
+.slidev-layout :not(pre) > code {
+  font: 0.84em var(--mono);
+  background: var(--mark);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+.slidev-layout blockquote {
+  margin: 20px 0;
+  padding: 4px 0 4px 20px;
+  border-left: 2px solid var(--accent);
+  color: var(--muted);
+}
+.slidev-layout blockquote > * {
+  margin: 0;
+}
+.slidev-layout hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 28px 0;
+}
+.slidev-layout img {
+  max-width: 100%;
+  border-radius: 12px;
+}
+.slidev-layout table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 17px;
+}
+.slidev-layout th,
+.slidev-layout td {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 12px;
+  text-align: left;
+}
+.slidev-layout th {
+  font-weight: 600;
+  border-bottom-color: var(--rule);
+}
+
+/* ---- code: the blog's tile, with the filename (```py [main.py]) as its caption ---- */
+.slidev-code-wrapper,
+.slidev-code-group {
+  border: 1px solid var(--code-line);
+  border-radius: var(--slidev-code-radius);
+  background: var(--code-bg);
+  overflow: hidden;
+}
+/* the tile above draws the border and corners; the blocks inside it stay square and flush */
+.slidev-code-group .slidev-code-wrapper {
+  --slidev-code-margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.slidev-code {
+  --slidev-code-radius: 0;
+}
+.slidev-code-block-title,
+.slidev-code-group-tabs {
+  font-family: var(--mono);
+  font-weight: 500;
+  border-radius: 0;
+  background: transparent;
+}
+.slidev-code-block-title {
+  padding: 10px 18px;
+  box-shadow: inset 0 -1px var(--code-line);
+}
+/* the blog's captions are text only; Slidev's file icon would also need an icon set installed to show */
+.slidev-code-block-title > [class*="i-vscode-icons"] {
+  display: none;
+}
+
+/* ---- the brand and slide number, on every slide but the cover ---- */
+.slide-foot {
+  position: absolute;
+  inset: auto 56px 18px;
+  display: flex;
+  justify-content: space-between;
+  font: 500 12px / 1 var(--mono);
+  color: var(--muted);
+  pointer-events: none;
+}
+.slide-foot b {
+  font: 700 14px / 1 var(--display);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.slide-foot i,
+.cover .byline i {
+  font-style: normal;
+  color: var(--accent);
+}
+
+/* ---- cover ---- */
+.slidev-layout.cover {
+  display: grid;
+  grid-template: "kicker aside" auto "title aside" 1fr "byline aside" auto / 1fr auto;
+  column-gap: 40px;
+  padding: 56px 64px;
+}
+.cover .kicker {
+  grid-area: kicker;
+  margin: 0;
+  font: 500 14px / 1 var(--mono);
+  color: var(--muted);
+}
+.cover .title {
+  grid-area: title;
+  align-self: center;
+}
+.cover .title h1 {
+  font-size: 72px;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  margin: 0;
+}
+.cover .title h1 + p {
+  margin: 22px 0 0;
+  font-size: 24px;
+}
+.cover .byline {
+  grid-area: byline;
+  margin: 0;
+  font: 700 24px / 1 var(--display);
+  letter-spacing: -0.03em;
+}
+.cover .aside {
+  grid-area: aside;
+  align-self: end;
+}
+.cover .aside img {
+  width: 140px;
+  border-radius: 0;
+}
+
+/* ---- section divider ---- */
+.slidev-layout.section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.section .kicker {
+  margin: 0 0 18px;
+  font: 500 15px / 1 var(--mono);
+  color: var(--accent);
+}
+.section h1 {
+  font-size: 64px;
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  margin: 0;
+  padding-top: 26px;
+  border-top: 1px solid var(--rule);
+}
+
+/* ---- code: a short heading and one large block ---- */
+.slidev-layout.code {
+  display: flex;
+  flex-direction: column;
+}
+.slidev-layout.code h1 {
+  font-size: 30px;
+  letter-spacing: -0.035em;
+  margin-bottom: 16px;
+}
+.slidev-layout.code .slidev-code {
+  --slidev-code-font-size: 18px;
+}
