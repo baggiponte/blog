@@ -2,6 +2,9 @@ import { syntaxTree } from "@codemirror/language";
 import { type EditorState, type Extension, type Range, RangeSet } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate, WidgetType } from "@codemirror/view";
 
+// `==text==`, the site's highlight, which Markdown itself doesn't parse.
+import { markPattern } from "../lib/remark-mark.ts";
+
 // Live preview, like Obsidian's: the document stays the exact Markdown of index.md, but away from the cursor the
 // syntax is hidden and the text is styled as the post shows it. The lines the cursor or selection touch show their
 // Markdown in full, so every character can still be edited.
@@ -21,8 +24,6 @@ const lineClasses: Record<string, string> = {
   Frontmatter: "cm-lp-frontmatter",
   HorizontalRule: "cm-lp-rule",
 };
-// `==text==`, the site's highlight (src/lib/remark-mark.ts), which Markdown itself doesn't parse.
-const markPattern = /==(?=\S)(.+?)(?<=\S)==/g;
 
 export class ImageWidget extends WidgetType {
   readonly src: string;
