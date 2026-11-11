@@ -96,6 +96,11 @@ it. "+ new" writes the same draft bundle as `just new`.
 Drag or paste images into the text: each one is saved next to `index.md` with
 a slugified name and linked as `![](./<name>)`, with the cursor between the
 brackets for the alt text. Notebook posts aren't listed, since marimo writes
+them. A save never writes frontmatter the site couldn't build (the status bar
+says why), and never overwrites an `index.md` changed elsewhere since it was
+opened, in another tab or another editor: the status bar says so and saving
+stops until the post is reopened. With no unsaved typing, coming back to the
+tab reloads a post changed elsewhere.
 them. The editor and its API (`src/editor/`) exist only in the dev server,
 never in the built site; nothing is committed, so review and commit the bundle
 as usual.
