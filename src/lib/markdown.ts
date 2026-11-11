@@ -2,6 +2,7 @@ import { unified } from "@astrojs/markdown-remark";
 import type { AstroUserConfig } from "astro";
 
 import { codeFigure } from "./code-figure.ts";
+import { codeThemes } from "./code-themes.ts";
 import { remarkLineParagraphs } from "./remark-line-paragraphs.ts";
 import { remarkMark } from "./remark-mark.ts";
 
@@ -11,7 +12,7 @@ export const markdown = {
   // plugins.
   processor: unified({ remarkPlugins: [remarkLineParagraphs, remarkMark] }),
   shikiConfig: {
-    themes: { light: "vitesse-light", dark: "vitesse-dark" },
+    themes: codeThemes,
     defaultColor: false,
     transformers: [codeFigure()],
   },

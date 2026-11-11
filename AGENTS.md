@@ -22,7 +22,8 @@
 # Talks
 
 * Add talks and editions in `content/talks/talks.json`; deck links are `/talks/<slug>/`.
-* Keep Slidev decks in `decks/` as imported, apart from build fixes.
+* Keep Slidev decks in `decks/` as imported, apart from build fixes; don't move old decks onto the slides theme unless asked.
+* Start new decks with `just talk <slug>` so they use `themes/slides/`; put shared colours and fonts in `src/styles/tokens.css`, not in the theme.
 * Run `pnpm lint`, `pnpm typecheck`, `pnpm test:unit` and `pnpm test` after changing the talks page or the build.
 
 # Code

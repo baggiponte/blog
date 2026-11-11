@@ -50,6 +50,35 @@ _bundle slug format notebook="":
       echo "---"
     } > "$dir/index.md"
 
+# Start a deck on the slides theme; list it in content/talks/talks.json before building
+talk slug:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    dir="decks/{{ slug }}"
+    if [ -e "$dir" ]; then
+      echo "$dir already exists"
+      exit 1
+    fi
+
+    mkdir -p "$dir"
+    {
+      echo "---"
+      echo "theme: ../../themes/slides"
+      echo "layout: cover"
+      echo "title: \"{{ replace(slug, '-', ' ') }}\""
+      echo "event: \"\""
+      echo "date: \"\""
+      echo "---"
+      echo
+      echo "# {{ replace(slug, '-', ' ') }}"
+    } > "$dir/slides.md"
+    pnpm exec slidev "$dir/slides.md"
+
+# Open the slides theme's example deck with hot reload
+slides-theme:
+    pnpm exec slidev themes/slides/example/slides.md
+
 # Export marimo notebooks to Markdown in-place; defaults to all blog notebooks
 marimo-export *notebooks:
     #!/usr/bin/env bash

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "node scripts/build.ts",
+    "build:slides-theme": "slidev build themes/slides/example/slides.md --out node_modules/.build",
     "check": "node scripts/build.ts && cf deploy --prebuilt --dry-run",
     "deploy": "cf deploy --prebuilt",
     "dev": "astro dev",

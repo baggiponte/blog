@@ -152,6 +152,15 @@ coordinates are in `content/talks/cities.json`; `"online"` needs no entry. The
 logos in `public/talks/logos/` are the organisers' own marks, shown only to
 name the venue.
 
+New decks use the slides theme in `themes/slides/`: the blog's palette, fonts
+and code blocks on a slide. It reads the same `src/styles/tokens.css` and Shiki
+themes (`src/lib/code-themes.ts`) as the site, so a palette change reaches both.
+Start a deck with `just talk <slug>`, then list it in `talks.json`. Layouts:
+`cover` (`event`, `date`, and a QR code in the `::aside::` slot), `section`
+(`kicker`), `code`, plus Slidev's built-in ones; `footer: false` drops the
+brand and slide number from a slide. `just slides-theme` opens the theme's
+example deck with hot reload.
+
 The talks used to live in `baggiponte/talks` at `talks.baggiponte.com`; their
 history is in this repo's log under `talks/`, before the move into this layout.
 

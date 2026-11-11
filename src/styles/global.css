@@ -1,38 +1,9 @@
-/* wink refined: ivory paper, one pastel-warm accent, chunky display type, thin rules */
+@import "./tokens.css";
+
+/* layout: text is 60% of the window, never narrower than 560px or wider than 760px */
 :root {
-  --paper: #fdf9ee;
-  --ink: #1c1a14;
-  --muted: #6c6656;
-  --line: rgba(28, 26, 20, 0.12);
-  --rule: rgba(28, 26, 20, 0.22);
-  --accent: #e0562b;
-  --mark: #ffdcc2;
-  --code-bg: #fffdf7;
-  --code-line: rgba(28, 26, 20, 0.1);
-  --code-muted: #857e6b;
-
-  --sans: "Instrument Sans Variable", system-ui, -apple-system, sans-serif;
-  --display: "Bricolage Grotesque Variable", var(--sans);
-  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
-
-  /* text is 60% of the window, never narrower than 560px or wider than 760px */
   --col: clamp(560px, 60vw, 760px);
   --gutter: 32px;
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-  --paper: #13120d;
-  --ink: #f7f2e4;
-  --muted: #a8a18f;
-  --line: rgba(247, 242, 228, 0.13);
-  --rule: rgba(247, 242, 228, 0.24);
-  --accent: #ff8a5c;
-  --mark: rgba(255, 138, 92, 0.28);
-  --code-bg: #1c1a13;
-  --code-line: rgba(247, 242, 228, 0.09);
-  --code-muted: #8e8874;
-  color-scheme: dark;
 }
 
 * {
