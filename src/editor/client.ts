@@ -13,7 +13,9 @@ import { apiBase } from "./base.ts";
 import { formatKeys } from "./format.ts";
 import { imageInsert } from "./insert.ts";
 import { livePreview, postImageUrl, revealOnClick } from "./live-preview.ts";
-import type { DraftSummary, Format } from "./posts.ts";
+import type { Format, PostSummary } from "./post.ts";
+import { ApiError, addImage, createPost, listPosts, postUrl, readPost, saveInit, writePost } from "./remote.ts";
+import { type OnDisk, opened, saveStep, shouldReload } from "./saving.ts";
 
 const tree = $<HTMLUListElement>("#posts .tree");
 const sidebar = $<HTMLElement>("#posts");
@@ -29,10 +31,12 @@ const previewToggle = $<HTMLButtonElement>("#show-preview");
 const panes = $<HTMLElement>(".panes");
 
 const saveDelay = 600;
-let current: DraftSummary | undefined;
-let posts: DraftSummary[] = [];
+let current: PostSummary | undefined;
+let posts: PostSummary[] = [];
 let timer: ReturnType<typeof setTimeout> | undefined;
-let saved = "";
+// The open post's file as last read or saved: a save sends its version back, and the API refuses it if the file
+// changed elsewhere since (another tab, another editor). The decisions on it are in saving.ts.
+let disk: OnDisk | undefined;
 // The preview reloads on every save; it comes back where it was.
 let previewScroll = 0;
 
@@ -41,32 +45,33 @@ function say(text: string, tone: "ok" | "busy" | "error" = "ok"): void {
   status.setAttribute("data-tone", tone);
 }
 
-async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBase}${path}`, init);
-  if (!response.ok) {
-    const { error } = (await response.json().catch(() => ({ error: response.statusText }))) as { error: string };
-    throw new Error(error);
-  }
-  const type = response.headers.get("Content-Type") ?? "";
-  return (type.includes("json") ? response.json() : response.text()) as Promise<T>;
-}
-
 async function save(): Promise<void> {
   clearTimeout(timer);
   timer = undefined;
   const text = view.state.doc.toString();
-  if (current === undefined || text === saved) {
+  if (current === undefined || disk === undefined) {
+    return;
+  }
+  const step = saveStep(disk, text);
+  if (step !== "write") {
+    if (step === "unchanged") {
+      say("saved");
+    }
     return;
   }
   say("saving…", "busy");
   try {
     rememberScroll();
-    await api(`/posts/${current.dir}`, { method: "PUT", body: text });
-    saved = text;
+    disk = { ...disk, text, version: await writePost(current.dir, text, disk.version) };
     say("saved");
     // A new title or draft flag shows in the sidebar.
     await refresh();
   } catch (error) {
+    if (error instanceof ApiError && error.failure === "conflict") {
+      disk = { ...disk, conflicted: true };
+      say("not saved: the file changed elsewhere. Copy your text, then reopen the post", "error");
+      return;
+    }
     say(`not saved: ${(error as Error).message}`, "error");
   }
 }
@@ -94,12 +99,7 @@ async function addImages(files: File[], position: number): Promise<void> {
   try {
     const names: string[] = [];
     for (const image of images) {
-      const name = image.name || `pasted.${image.type.split("/")[1] ?? "png"}`;
-      const { name: savedAs } = await api<{ name: string }>(`/posts/${dir}/images?name=${encodeURIComponent(name)}`, {
-        method: "POST",
-        body: image,
-      });
-      names.push(savedAs);
+      names.push(await addImage(dir, image));
     }
     if (current?.dir !== dir) {
       return;
@@ -292,10 +292,9 @@ async function openPost(dir: string): Promise<void> {
     say("no posts yet: start one with “new post”");
     return;
   }
-  const text = await api<string>(`/posts/${post.dir}`);
+  disk = opened(await readPost(post.dir));
   current = post;
-  saved = text;
-  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
+  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: disk.text } });
   renderList();
   open.href = post.url;
   previewScroll = 0;
@@ -306,6 +305,21 @@ async function openPost(dir: string): Promise<void> {
   history.replaceState(null, "", `#${post.dir}`);
   say("saved");
 }
+
+// Back on the tab after editing the post somewhere else (shouldReload in saving.ts).
+async function reloadIfClean(): Promise<void> {
+  if (current === undefined || disk === undefined) {
+    return;
+  }
+  const latest = await readPost(current.dir);
+  if (!shouldReload(disk, view.state.doc.toString(), latest.version)) {
+    return;
+  }
+  disk = opened(latest);
+  view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: disk.text } });
+  say("reloaded: the file changed elsewhere");
+}
+addEventListener("focus", () => void reloadIfClean().catch(() => undefined));
 
 // A new post's page exists once the dev server has picked up its folder, a moment after it's written.
 async function waitForPage(url: string): Promise<void> {
@@ -318,7 +332,7 @@ async function waitForPage(url: string): Promise<void> {
 }
 
 async function refresh(): Promise<void> {
-  posts = await api<DraftSummary[]>("/posts");
+  posts = await listPosts();
   current = posts.find(post => post.dir === current?.dir) ?? current;
   renderList();
 }
@@ -335,7 +349,7 @@ form.addEventListener("submit", event => {
   };
   void (async () => {
     try {
-      const { dir } = await api<{ dir: string }>("/posts", { method: "POST", body: JSON.stringify(body) });
+      const dir = await createPost(body);
       dialog.close();
       form.reset();
       await refresh();
@@ -350,8 +364,9 @@ form.addEventListener("submit", event => {
 });
 // Closing the tab mid-sentence still writes the last words.
 addEventListener("pagehide", () => {
-  if (current !== undefined && view.state.doc.toString() !== saved) {
-    void fetch(`${apiBase}/posts/${current.dir}`, { method: "PUT", body: view.state.doc.toString(), keepalive: true });
+  const text = view.state.doc.toString();
+  if (current !== undefined && disk !== undefined && saveStep(disk, text) === "write") {
+    void fetch(postUrl(current.dir), { ...saveInit(text, disk.version), keepalive: true });
   }
 });
 

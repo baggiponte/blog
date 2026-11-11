@@ -18,7 +18,7 @@ function press(marked: string, marker: Marker): string {
 
 test("wraps the selection and keeps it on the text", () => {
   assert.equal(press("a [word] here", "**"), "a **[word]** here");
-  assert.equal(press("a [word] here", "*"), "a *[word]* here");
+  assert.equal(press("a [word] here", "_"), "a _[word]_ here");
   assert.equal(press("a [word] here", "=="), "a ==[word]== here");
   assert.equal(press("a [word] here", "~~"), "a ~~[word]~~ here");
 });
@@ -33,9 +33,12 @@ test("takes the markers off, outside or inside the selection", () => {
   assert.equal(press("a [==word==] here", "=="), "a [word] here");
 });
 
-test("tells italic from bold", () => {
-  assert.equal(press("a **[word]** here", "*"), "a ***[word]*** here");
-  assert.equal(press("a ***[word]*** here", "*"), "a **[word]** here");
+test("italic and bold nest the way oxfmt writes them, and come off either way round", () => {
+  assert.equal(press("a **[word]** here", "_"), "a **_[word]_** here");
+  assert.equal(press("a **_[word]_** here", "_"), "a **[word]** here");
+  assert.equal(press("a **_[word]_** here", "**"), "a _[word]_ here");
+  assert.equal(press("a _**[word]**_ here", "_"), "a **[word]** here");
+  // Older posts write bold italic as ***word***.
   assert.equal(press("a ***[word]*** here", "**"), "a *[word]* here");
 });
 

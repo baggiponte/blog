@@ -15,8 +15,8 @@
     "test": "playwright test",
     "test:unit": "node --test \"src/**/*.test.ts\"",
     "typecheck": "astro sync && tsc",
-    "lint": "biome ci .",
-    "format": "biome check --write ."
+    "lint": "biome ci . && oxfmt --check 'content/*.md' 'content/blog/*/index.md'",
+    "format": "biome check --write . && oxfmt --write 'content/*.md' 'content/blog/*/index.md'"
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "7.3.2",
@@ -45,6 +45,7 @@
     "cf": "1.0.0-beta.18",
     "codemirror": "6.0.2",
     "d3-geo": "3.1.1",
+    "oxfmt": "0.74.0",
     "topojson-client": "3.1.0",
     "typescript": "7.0.2",
     "unist-util-visit": "5.1.0",

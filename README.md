@@ -89,13 +89,18 @@ reads like the post (headings, emphasis, `==highlights==`, links, images
 inline), while the lines under the cursor show their Markdown to edit. The
 "preview" button adds the post as the dev server renders it beside the text,
 and "vim" turns on vim keys; both choices are remembered. It saves as you type
-(⌘S saves at once). ⌘B, ⌘I, ⌘U and ⌘⇧X toggle bold, italic, `==highlight==`
+(⌘S saves at once). ⌘B, ⌘I, ⌘U and ⌘⇧X toggle bold, italic (`_word_`, as oxfmt writes it), `==highlight==`
 and strikethrough on the selection, with or without vim. A sidebar lists the hand-written posts as a file tree,
 newest first, with a "draft" tag on drafts; the button left of the title hides
 it. "+ new" writes the same draft bundle as `just new`.
 Drag or paste images into the text: each one is saved next to `index.md` with
 a slugified name and linked as `![](./<name>)`, with the cursor between the
 brackets for the alt text. Notebook posts aren't listed, since marimo writes
+them. A save never writes frontmatter the site couldn't build (the status bar
+says why), and never overwrites an `index.md` changed elsewhere since it was
+opened, in another tab or another editor: the status bar says so and saving
+stops until the post is reopened. With no unsaved typing, coming back to the
+tab reloads a post changed elsewhere.
 them. The editor and its API (`src/editor/`) exist only in the dev server,
 never in the built site; nothing is committed, so review and commit the bundle
 as usual.

@@ -85,3 +85,12 @@ test("the drafting editor only exists in astro dev, never on the built site", as
     expect((await request.get(path)).status(), path).toBe(404);
   }
 });
+
+test("every response carries the security headers", async ({ request }) => {
+  for (const path of ["/", "/talks/", "/favicon.svg"]) {
+    const headers = (await request.get(path)).headers();
+    expect(headers["x-content-type-options"], path).toBe("nosniff");
+    expect(headers["content-security-policy"], path).toBe("frame-ancestors 'self'");
+    expect(headers["strict-transport-security"], path).toBe("max-age=31536000");
+  }
+});

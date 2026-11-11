@@ -2,9 +2,9 @@ import { EditorSelection, type StateCommand } from "@codemirror/state";
 
 // Inline formatting from the keyboard: ⌘B bold, ⌘I italic, ⌘U highlight (the site's `==mark==`), ⌘⇧X strikethrough.
 // Each one wraps the selection in its marker, or takes the marker off when the selection already has it, inside
-// or just outside the selected text.
+// or just outside the selected text. Italic is `_word_`, as oxfmt writes it, so the editor and the formatter agree.
 
-export type Marker = "**" | "*" | "==" | "~~";
+export type Marker = "**" | "_" | "==" | "~~";
 
 export interface Toggle {
   changes: { from: number; to: number; insert: string }[];
@@ -13,10 +13,13 @@ export interface Toggle {
   to: number;
 }
 
-// Whether a run of `count` marker characters carries `marker`: `***` is both bold and italic.
+// Whether a run of `count` marker characters carries `marker`: `***` (older posts) is both bold and italic.
 function carries(marker: Marker, count: number): boolean {
-  return count === marker.length || (marker[0] === "*" && count === 3);
+  return count === marker.length || (marker === "**" && count === 3);
 }
+
+// Bold and italic nest, `**_word_**` or `_**word**_`: toggling one looks past the other's markers.
+const nested: Partial<Record<Marker, string>> = { "**": "_", _: "*" };
 
 function runBefore(text: string, position: number, char: string): number {
   let n = 0;
@@ -47,12 +50,16 @@ export function toggleMarker(doc: string, from: number, to: number, marker: Mark
     end--;
   }
 
-  // The markers are just outside the selection: `**|word|**`.
-  if (carries(marker, runBefore(doc, start, char)) && carries(marker, runAfter(doc, end, char))) {
+  // The markers are just outside the selection, maybe past the other emphasis: `**|word|**`, `**_|word|_**`.
+  const other = nested[marker];
+  const skip = other === undefined ? 0 : Math.min(runBefore(doc, start, other), runAfter(doc, end, other));
+  const before = start - skip;
+  const after = end + skip;
+  if (carries(marker, runBefore(doc, before, char)) && carries(marker, runAfter(doc, after, char))) {
     return {
       changes: [
-        { from: start - n, to: start, insert: "" },
-        { from: end, to: end + n, insert: "" },
+        { from: before - n, to: before, insert: "" },
+        { from: after, to: after + n, insert: "" },
       ],
       from: start - n,
       to: end - n,
@@ -100,7 +107,7 @@ export function toggle(marker: Marker): StateCommand {
 
 export const formatKeys = [
   { key: "Mod-b", run: toggle("**"), preventDefault: true },
-  { key: "Mod-i", run: toggle("*"), preventDefault: true },
+  { key: "Mod-i", run: toggle("_"), preventDefault: true },
   { key: "Mod-u", run: toggle("=="), preventDefault: true },
   { key: "Mod-Shift-x", run: toggle("~~"), preventDefault: true },
 ];
