@@ -8,7 +8,6 @@ interface Site {
   title: string;
   description: string;
   bio: { lead: string; rest: string };
-  lately: [string, ...string[]];
   nav: Link[];
   links: Link[];
   footnote: string;
@@ -24,13 +23,6 @@ export const site: Site = {
     lead: "product-minded data scientist",
     rest: ", using ai and genai for problems that actually pay the bills. these days i'm mostly",
   },
-  // Cycles slowly under the bio; one line per entry, lowercase.
-  lately: [
-    "turning slop into concrete solutions.",
-    "making llms do the boring parts of the job.",
-    "shipping models that survive monday morning.",
-    "reading the docs so you don't have to.",
-  ],
   nav: [
     { label: "writing", href: "/" },
     { label: "about", href: "/about/" },

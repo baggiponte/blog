@@ -222,7 +222,7 @@ if (copyPage !== null) {
 
 // ---- rotating bio -------------------------------------------------------
 const lately = document.querySelector<HTMLElement>("[data-lately]");
-// index.astro writes site.lately here as a JSON array of strings.
+// index.astro writes the phrases from content/lately.md here as a JSON array of strings.
 const lines = JSON.parse(lately?.dataset.lately ?? "[]") as string[];
 if (lately !== null && lines.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
   let current = 0;

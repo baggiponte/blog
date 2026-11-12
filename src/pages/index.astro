@@ -1,9 +1,14 @@
 ---
+import { getEntry } from "astro:content";
+
 import Base from "../layouts/Base.astro";
 import { formatDate } from "../lib/dates.ts";
+import { parseLately } from "../lib/lately.ts";
 import { getPosts, markdownOf, readingMinutes, urlOf } from "../lib/posts.ts";
 import { site } from "../site.ts";
 
+// The rotating phrases under the bio, edited as a bullet list in content/lately.md.
+const lately = parseLately((await getEntry("pages", "lately"))?.body ?? "");
 const all = await getPosts();
 const posts = await Promise.all(
   all
@@ -20,7 +25,7 @@ const number = (i: number) => tidbits.length - i;
     <h1>hi, i'm luca <span class="wave" aria-hidden="true">👋</span></h1>
     <p>
       <b>{site.bio.lead}</b>{site.bio.rest}{" "}
-      <span class="lately" data-lately={JSON.stringify(site.lately)}>{site.lately[0]}</span>
+      <span class="lately" data-lately={JSON.stringify(lately)}>{lately[0]}</span>
     </p>
   </section>
 
