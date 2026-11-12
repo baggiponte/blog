@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { render } from "astro:content";
 
 import type { InferGetStaticPropsType } from "astro";
@@ -15,6 +16,7 @@ const { Content } = await render(await bodyEntry(post));
 const minutes = readingMinutes(await markdownOf(post));
 const coffees = Math.max(1, Math.round(minutes / 3));
 const source = markdownUrlOf(post);
+const { song } = post.data;
 ---
 
 <Base title={post.data.title} description={post.data.description}>
@@ -51,5 +53,23 @@ const source = markdownUrlOf(post);
     <div class="prose">
       <Content />
     </div>
+    {
+      song && (
+        <aside class="song" aria-labelledby="song-k">
+          <p class="song-k" id="song-k">on repeat</p>
+          <a class="song-card" href={song.url} target="_blank" rel="noopener">
+            <span class="sleeve">
+              <span class="vinyl" aria-hidden="true" />
+              <Image src={song.cover} alt="" width={128} height={128} densities={[1, 2]} />
+            </span>
+            <span class="song-t">
+              <b>{song.title}</b>
+              <span>{song.artist}</span>
+              <span class="song-go">listen on spotify ↗</span>
+            </span>
+          </a>
+        </aside>
+      )
+    }
   </article>
 </Base>
