@@ -101,3 +101,40 @@ test("each line of text gets a paragraph's space below it, and blank lines are m
   });
   assert.deepEqual(lines, { "cm-lp-split": [1, 2], "cm-lp-blank": [4, 6] });
 });
+
+test("the empty line the cursor is on after a paragraph already has a paragraph's space above it", () => {
+  const text = "one\n\n## two\n\nthree\n";
+  const linesWith = (cursor: number): Record<string, number[]> => {
+    let state = EditorState.create({
+      doc: text,
+      selection: { anchor: cursor },
+      extensions: [markdown({ base: markdownLanguage })],
+    });
+    ensureSyntaxTree(state, state.doc.length, 5000);
+    state = state.update({}).state;
+    const lines: Record<string, number[]> = { "cm-lp-split": [], "cm-lp-blank": [] };
+    livePreviewDecorations(state, url => url).between(0, text.length, (from, _to, value) => {
+      lines[value.spec.class as string]?.push(state.doc.lineAt(from).number);
+    });
+    return lines;
+  };
+  // Cursor on line 2, just below a paragraph.
+  assert.deepEqual(linesWith(4), { "cm-lp-split": [1], "cm-lp-blank": [4, 6] });
+  // Cursor on line 4, below a heading: the blank line stays a blank line.
+  assert.deepEqual(linesWith(12), { "cm-lp-split": [], "cm-lp-blank": [2, 4, 6] });
+  // Cursor elsewhere: blank lines are blank lines.
+  assert.deepEqual(linesWith(0), { "cm-lp-split": [], "cm-lp-blank": [2, 4, 6] });
+});
+
+test("a quote or list right below a paragraph, with no blank line, sits a paragraph's space below it", () => {
+  const text = "one\n> quoted\n> more\n\ntwo\n- item\n";
+  let state = EditorState.create({ doc: text, extensions: [markdown({ base: markdownLanguage })] });
+  ensureSyntaxTree(state, state.doc.length, 5000);
+  state = state.update({}).state;
+  const lines: Record<string, number[]> = { "cm-lp-split": [], "cm-lp-blank": [] };
+  livePreviewDecorations(state, url => url).between(0, text.length, (from, _to, value) => {
+    lines[value.spec.class as string]?.push(state.doc.lineAt(from).number);
+  });
+  // Line 2 is split as the quote's own two paragraphs; line 3, the quote's last, is followed by a blank line.
+  assert.deepEqual(lines, { "cm-lp-split": [1, 2, 5], "cm-lp-blank": [4, 7] });
+});
