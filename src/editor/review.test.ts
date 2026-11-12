@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { history, undo } from "@codemirror/commands";
+import { history, redo, undo } from "@codemirror/commands";
 import { EditorState, type TransactionSpec } from "@codemirror/state";
 
 import {
@@ -103,4 +103,13 @@ test("only the words that change are struck, with the new words right after them
     shown.push(widget instanceof ReplacementWidget ? `+${widget.text}@${from}` : `-${view.state.sliceDoc(from, to)}`);
   });
   assert.deepEqual(shown, ["-teh", "+the@14"]);
+});
+
+test("a reject is undone and redone too", () => {
+  const view = editor("a very big teh model", [typo]);
+  reject(view, "typo");
+  undo(view as Parameters<typeof undo>[0]);
+  assert.deepEqual(open(view), ["typo"]);
+  redo(view as Parameters<typeof redo>[0]);
+  assert.deepEqual(open(view), []);
 });

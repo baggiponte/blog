@@ -167,13 +167,17 @@ export function goTo(view: EditorView, id: string): void {
   }
 }
 
-// What undo puts back: the suggestion an accept or reject took off, where it was before.
+// What undo puts back: the suggestion an accept or reject took off, where it was before; and what redo takes off
+// again.
 const undoable = invertedEffects.of(tr => {
   const before = tr.startState.field(reviewField, false);
   if (before === undefined) {
     return [];
   }
-  return tr.effects.flatMap(effect => {
+  return tr.effects.flatMap((effect): StateEffect<unknown>[] => {
+    if (effect.is(restore)) {
+      return [resolve.of(effect.value.suggestion.id)];
+    }
     if (!effect.is(resolve)) {
       return [];
     }
@@ -278,7 +282,9 @@ function card(view: EditorView, { suggestion }: Placed): HTMLElement {
     editButton.hidden = true;
     acceptButton.textContent = "accept edit";
     field.focus();
-    field.select();
+    // The words that change are selected, ready to be typed over; the rest of the quote stays as it is.
+    const { start, insert } = changeOf(suggestion.quote, suggestion.replacement);
+    field.setSelectionRange(start, start + insert.length);
   });
   const rejectButton = button("reject", "reject (⌘⇧↵)", () => {
     reject(view, suggestion.id);
