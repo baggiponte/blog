@@ -16,6 +16,7 @@ import { livePreview, postImageUrl, revealOnClick } from "./live-preview.ts";
 import type { Format, PostSummary } from "./post.ts";
 import { ApiError, addImage, createPost, listPosts, postUrl, readPost, saveInit, writePost } from "./remote.ts";
 import { type OnDisk, opened, saveStep, shouldReload } from "./saving.ts";
+import { textSelection } from "./selection.ts";
 
 const tree = $<HTMLUListElement>("#posts .tree");
 const sidebar = $<HTMLElement>("#posts");
@@ -166,6 +167,7 @@ const view = new EditorView({
     yamlFrontmatter({ content: markdown({ base: markdownLanguage, codeLanguages: languages }) }),
     livePreview(url => postImageUrl(apiBase, current?.dir ?? "", url)),
     revealOnClick,
+    textSelection,
     syntaxHighlighting(highlight),
     EditorView.lineWrapping,
     // Above the default keymap, which has ⌘I and ⌘U for selecting syntax and undoing selections.
