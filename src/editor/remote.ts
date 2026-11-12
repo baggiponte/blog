@@ -1,7 +1,9 @@
 import type { ErrorBody } from "./api.ts";
 import { apiBase } from "./base.ts";
-import type { BundleDir, Failure, ImageName, NewPost, PostSummary, Version } from "./post.ts";
-import type { Stored } from "./store.ts";
+import type { Failure } from "./failure.ts";
+import type { BundleDir, ImageName, NewPost, PostSummary, Version } from "./post.ts";
+import type { Stored, Suggestions } from "./store.ts";
+import type { Suggestion } from "./suggestion.ts";
 
 // The editor API (api.ts) as the page calls it: one typed function per route, so the page never builds a URL or
 // reads a header itself. Only types come from the server's modules, so no Node code reaches the browser.
@@ -64,3 +66,18 @@ export async function addImage(dir: BundleDir, file: File): Promise<ImageName> {
   });
   return ((await response.json()) as { name: ImageName }).name;
 }
+
+export async function readSuggestions(dir: BundleDir): Promise<Suggestions> {
+  const response = await call(`${postPath(dir)}/suggestions`);
+  const { suggestions } = (await response.json()) as { suggestions: Suggestion[] };
+  return { suggestions, version: versionIn(response) };
+}
+
+export const writeSuggestions = async (dir: BundleDir, suggestions: Suggestion[], version: Version): Promise<Version> =>
+  versionIn(
+    await call(`${postPath(dir)}/suggestions`, {
+      method: "PUT",
+      body: JSON.stringify({ suggestions }),
+      headers: { "If-Match": `"${version}"` },
+    }),
+  );
