@@ -122,7 +122,14 @@ export function livePreviewDecorations(state: EditorState, imageSource: ImageSou
         // space below it, though Markdown parses the lines as one paragraph.
         const last = state.doc.lineAt(node.to).number;
         paragraphEnds.add(last);
-        for (let n = state.doc.lineAt(node.from).number; n < last; n++) {
+        // A quote, list or other block can start on the very next line, with no blank line between; on the site
+        // they still sit a paragraph's space apart.
+        const interrupted =
+          node.node.parent?.name === "Document" &&
+          last < state.doc.lines &&
+          state.doc.line(last + 1).text.trim() !== "";
+        const end = interrupted ? last + 1 : last;
+        for (let n = state.doc.lineAt(node.from).number; n < end; n++) {
           decorations.push(line("cm-lp-split").range(state.doc.line(n).from));
         }
       }
