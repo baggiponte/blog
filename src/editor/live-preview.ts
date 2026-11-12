@@ -107,6 +107,8 @@ export function livePreviewDecorations(state: EditorState, imageSource: ImageSou
     }
   };
   const code: [number, number][] = [];
+  // The last line of each paragraph, which takes a paragraph's space below it once the next line is being written.
+  const paragraphEnds = new Set<number>();
 
   syntaxTree(state).iterate({
     enter: node => {
@@ -119,6 +121,7 @@ export function livePreviewDecorations(state: EditorState, imageSource: ImageSou
         // Each line is a paragraph on the site (src/lib/remark-line-paragraphs.ts), so it gets a paragraph's
         // space below it, though Markdown parses the lines as one paragraph.
         const last = state.doc.lineAt(node.to).number;
+        paragraphEnds.add(last);
         for (let n = state.doc.lineAt(node.from).number; n < last; n++) {
           decorations.push(line("cm-lp-split").range(state.doc.line(n).from));
         }
@@ -168,9 +171,15 @@ export function livePreviewDecorations(state: EditorState, imageSource: ImageSou
   const inCode = (position: number): boolean => code.some(([from, to]) => position >= from && position < to);
   for (let n = 1; n <= state.doc.lines; n++) {
     const { from, text } = state.doc.line(n);
-    // A blank line between blocks is as tall as the space between two paragraphs.
+    // A blank line between blocks is as tall as the space between two paragraphs. A blank line just after a
+    // paragraph, with the cursor on it, is the next paragraph about to be written: it gets its space already, so
+    // the text doesn't jump down at the first key.
     if (text.trim() === "" && !inCode(from)) {
-      decorations.push(line("cm-lp-blank").range(from));
+      if (active.has(n) && paragraphEnds.has(n - 1)) {
+        decorations.push(line("cm-lp-split").range(state.doc.line(n - 1).from));
+      } else {
+        decorations.push(line("cm-lp-blank").range(from));
+      }
     }
     for (const match of text.matchAll(markPattern)) {
       const start = from + match.index;
