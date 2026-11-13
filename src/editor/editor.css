@@ -243,8 +243,12 @@ dialog button {
   background: var(--accent);
   color: var(--paper);
 }
+/* The selection is drawn over the text only (selection.ts), not from edge to edge and across the gaps. */
 #source .cm-focused .cm-selectionBackground,
 #source .cm-selectionBackground {
+  background: transparent;
+}
+#source .cm-text-selection {
   background: var(--mark);
 }
 #source .cm-vim-panel {

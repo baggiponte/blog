@@ -28,6 +28,7 @@ import {
 } from "./remote.ts";
 import { goTo, load, type Review, reject, remaining, review, reviewField } from "./review.ts";
 import { type OnDisk, opened, saveStep, shouldReload } from "./saving.ts";
+import { textSelection } from "./selection.ts";
 import { changeOf, type Suggestion, withContext } from "./suggestion.ts";
 
 const tree = $<HTMLUListElement>("#posts .tree");
@@ -182,6 +183,7 @@ const view = new EditorView({
     livePreview(url => postImageUrl(apiBase, current?.dir ?? "", url)),
     revealOnClick,
     review(),
+    textSelection,
     syntaxHighlighting(highlight),
     EditorView.lineWrapping,
     // Above the default keymap, which has ⌘I and ⌘U for selecting syntax and undoing selections.

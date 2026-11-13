@@ -575,6 +575,105 @@ header.top {
   text-align: left;
 }
 
+/* ---- the song a post ends with: a sleeve with the record peeking out, which slides further out on hover ---- */
+.song {
+  --sleeve: 128px;
+  margin: -48px 0 80px;
+}
+.song-k {
+  margin: 0 0 14px;
+  font: 500 12px / 1 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.song-k::before {
+  content: "♪ ";
+  color: var(--accent);
+}
+.song-card {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--sleeve) * 0.42 + 22px);
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+.song-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.sleeve {
+  position: relative;
+  flex: none;
+  width: var(--sleeve);
+  aspect-ratio: 1;
+}
+.sleeve img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 8px 24px -10px rgba(0, 0, 0, 0.35);
+}
+/* Grooves, a label in the accent colour and the spindle hole, in paper so it reads as a hole in both themes. */
+.vinyl {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--paper) 0 3%, var(--accent) 3.5% 30%, transparent 30.5%),
+    repeating-radial-gradient(circle, #1a1814 0 1.5px, #2a2720 1.5px 3px);
+  /* the outer ring keeps the record's edge visible on the dark paper */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 0 0 1px var(--line);
+  transform: translateX(42%) rotate(0deg);
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.song-t {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.song-t b {
+  font: 700 22px / 1.15 var(--display);
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+.song-t span {
+  color: var(--muted);
+}
+.song-t .song-go {
+  margin-top: 10px;
+  font: 500 13px / 1 var(--mono);
+  color: var(--accent);
+}
+@media (hover: hover) {
+  .song-card:hover {
+    border-color: var(--rule);
+  }
+  .song-card:hover .vinyl {
+    transform: translateX(56%) rotate(140deg);
+  }
+}
+@media (max-width: 640px) {
+  .song {
+    --sleeve: 96px;
+  }
+  .song-t b {
+    font-size: 19px;
+  }
+}
+
 /* code blocks: same width as the text; vitesse colours until the syntax theme round */
 figure.code {
   /* the caption's height, which the scroll fade starts below */
