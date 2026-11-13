@@ -3,7 +3,7 @@ import { defineConfig } from "@playwright/test";
 // Set SITE_BASE_URL to test a deployed site; otherwise the tests serve the production build in dist/.
 const destination = process.env.SITE_BASE_URL;
 const local = "http://localhost:8790";
-// The drafting editor only exists in `astro dev` (src/editor/), so its tests get a dev server of their own.
+// The drafting editor only exists in `astro dev` (src/plugins/editor/), so its tests get a dev server of their own.
 const dev = "http://localhost:4329";
 
 export default defineConfig({

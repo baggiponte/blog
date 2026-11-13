@@ -126,7 +126,7 @@ card to accept (⌘↵), edit or reject (⌘⇧↵) it, ⌥] and ⌥[ move betwe
 panel lists them all. Accepting is an ordinary edit, so ⌘Z undoes it and brings
 the suggestion back. Decided suggestions leave the file, which goes away once
 none are left; it's gitignored either way.
-them. The editor and its API (`src/editor/`) exist only in the dev server,
+them. The editor and its API (`src/plugins/editor/`) exist only in the dev server,
 never in the built site; nothing is committed, so review and commit the bundle
 as usual.
 Changes to the editor's own code, page and API included, apply on a browser

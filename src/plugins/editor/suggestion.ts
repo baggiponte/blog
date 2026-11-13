@@ -4,7 +4,7 @@ import { EditorError } from "./failure.ts";
 
 // Proofreading suggestions for a post, with no editor and no files: what a suggestion is, how it's read from
 // suggestions.json, and how it finds its place in the text. Claude writes the file next to index.md (see
-// .claude/commands/proofread.md); the editor shows each suggestion on the text it quotes (review.ts).
+// .claude/skills/proofread/SKILL.md); the editor shows each suggestion on the text it quotes (review.ts).
 
 // What kind of fix it is, so the editor can tell a typo from a matter of taste.
 export const kinds = ["typo", "grammar", "style", "clarity", "fact"] as const;

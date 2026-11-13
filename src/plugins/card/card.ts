@@ -3,7 +3,7 @@ import { z } from "astro/zod";
 import { listenLink, type MediaType, type Platform } from "./listen.ts";
 
 // A card: something worth opening elsewhere, shown as its title and a line about it, written as a ```card block
-// anywhere in a post (src/lib/remark-card.ts).
+// anywhere in a post (src/plugins/card/remark-card.ts).
 //
 // - link: a page to read, drawn as a text bookmark with the site that published it.
 // - song, podcast, video: something to play on Spotify or YouTube, drawn as a sleeve with its record, a stack of

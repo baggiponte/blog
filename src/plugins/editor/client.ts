@@ -8,7 +8,7 @@ import { tags } from "@lezer/highlight";
 import { vim } from "@replit/codemirror-vim";
 import { basicSetup } from "codemirror";
 
-import { find as $, element } from "../scripts/dom.ts";
+import { find as $, element } from "../../scripts/dom.ts";
 import { apiBase } from "./base.ts";
 import { formatKeys } from "./format.ts";
 import { imageInsert } from "./insert.ts";

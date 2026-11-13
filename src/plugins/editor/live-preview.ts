@@ -3,7 +3,7 @@ import { type EditorState, type Extension, type Range, RangeSet } from "@codemir
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate, WidgetType } from "@codemirror/view";
 
 // `==text==`, the site's highlight, which Markdown itself doesn't parse.
-import { markPattern } from "../lib/remark-mark.ts";
+import { markPattern } from "../../lib/remark-mark.ts";
 
 // Live preview, like Obsidian's: the document stays the exact Markdown of index.md, but away from the cursor the
 // syntax is hidden and the text is styled as the post shows it. The lines the cursor or selection touch show their

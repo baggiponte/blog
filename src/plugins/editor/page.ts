@@ -10,7 +10,7 @@ export const editorPage = `
     <meta name="robots" content="noindex" />
     <title>drafts · luca baggi's blog</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/src/editor/editor.css" />
+    <link rel="stylesheet" href="/src/plugins/editor/editor.css" />
     <script is:inline>
       try {
         const saved = localStorage.getItem("theme");
@@ -75,7 +75,7 @@ export const editorPage = `
       </form>
     </dialog>
 
-    <script type="module" src="/src/editor/client.ts"></script>
+    <script type="module" src="/src/plugins/editor/client.ts"></script>
   </body>
 </html>
 `;

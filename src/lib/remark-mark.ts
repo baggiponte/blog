@@ -14,7 +14,7 @@ declare module "mdast" {
   }
 }
 
-// Also what the editor's live preview (src/editor/live-preview.ts) styles as a highlight, so the two always agree.
+// Also what the editor's live preview (src/plugins/editor/live-preview.ts) styles as a highlight, so the two always agree.
 export const markPattern = /==(?=\S)(.+?)(?<=\S)==/g;
 
 export function remarkMark(): (tree: Root) => void {
