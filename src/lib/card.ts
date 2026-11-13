@@ -2,8 +2,8 @@ import { z } from "astro/zod";
 
 import { listenLink, type MediaType, type Platform } from "./listen.ts";
 
-// A card: something worth opening elsewhere, shown as its title and a line about it. The same fields
-// fill a ```card block anywhere in a post (src/lib/remark-card.ts) and the `song` a post ends with (frontmatter).
+// A card: something worth opening elsewhere, shown as its title and a line about it, written as a ```card block
+// anywhere in a post (src/lib/remark-card.ts).
 //
 // - link: a page to read, drawn as a text bookmark with the site that published it.
 // - song, podcast, video: something to play on Spotify or YouTube, drawn as a sleeve with its record, a stack of
@@ -22,9 +22,10 @@ interface Common {
   // Why it's here, where to start, or what the page is about.
   note?: string | undefined;
 }
-export interface MediaCard<Image = string> extends Common {
+export interface MediaCard extends Common {
   type: MediaType;
-  image?: Image | undefined;
+  // A file next to index.md.
+  image?: string | undefined;
   platform: string;
   verb: Platform["verb"];
 }
@@ -34,7 +35,7 @@ export interface LinkCard extends Common {
   site: string;
   host: string;
 }
-export type Card<Image = string> = MediaCard<Image> | LinkCard;
+export type Card = MediaCard | LinkCard;
 
 // The picture's size on the page: square for a sleeve or an episode, 16:9 for a video. Astro resizes the image to
 // twice this.
@@ -71,59 +72,53 @@ const address = (url: URL): string => `${host(url)}${decodeURI(url.pathname).rep
 const defaultTitle = (type: MediaType, verb: Platform["verb"]): string =>
   `${{ song: "a song", podcast: "an episode", video: "a video" }[type]} worth a ${verb}`;
 
-// `image` is Astro's image() in the frontmatter, and a plain path in a block, which the remark plugin turns into a
-// Markdown image so Astro resizes it all the same.
-export const cardSchema = <Image extends z.ZodType>(image: Image) =>
-  z
-    .strictObject({
-      type: z.enum(cardTypes).optional(),
-      url: z.string(),
-      title: z.string().min(1).optional(),
-      note: z.string().min(1).optional(),
-      image: image.optional(),
-      site: z.string().min(1).optional(),
-    })
-    .transform((card, context): Card<z.output<Image>> => {
-      const { site, image, ...fields } = card;
-      const media = listenLink(card.url);
-      const type = card.type ?? media?.type ?? "link";
-      if (type === "link") {
-        const url = canonicalLink(card.url);
-        if (url === undefined) {
-          context.addIssue({ code: "custom", path: ["url"], message: "an http or https link" });
-          return z.NEVER;
-        }
-        if (image !== undefined) {
-          context.addIssue({ code: "custom", path: ["image"], message: "a link card is text only" });
-          return z.NEVER;
-        }
-        return {
-          ...fields,
-          type,
-          url: url.href,
-          title: card.title ?? address(url),
-          site: site ?? host(url),
-          host: host(url),
-        };
-      }
-      if (media === undefined) {
-        context.addIssue({ code: "custom", path: ["url"], message: `a Spotify or YouTube link for a ${type}` });
-        return z.NEVER;
-      }
-      if (site !== undefined) {
-        context.addIssue({ code: "custom", path: ["site"], message: "only a link card names its site" });
-        return z.NEVER;
-      }
-      const { platform, verb, url } = media;
-      return { ...fields, type, platform, verb, url, image, title: card.title ?? defaultTitle(type, verb) };
-    });
+// A picture on the other site would be fetched by every reader's browser, so an image is a file, which the remark
+// plugin turns into a Markdown image for Astro to resize.
+const image = z
+  .string()
+  .min(1)
+  .refine(path => !/^[a-z][a-z\d+.-]*:/i.test(path), "a file next to index.md, not a link");
 
-// The `song` a post ends with: anything to play, not a page to read.
-export const songSchema = <Image extends z.ZodType>(image: Image) =>
-  cardSchema(image).transform((card, context): MediaCard<z.output<Image>> => {
-    if (card.type === "link") {
-      context.addIssue({ code: "custom", path: ["url"], message: "a Spotify or YouTube link to play" });
+export const cardSchema = z
+  .strictObject({
+    type: z.enum(cardTypes).optional(),
+    url: z.string(),
+    title: z.string().min(1).optional(),
+    note: z.string().min(1).optional(),
+    image: image.optional(),
+    site: z.string().min(1).optional(),
+  })
+  .transform((card, context): Card => {
+    const { site, image, ...fields } = card;
+    const media = listenLink(card.url);
+    const type = card.type ?? media?.type ?? "link";
+    if (type === "link") {
+      const url = canonicalLink(card.url);
+      if (url === undefined) {
+        context.addIssue({ code: "custom", path: ["url"], message: "an http or https link" });
+        return z.NEVER;
+      }
+      if (image !== undefined) {
+        context.addIssue({ code: "custom", path: ["image"], message: "a link card is text only" });
+        return z.NEVER;
+      }
+      return {
+        ...fields,
+        type,
+        url: url.href,
+        title: card.title ?? address(url),
+        site: site ?? host(url),
+        host: host(url),
+      };
+    }
+    if (media === undefined) {
+      context.addIssue({ code: "custom", path: ["url"], message: `a Spotify or YouTube link for a ${type}` });
       return z.NEVER;
     }
-    return card;
+    if (site !== undefined) {
+      context.addIssue({ code: "custom", path: ["site"], message: "only a link card names its site" });
+      return z.NEVER;
+    }
+    const { platform, verb, url } = media;
+    return { ...fields, type, platform, verb, url, image, title: card.title ?? defaultTitle(type, verb) };
   });

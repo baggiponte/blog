@@ -1,11 +1,9 @@
 ---
-import { Image } from "astro:assets";
 import { render } from "astro:content";
 
 import type { InferGetStaticPropsType } from "astro";
 
 import Base from "../../layouts/Base.astro";
-import { imageSize } from "../../lib/card.ts";
 import { formatDate } from "../../lib/dates.ts";
 import { bodyEntry, getPostPaths, markdownOf, markdownUrlOf, readingMinutes } from "../../lib/posts.ts";
 
@@ -17,8 +15,6 @@ const { Content } = await render(await bodyEntry(post));
 const minutes = readingMinutes(await markdownOf(post));
 const coffees = Math.max(1, Math.round(minutes / 3));
 const source = markdownUrlOf(post);
-const { song } = post.data;
-const songImage = song && imageSize(song.type);
 ---
 
 <Base title={post.data.title} description={post.data.description}>
@@ -55,30 +51,5 @@ const songImage = song && imageSize(song.type);
     <div class="prose">
       <Content />
     </div>
-    {
-      song && (
-        <aside class="outro" aria-labelledby="outro-k">
-          <p class="outro-k" id="outro-k">on repeat</p>
-          <div class="player" data-type={song.type} data-platform={song.platform}>
-            <a class="player-card" href={song.url} target="_blank" rel="noopener">
-              <span class="sleeve">
-                {song.type === "song" && <span class="vinyl" aria-hidden="true" />}
-                {song.image ? (
-                  <Image src={song.image} alt="" {...songImage} densities={[1, 2]} />
-                ) : (
-                  <span class="blank" aria-hidden="true" />
-                )}
-              </span>
-              <span class="player-t">
-                <span class="player-k">{song.type}</span>
-                <b class="player-title">{song.title}</b>
-                {song.note && <span class="player-note">{song.note}</span>}
-                <span class="player-go">{song.verb} on {song.platform} ↗</span>
-              </span>
-            </a>
-          </div>
-        </aside>
-      )
-    }
   </article>
 </Base>

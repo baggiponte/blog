@@ -36,12 +36,10 @@ export async function bodyEntry(post: Post): Promise<Body> {
   return entry;
 }
 
-// The post as one Markdown document: title, description, body and the song it ends with.
+// The post as one Markdown document: title, description and body.
 export async function markdownOf(post: Post): Promise<string> {
   const { body = "" } = await bodyEntry(post);
-  const { song } = post.data;
-  const outro = song === undefined ? "" : `\n\non repeat: [${song.title}](${song.url})`;
-  return `# ${post.data.title}\n\n${post.data.description}\n\n${plainMarkdown(body)}${outro}\n`;
+  return `# ${post.data.title}\n\n${post.data.description}\n\n${plainMarkdown(body)}\n`;
 }
 
 const wordsPerMinute = 220;
