@@ -5,13 +5,13 @@ import { codeFigure } from "./code-figure.ts";
 import { codeThemes } from "./code-themes.ts";
 import { remarkLineParagraphs } from "./remark-line-paragraphs.ts";
 import { remarkMark } from "./remark-mark.ts";
-import { remarkSpotify } from "./remark-spotify.ts";
+import { remarkPlayer } from "./remark-player.ts";
 
 // How posts are rendered: astro.config.ts uses it, and the tests render Markdown with it.
 export const markdown = {
-  // unified() rather than the default Sätteri so `==highlights==`, one paragraph per line and Spotify cards can be
+  // unified() rather than the default Sätteri so `==highlights==`, one paragraph per line and player cards can be
   // small remark plugins.
-  processor: unified({ remarkPlugins: [remarkLineParagraphs, remarkMark, remarkSpotify] }),
+  processor: unified({ remarkPlugins: [remarkLineParagraphs, remarkMark, remarkPlayer] }),
   shikiConfig: {
     themes: codeThemes,
     defaultColor: false,

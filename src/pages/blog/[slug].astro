@@ -57,17 +57,18 @@ const { song } = post.data;
       song && (
         <aside class="outro" aria-labelledby="outro-k">
           <p class="outro-k" id="outro-k">on repeat</p>
-          <div class="spotify" data-kind={song.kind}>
-            <a class="spotify-card" href={song.url} target="_blank" rel="noopener">
+          <div class="player" data-type={song.type} data-platform={song.platform}>
+            <a class="player-card" href={song.url} target="_blank" rel="noopener">
               <span class="sleeve">
-                {song.kind === "song" && <span class="vinyl" aria-hidden="true" />}
+                {song.type === "music" && <span class="vinyl" aria-hidden="true" />}
                 <Image src={song.cover} alt="" width={128} height={128} densities={[1, 2]} />
               </span>
-              <span class="spotify-t">
-                <span class="spotify-k">{song.kind}</span>
-                <b class="spotify-title">{song.title}</b>
-                <span class="spotify-by">{song.artist}</span>
-                <span class="spotify-go">listen on spotify ↗</span>
+              <span class="player-t">
+                <span class="player-k">{song.type}</span>
+                <b class="player-title">{song.title}</b>
+                <span class="player-by">{song.by}</span>
+                {song.note && <span class="player-note">{song.note}</span>}
+                <span class="player-go">listen on {song.platform} ↗</span>
               </span>
             </a>
           </div>

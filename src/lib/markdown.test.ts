@@ -48,23 +48,43 @@ test("the plain export drops marimo cell attributes and separators", () => {
   assert.equal(plainMarkdown(notebook), "```python\nimport polars\n```\n\n```python\nx = 1\n```");
 });
 
-test("a cover linked to Spotify on its own line becomes a card, a song with a record and a podcast without", async () => {
-  const song = await html(
-    '[![lose yourself](./cover.jpg "eminem")](https://open.spotify.com/intl-it/track/4cOdK2wGLETKBW3PvgPWqT?si=x)',
-  );
+const block = (fields: string): string => `before\n\n\`\`\`player\n${fields}\n\`\`\`\n\nafter`;
+const episode = [
+  "type: podcast",
+  "title: an episode",
+  "by: a show",
+  "note: from minute 32",
+  "url: https://open.spotify.com/intl-it/episode/4cOdK2wGLETKBW3PvgPWqT?si=x",
+  "cover: ./episode.jpg",
+].join("\n");
+
+test("a player block becomes a card that says where it opens, wherever it sits", async () => {
+  const page = await html(block(episode));
+  assert.match(page, /^<p>before<\/p>\n<div class="player" data-type="podcast" data-platform="spotify">/);
+  assert.match(page, /<a href="https:\/\/open\.spotify\.com\/episode\/4cOdK2wGLETKBW3PvgPWqT" class="player-card"/);
+  assert.match(page, /<b class="player-title">an episode<\/b><span class="player-by">a show<\/span>/);
   assert.match(
-    song,
-    /^<div class="spotify" data-kind="song"><a href="https:\/\/open\.spotify\.com\/track\/4cOdK2wGLETKBW3PvgPWqT" class="spotify-card"/,
+    page,
+    /<span class="player-note">from minute 32<\/span><span class="player-go">listen on spotify ↗<\/span>/,
   );
-  assert.match(song, /<span class="vinyl" aria-hidden="true"><\/span>/);
-  assert.match(song, /<b class="spotify-title">lose yourself<\/b><span class="spotify-by">eminem<\/span>/);
-  const podcast = await html("[![an episode](./ep.jpg)](https://open.spotify.com/episode/4cOdK2wGLETKBW3PvgPWqT)");
-  assert.match(podcast, /data-kind="podcast"/);
-  assert.doesNotMatch(podcast, /vinyl|spotify-by/);
+  assert.match(page, /<\/div>\n<p>after<\/p>$/);
+  assert.doesNotMatch(page, /vinyl|<code/);
 });
 
-test("a Spotify cover inside a sentence, or a cover linked elsewhere, stays a linked image", async () => {
-  const inline = await html("listen [![x](./c.jpg)](https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT) now");
-  assert.doesNotMatch(inline, /spotify-card/);
-  assert.doesNotMatch(await html("[![x](./c.jpg)](https://example.com/track/4cOdK2wGLETKBW3PvgPWqT)"), /spotify-card/);
+test("music gets a record and needs no type, since it's the default", async () => {
+  const song = await html(block(episode.replace("type: podcast\n", "").replace("note: from minute 32\n", "")));
+  assert.match(song, /data-type="music"/);
+  assert.match(song, /<span class="vinyl" aria-hidden="true"><\/span>/);
+  assert.doesNotMatch(song, /player-note/);
+});
+
+test("a player block with a missing field, an unknown one or a link no platform takes stops the build", async () => {
+  await assert.rejects(html(block(episode.replace("by: a show\n", ""))), /:3: by: /);
+  await assert.rejects(html(block(`${episode}\nartist: someone`)), /artist/);
+  await assert.rejects(html(block(episode.replace(/url: .*/, "url: https://youtu.be/x"))), /url: a Spotify/);
+  await assert.rejects(html(block("title: [unclosed")), /a player block holds YAML fields/);
+});
+
+test("other code blocks are left alone", async () => {
+  assert.match(await html("```yaml\ntitle: x\n```"), /<figure class="code"/);
 });

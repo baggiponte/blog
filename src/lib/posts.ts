@@ -40,7 +40,7 @@ export async function bodyEntry(post: Post): Promise<Body> {
 export async function markdownOf(post: Post): Promise<string> {
   const { body = "" } = await bodyEntry(post);
   const { song } = post.data;
-  const outro = song === undefined ? "" : `\n\non repeat: [${song.title}, ${song.artist}](${song.url})`;
+  const outro = song === undefined ? "" : `\n\non repeat: [${song.title}, ${song.by}](${song.url})`;
   return `# ${post.data.title}\n\n${post.data.description}\n\n${plainMarkdown(body)}${outro}\n`;
 }
 
