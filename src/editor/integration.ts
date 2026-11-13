@@ -24,6 +24,7 @@ export function editor(): AstroIntegration {
           vite: {
             optimizeDeps: {
               include: [
+                "@codemirror/commands",
                 "@codemirror/lang-markdown",
                 "@codemirror/lang-yaml",
                 "@codemirror/language",
@@ -32,6 +33,7 @@ export function editor(): AstroIntegration {
                 "@codemirror/view",
                 "@lezer/highlight",
                 "@replit/codemirror-vim",
+                "astro/zod",
                 "codemirror",
               ],
             },

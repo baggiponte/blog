@@ -6,6 +6,7 @@ import { test } from "node:test";
 
 import { type BundleDir, type ImageName, parseBundleDir } from "./post.ts";
 import { fileStore, versionOf } from "./store.ts";
+import type { Suggestion } from "./suggestion.ts";
 
 // A content/blog folder in a temporary directory, with these index.md files.
 async function blog(posts: Record<string, string>): Promise<string> {
@@ -79,4 +80,27 @@ test("images land next to index.md, never over another file", async () => {
   assert.equal(image.type, "image/png");
   await assert.rejects(store.readImage(dir("hello"), "nope.png" as ImageName), { failure: "missing" });
   await assert.rejects(store.addImage(dir("missing"), "a.png", bytes), { failure: "missing" });
+});
+
+test("suggestions live in suggestions.json, which goes away once none are left", async () => {
+  const root = await blog({ "01-first": post('title: "first"') });
+  const store = fileStore(root);
+  const typo: Suggestion = { id: "s1", kind: "typo", quote: "body", replacement: "Body" };
+
+  const none = await store.readSuggestions(dir("01-first"));
+  assert.deepEqual(none.suggestions, []);
+  const version = await store.writeSuggestions(dir("01-first"), [typo], none.version);
+  assert.deepEqual(JSON.parse(await readFile(join(root, "01-first", "suggestions.json"), "utf8")), {
+    suggestions: [typo],
+  });
+  assert.equal((await store.readSuggestions(dir("01-first"))).version, version);
+
+  await store.writeSuggestions(dir("01-first"), [], version);
+  assert.deepEqual(await readdir(join(root, "01-first")), ["index.md"]);
+});
+
+test("a suggestions.json Claude got wrong is reported, not taken as empty", async () => {
+  const root = await blog({ "01-first": post('title: "first"') });
+  await writeFile(join(root, "01-first", "suggestions.json"), '{"suggestions": [');
+  await assert.rejects(fileStore(root).readSuggestions(dir("01-first")), /isn't valid JSON/);
 });

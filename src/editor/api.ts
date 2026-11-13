@@ -1,8 +1,7 @@
+import { EditorError, type Failure } from "./failure.ts";
 import {
   checkPost,
   dirForTitle,
-  EditorError,
-  type Failure,
   newPostMarkdown,
   parseBundleDir,
   parseImageName,
@@ -10,6 +9,7 @@ import {
   type Version,
 } from "./post.ts";
 import type { PostStore } from "./store.ts";
+import { parseSuggestions } from "./suggestion.ts";
 
 // The editor's API, mounted at apiBase (base.ts) on the dev server only:
 //   GET  /posts                     every hand-written post
@@ -18,6 +18,8 @@ import type { PostStore } from "./store.ts";
 //   PUT  /posts/<dir>               replaces its index.md if If-Match is still its version; answers the new ETag
 //   POST /posts/<dir>/images?name=  saves the image in the body next to index.md
 //   GET  /posts/<dir>/images/<name> an image next to index.md, for the editor to show inline
+//   GET  /posts/<dir>/suggestions   the proofreading suggestions left in suggestions.json, with its version as the ETag
+//   PUT  /posts/<dir>/suggestions   the ones still open, if If-Match is still its version; none left removes the file
 //
 // It takes a web Request and gives back a Response, like fetch: no server is needed to call it, so the tests call it
 // directly, and the dev server adapts Node's request to it (integration.ts).
@@ -135,6 +137,17 @@ async function route(store: PostStore, request: Request, now: () => Date): Promi
     if (method === "GET") {
       const { bytes, type } = await store.readImage(parseBundleDir(dirText), parseImageName(file));
       return new Response(bytes, { headers: { "Content-Type": type, "Cache-Control": "no-cache" } });
+    }
+  } else if (sub === "suggestions" && file === undefined) {
+    const dir = parseBundleDir(dirText);
+    if (method === "GET") {
+      const { suggestions, version } = await store.readSuggestions(dir);
+      return json(200, { suggestions }, { ETag: etag(version) });
+    }
+    if (method === "PUT") {
+      const suggestions = parseSuggestions(JSON.parse(await textOf(request)));
+      const version = await store.writeSuggestions(dir, suggestions, ifMatch(request));
+      return new Response(null, { status: 204, headers: { ETag: etag(version) } });
     }
   } else if (sub === "images" && method === "POST") {
     const dir = parseBundleDir(dirText);

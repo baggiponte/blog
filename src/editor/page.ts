@@ -27,6 +27,7 @@ export const editorPage = `
       <a class="brand" href="/">drafts<i>.</i></a>
       <output id="status" aria-live="polite"></output>
       <button id="vim" type="button" aria-pressed="false" title="vim keys">vim</button>
+      <button id="show-review" type="button" aria-pressed="false" aria-controls="review" title="Claude's proofreading suggestions" hidden>suggestions <span class="count"></span></button>
       <button id="show-preview" type="button" aria-pressed="false" title="show the post as the site renders it">preview</button>
       <a id="open" href="/" target="_blank" rel="noopener">open post ↗</a>
     </header>
@@ -43,6 +44,17 @@ export const editorPage = `
         <section id="source" aria-label="markdown"></section>
         <iframe id="preview" title="preview" hidden></iframe>
       </main>
+      <aside id="review" aria-label="suggestions" hidden>
+        <div class="review-head">
+          <span class="review-title">suggestions</span>
+          <span class="review-keys">⌥] next · ⌘↵ accept · ⌘⇧↵ reject</span>
+        </div>
+        <ol class="review-list" role="list"></ol>
+        <div class="review-lost" hidden>
+          <p class="review-lost-head">no longer in the text</p>
+          <ol class="review-lost-list" role="list"></ol>
+        </div>
+      </aside>
     </div>
 
     <dialog id="new" aria-labelledby="new-h">

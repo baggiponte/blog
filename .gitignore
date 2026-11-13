@@ -10,3 +10,5 @@ node_modules/
 /test-results/
 .env*
 .dev.vars*
+# Claude's proofreading suggestions for the editor: per draft, never committed
+content/blog/*/suggestions.json

@@ -13,10 +13,23 @@ import { apiBase } from "./base.ts";
 import { formatKeys } from "./format.ts";
 import { imageInsert } from "./insert.ts";
 import { livePreview, postImageUrl, revealOnClick } from "./live-preview.ts";
-import type { Format, PostSummary } from "./post.ts";
-import { ApiError, addImage, createPost, listPosts, postUrl, readPost, saveInit, writePost } from "./remote.ts";
+import type { Format, PostSummary, Version } from "./post.ts";
+import {
+  ApiError,
+  addImage,
+  createPost,
+  listPosts,
+  postUrl,
+  readPost,
+  readSuggestions,
+  saveInit,
+  writePost,
+  writeSuggestions,
+} from "./remote.ts";
+import { goTo, load, type Review, reject, remaining, review, reviewField } from "./review.ts";
 import { type OnDisk, opened, saveStep, shouldReload } from "./saving.ts";
 import { textSelection } from "./selection.ts";
+import { changeOf, type Suggestion, withContext } from "./suggestion.ts";
 
 const tree = $<HTMLUListElement>("#posts .tree");
 const sidebar = $<HTMLElement>("#posts");
@@ -30,6 +43,8 @@ const pane = $<HTMLElement>("#source");
 const vimToggle = $<HTMLButtonElement>("#vim");
 const previewToggle = $<HTMLButtonElement>("#show-preview");
 const panes = $<HTMLElement>(".panes");
+const reviewPanel = $<HTMLElement>("#review");
+const reviewToggle = $<HTMLButtonElement>("#show-review");
 
 const saveDelay = 600;
 let current: PostSummary | undefined;
@@ -167,6 +182,7 @@ const view = new EditorView({
     yamlFrontmatter({ content: markdown({ base: markdownLanguage, codeLanguages: languages }) }),
     livePreview(url => postImageUrl(apiBase, current?.dir ?? "", url)),
     revealOnClick,
+    review(),
     textSelection,
     syntaxHighlighting(highlight),
     EditorView.lineWrapping,
@@ -183,6 +199,16 @@ const view = new EditorView({
       },
     ]),
     EditorView.updateListener.of(update => {
+      const before = update.startState.field(reviewField);
+      const after = update.state.field(reviewField);
+      if (before !== after || update.selectionSet) {
+        renderReview(after);
+      }
+      if (before !== after) {
+        if (idsOf(before) !== idsOf(after)) {
+          scheduleSuggestionsSave();
+        }
+      }
       if (update.docChanged && current !== undefined) {
         clearTimeout(timer);
         timer = setTimeout(() => void save(), saveDelay);
@@ -225,6 +251,138 @@ const view = new EditorView({
       },
     }),
   ],
+});
+
+// Claude's suggestions for the open post (review.ts shows them in the text). Accepting or rejecting one saves the
+// rest back to suggestions.json, so a reload doesn't bring it back; the version guards a file Claude rewrote meanwhile.
+let suggestionsVersion: Version | undefined;
+let suggestionsTimer: ReturnType<typeof setTimeout> | undefined;
+let reviewOn = remembered("editor-review", true);
+
+const idsOf = (value: Review): string =>
+  remaining(value)
+    .map(s => s.id)
+    .join(" ");
+
+// The open suggestions, each with its context taken from the text as it is now.
+function openSuggestions(): Suggestion[] {
+  const { placed, lost } = view.state.field(reviewField);
+  const text = view.state.doc.toString();
+  return [...placed.map(p => withContext(p.suggestion, text, p.from, p.to)), ...lost];
+}
+
+async function loadSuggestions(): Promise<void> {
+  if (current === undefined) {
+    return;
+  }
+  try {
+    const { suggestions, version } = await readSuggestions(current.dir);
+    suggestionsVersion = version;
+    view.dispatch({ effects: load.of(suggestions) });
+    renderReview(view.state.field(reviewField));
+  } catch (error) {
+    say(`suggestions not shown: ${(error as Error).message}`, "error");
+  }
+}
+
+function scheduleSuggestionsSave(): void {
+  clearTimeout(suggestionsTimer);
+  suggestionsTimer = setTimeout(() => void saveSuggestions(), 300);
+}
+
+async function saveSuggestions(): Promise<void> {
+  clearTimeout(suggestionsTimer);
+  suggestionsTimer = undefined;
+  if (current === undefined || suggestionsVersion === undefined) {
+    return;
+  }
+  try {
+    suggestionsVersion = await writeSuggestions(current.dir, openSuggestions(), suggestionsVersion);
+  } catch (error) {
+    if (error instanceof ApiError && error.failure === "conflict") {
+      // Claude wrote a new batch while these were open: show those.
+      await loadSuggestions();
+      say("new suggestions from Claude");
+      return;
+    }
+    say(`suggestions not saved: ${(error as Error).message}`, "error");
+  }
+}
+
+// Back on the tab after asking Claude to proofread: the new suggestions show up, unless a save of ours is pending.
+async function reloadSuggestionsIfNew(): Promise<void> {
+  if (current === undefined || suggestionsTimer !== undefined) {
+    return;
+  }
+  const { version } = await readSuggestions(current.dir);
+  if (version !== suggestionsVersion) {
+    await loadSuggestions();
+  }
+}
+
+function suggestionRow(suggestion: Suggestion, lost: boolean): HTMLLIElement {
+  const { start, end, insert } = changeOf(suggestion.quote, suggestion.replacement);
+  const change = element(
+    "span",
+    { className: "review-change" },
+    suggestion.quote.slice(0, start),
+    end > start ? element("del", {}, suggestion.quote.slice(start, end)) : "",
+    // One line break per paragraph break: the panel is narrow.
+    insert === "" ? "" : element("ins", {}, insert.replace(/\n\s*\n/g, "\n")),
+    suggestion.quote.slice(end),
+  );
+  const row = element(
+    "li",
+    { className: `review-item review-${suggestion.kind}` },
+    element("span", { className: "tag" }, suggestion.kind),
+    change,
+  );
+  if (suggestion.note !== undefined) {
+    row.append(element("span", { className: "review-note" }, suggestion.note));
+  }
+  if (lost) {
+    const dismiss = element("button", { type: "button", className: "review-dismiss" }, "dismiss");
+    dismiss.addEventListener("click", () => reject(view, suggestion.id));
+    row.append(dismiss);
+  } else {
+    row.tabIndex = 0;
+    row.addEventListener("click", () => goTo(view, suggestion.id));
+    row.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        goTo(view, suggestion.id);
+      }
+    });
+  }
+  return row;
+}
+
+function renderReview(value: Review): void {
+  const count = value.placed.length + value.lost.length;
+  reviewToggle.hidden = count === 0;
+  $<HTMLElement>(".count", reviewToggle).textContent = String(count);
+  reviewToggle.setAttribute("aria-pressed", String(reviewOn));
+  reviewPanel.hidden = !(reviewOn && count > 0);
+  $<HTMLElement>(".review-list", reviewPanel).replaceChildren(
+    ...value.placed.map(p => suggestionRow(p.suggestion, false)),
+  );
+  $<HTMLElement>(".review-lost", reviewPanel).hidden = value.lost.length === 0;
+  $<HTMLElement>(".review-lost-list", reviewPanel).replaceChildren(...value.lost.map(s => suggestionRow(s, true)));
+  const active = view.state.field(reviewField).placed.find(p => {
+    const { head } = view.state.selection.main;
+    return head >= p.from && head <= p.to;
+  });
+  for (const row of reviewPanel.querySelectorAll(".review-list .review-item")) {
+    row.toggleAttribute("data-active", false);
+  }
+  if (active !== undefined) {
+    const index = value.placed.indexOf(active);
+    reviewPanel.querySelectorAll(".review-list .review-item")[index]?.toggleAttribute("data-active", true);
+  }
+}
+reviewToggle.addEventListener("click", () => {
+  reviewOn = !reviewOn;
+  remember("editor-review", reviewOn);
+  renderReview(view.state.field(reviewField));
 });
 
 function showVim(): void {
@@ -294,9 +452,11 @@ async function openPost(dir: string): Promise<void> {
     say("no posts yet: start one with “new post”");
     return;
   }
+  await saveSuggestions();
   disk = opened(await readPost(post.dir));
   current = post;
   view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: disk.text } });
+  await loadSuggestions();
   renderList();
   open.href = post.url;
   previewScroll = 0;
@@ -319,9 +479,14 @@ async function reloadIfClean(): Promise<void> {
   }
   disk = opened(latest);
   view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: disk.text } });
+  await loadSuggestions();
   say("reloaded: the file changed elsewhere");
 }
-addEventListener("focus", () => void reloadIfClean().catch(() => undefined));
+addEventListener("focus", () => {
+  void reloadIfClean()
+    .then(reloadSuggestionsIfNew)
+    .catch(() => undefined);
+});
 
 // A new post's page exists once the dev server has picked up its folder, a moment after it's written.
 async function waitForPage(url: string): Promise<void> {
@@ -369,6 +534,14 @@ addEventListener("pagehide", () => {
   const text = view.state.doc.toString();
   if (current !== undefined && disk !== undefined && saveStep(disk, text) === "write") {
     void fetch(postUrl(current.dir), { ...saveInit(text, disk.version), keepalive: true });
+  }
+  if (current !== undefined && suggestionsTimer !== undefined && suggestionsVersion !== undefined) {
+    void fetch(`${postUrl(current.dir)}/suggestions`, {
+      method: "PUT",
+      body: JSON.stringify({ suggestions: openSuggestions() }),
+      headers: { "If-Match": `"${suggestionsVersion}"` },
+      keepalive: true,
+    });
   }
 });
 

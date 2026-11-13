@@ -101,6 +101,15 @@ says why), and never overwrites an `index.md` changed elsewhere since it was
 opened, in another tab or another editor: the status bar says so and saving
 stops until the post is reopened. With no unsaved typing, coming back to the
 tab reloads a post changed elsewhere.
+
+Proofreading: ask Claude to proofread a post (the `proofread` skill in
+`.claude/skills/`) and it writes `suggestions.json` next to `index.md` instead
+of editing the post. Back in the editor, each suggestion shows on the text it
+quotes, struck through with the replacement after it; the cursor on one opens a
+card to accept (⌘↵), edit or reject (⌘⇧↵) it, ⌥] and ⌥[ move between them, and a
+panel lists them all. Accepting is an ordinary edit, so ⌘Z undoes it and brings
+the suggestion back. Decided suggestions leave the file, which goes away once
+none are left; it's gitignored either way.
 them. The editor and its API (`src/editor/`) exist only in the dev server,
 never in the built site; nothing is committed, so review and commit the bundle
 as usual.

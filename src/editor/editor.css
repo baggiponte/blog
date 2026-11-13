@@ -415,3 +415,203 @@ dialog button[type="submit"] {
     box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 18%, transparent);
   }
 }
+
+/* Proofreading suggestions (review.ts): the quoted words struck through, the replacement after them. */
+#source .cm-sg-old {
+  color: var(--muted);
+  text-decoration: line-through 1.5px var(--accent);
+  border-radius: 3px;
+}
+#source .cm-sg-new {
+  text-decoration: none;
+  background: var(--mark);
+  color: var(--ink);
+  border-radius: 3px;
+  padding: 0 2px;
+  margin-left: 2px;
+  cursor: pointer;
+}
+/* Inserted paragraphs below the line they start on; headings take the live preview's sizes (cm-lp-h*). */
+#source .cm-sg-blocks {
+  display: grid;
+  gap: 22px;
+  margin: 22px 0 0;
+  cursor: pointer;
+}
+/* A block widget sits outside CodeMirror's lines, which pad their text 6px from the left: the same padding here
+   lines the inserted text up with the paragraphs around it. */
+#source .cm-sg-block {
+  background: var(--mark);
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: pre-wrap;
+}
+#source .cm-sg-block.cm-lp-h1,
+#source .cm-sg-block.cm-lp-h2,
+#source .cm-sg-block.cm-lp-h3 {
+  padding-block: 2px;
+}
+#source .cm-sg-active {
+  outline: 1.5px solid var(--accent);
+  outline-offset: 1px;
+}
+#source .cm-editor .cm-tooltip.cm-sg-card {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.cm-sg-card {
+  width: min(340px, 80vw);
+  padding: 12px 14px;
+  font: 14px / 1.45 var(--sans);
+}
+.cm-sg-card p {
+  margin: 0 0 6px;
+}
+.cm-sg-kind {
+  font: 600 10.5px / 1 var(--sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.cm-sg-note {
+  color: var(--muted);
+}
+.cm-sg-edit {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 4px 0 8px;
+  font: 15px / 1.4 var(--sans);
+  color: var(--ink);
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 8px;
+  resize: vertical;
+}
+.cm-sg-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.cm-sg-actions button,
+.review-dismiss {
+  font: 13px / 1 var(--sans);
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 11px;
+  cursor: pointer;
+}
+.cm-sg-actions button:first-child {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+@media (hover: hover) {
+  .cm-sg-actions button:hover,
+  .review-dismiss:hover {
+    border-color: var(--ink);
+  }
+}
+
+/* The list of suggestions beside the text. */
+#review {
+  flex: 0 0 clamp(240px, 22vw, 320px);
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-left: 1px solid var(--line);
+  padding: 12px 10px 24px;
+}
+#review[hidden] {
+  display: none;
+}
+.review-head {
+  display: grid;
+  gap: 4px;
+  padding: 4px 8px 10px;
+}
+.review-title {
+  font: 12.5px / 1.2 var(--mono);
+  color: var(--muted);
+}
+.review-keys {
+  font-size: 12px;
+  color: var(--muted);
+}
+.review-list,
+.review-lost-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.review-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 8px;
+  align-items: baseline;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.review-item[data-active] {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+@media (hover: hover) {
+  .review-item:hover {
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+  }
+}
+.review-change {
+  grid-column: 1;
+  grid-row: 1;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+}
+.review-change del {
+  color: var(--muted);
+  text-decoration-color: var(--accent);
+}
+.review-change ins {
+  margin-left: 2px;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--mark);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.review-note {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--muted);
+}
+.review-lost {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.review-lost-head {
+  margin: 0 8px 6px;
+  font: 12.5px / 1.2 var(--mono);
+  color: var(--muted);
+}
+.review-lost .review-item {
+  cursor: default;
+  opacity: 0.8;
+}
+.review-dismiss {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+@media (max-width: 760px) {
+  #review {
+    display: none;
+  }
+}

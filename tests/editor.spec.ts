@@ -66,3 +66,28 @@ test("a post with no unsaved typing reloads when it changed elsewhere", async ({
   await expect(page.locator(".cm-content")).toContainText("written in another editor");
   await expect(status(page)).toContainText("reloaded");
 });
+
+test("Claude's suggestions show on the text, and accepting or rejecting one updates both files", async ({ page }) => {
+  const post = await newPost(page, `editor suggestions ${Date.now()}`);
+  await writeFile(indexOf(post), `${await readFile(indexOf(post), "utf8")}they was here and teh end\n`);
+  const suggestionsOf = new URL(`${post}/suggestions.json`, blogDir);
+  const suggestions = [
+    { id: "a", kind: "grammar", quote: "they was here", replacement: "they were here", note: "agreement" },
+    { id: "b", kind: "typo", quote: "teh end", replacement: "the end" },
+  ];
+  await writeFile(suggestionsOf, JSON.stringify({ suggestions }));
+  // Back on the tab after Claude wrote them.
+  await page.evaluate(() => dispatchEvent(new Event("focus")));
+  await expect(page.locator(".cm-sg-old")).toHaveText(["was", "teh"]);
+
+  await page.locator(".cm-sg-new", { hasText: "were" }).click();
+  await expect(page.locator(".cm-sg-card")).toContainText("agreement");
+  await page.getByRole("button", { name: "accept" }).click();
+  await page.locator(".cm-sg-new", { hasText: "the" }).click();
+  await page.getByRole("button", { name: "reject" }).click();
+
+  await expect(status(page)).toHaveText("saved");
+  await expect.poll(() => readFile(indexOf(post), "utf8")).toContain("they were here and teh end");
+  // None left: the file goes away.
+  await expect.poll(() => readFile(suggestionsOf, "utf8").catch(() => "gone")).toBe("gone");
+});

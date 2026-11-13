@@ -3,27 +3,9 @@ import { z } from "astro/zod";
 
 import { formatSchema, postSchema } from "../lib/post-schema.ts";
 import { slugify, urlOfDir } from "../lib/slugs.ts";
+import { EditorError } from "./failure.ts";
 
 // What a post is to the editor, with no storage and no HTTP: the rules here hold wherever posts are kept.
-
-// Why an editor operation failed, in the editor's own words. The API turns each kind into an HTTP status (api.ts),
-// so this module never needs to know about HTTP.
-export type Failure =
-  | "invalid" // the input breaks a rule: a bad folder name, frontmatter the site can't build
-  | "missing" // no such post or image
-  | "exists" // a new post would take an existing folder
-  | "conflict" // the post changed since the editor read it
-  | "unsupported" // not an image type the site serves
-  | "too-large"; // an upload over the limit
-
-export class EditorError extends Error {
-  readonly failure: Failure;
-  // Shaped like Error's own constructor: the message, then options, here with the failure besides the cause.
-  constructor(message: string, { failure, ...options }: ErrorOptions & { failure: Failure }) {
-    super(message, options);
-    this.failure = failure;
-  }
-}
 
 // A bundle folder name that passed the check below. The brand exists only for the type checker: a plain string can't
 // be passed where a BundleDir is expected, so every path built from one has gone through parseBundleDir first.
