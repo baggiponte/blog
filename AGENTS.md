@@ -7,9 +7,13 @@
 * Delete branches after merging
 * Commit frequently and atomically - Each commit should represent one logical change
 
+# Plugins
+
+* Put each feature the blog adds on top of Astro in its own `src/plugins/<name>/` folder, with its tests and styles, and list its switch in `src/plugins/README.md`.
+
 # Drafting editor
 
-* The editor at `/editor/` lives in `src/editor/` and only runs in `astro dev`; keep it out of the build.
+* The editor at `/editor/` lives in `src/plugins/editor/` and only runs in `astro dev`; keep it out of the build.
 * It edits hand-written bundles only, writing `index.md` and images next to it; never let it touch notebook posts.
 
 # Marimo notebook posts

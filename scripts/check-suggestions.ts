@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { parseSuggestions, place } from "../src/editor/suggestion.ts";
+import { parseSuggestions, place } from "../src/plugins/editor/suggestion.ts";
 
 // Checks a post's suggestions.json the way the editor will read it: the format, and whether each quote is found once
 // in index.md. Claude runs it after writing the file (.claude/skills/proofread/SKILL.md).

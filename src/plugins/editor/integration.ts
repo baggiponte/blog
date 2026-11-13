@@ -41,7 +41,7 @@ export function editor(): AstroIntegration {
         });
       },
       "astro:server:setup": ({ server }) => {
-        const blogDir = fileURLToPath(new URL("../../content/blog/", import.meta.url));
+        const blogDir = fileURLToPath(new URL("../../../content/blog/", import.meta.url));
         server.middlewares.use(apiBase, (request, response, next) => {
           Promise.all([server.ssrLoadModule(moduleAt("./api.ts")), server.ssrLoadModule(moduleAt("./store.ts"))])
             .then(([api, store]) => (api as Api).editorApi((store as Store).fileStore(blogDir))(toRequest(request)))

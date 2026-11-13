@@ -1,9 +1,9 @@
 import { parseFrontmatter } from "@astrojs/markdown-remark";
 import { z } from "astro/zod";
 
-import { formatSchema, postSchema } from "../lib/post-schema.ts";
-import { cardBlocks, parseCard } from "../lib/remark-card.ts";
-import { slugify, urlOfDir } from "../lib/slugs.ts";
+import { formatSchema, postSchema } from "../../lib/post-schema.ts";
+import { slugify, urlOfDir } from "../../lib/slugs.ts";
+import { cardBlocks, parseCard } from "../card/remark-card.ts";
 import { EditorError } from "./failure.ts";
 
 // What a post is to the editor, with no storage and no HTTP: the rules here hold wherever posts are kept.

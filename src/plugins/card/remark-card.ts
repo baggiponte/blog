@@ -15,7 +15,7 @@ import { type Card, cardSchema, imageSize, type LinkCard, type MediaCard } from 
 //   site: julia evans                # links only: the host when left out
 //   ```
 //
-// The fields are checked by src/lib/card.ts: a typo stops the build instead of rendering a broken card, and the editor refuses to save it (src/editor/post.ts). Where nothing renders the block
+// The fields are checked by src/plugins/card/card.ts: a typo stops the build instead of rendering a broken card, and the editor refuses to save it (src/plugins/editor/post.ts). Where nothing renders the block
 // (the editor, "copy page", GitHub) it reads as YAML.
 export interface Part {
   type: "cardPart";
