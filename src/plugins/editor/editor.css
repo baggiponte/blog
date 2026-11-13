@@ -1,6 +1,13 @@
 @import "@fontsource-variable/bricolage-grotesque";
 @import "@fontsource-variable/instrument-sans";
-@import "../styles/global.css";
+@import "../../styles/global.css";
+
+/* This page isn't an Astro page, so Astro's font config never defines --font-sans and --font-display for it: point
+   them at the Fontsource faces imported above, by the names tokens.css gives them. */
+:root {
+  --font-sans: "Instrument Sans Variable", system-ui, -apple-system, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", var(--font-sans);
+}
 
 /* The drafting editor: the site's header bar over the Markdown source and the post as the dev server renders it. */
 html,
