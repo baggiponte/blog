@@ -1,6 +1,6 @@
 ---
-import "@fontsource-variable/bricolage-grotesque";
-import "@fontsource-variable/instrument-sans";
+import { Font } from "astro:assets";
+
 import "../styles/global.css";
 import "../plugins/card/card.css";
 
@@ -23,6 +23,8 @@ const active = (href: string): boolean => (href === "/" ? path === "/" || path.s
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Font cssVariable="--font-sans" preload={[{ subset: "latin" }]} />
+    <Font cssVariable="--font-display" preload={[{ subset: "latin" }]} />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={new URL(path, Astro.site)} />
