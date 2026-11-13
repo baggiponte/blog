@@ -47,3 +47,52 @@ test("the plain export drops marimo cell attributes and separators", () => {
     '```python {.marimo name="setup"}\nimport polars\n```\n\n<!---->\n\n\n```python {.marimo}\nx = 1\n```';
   assert.equal(plainMarkdown(notebook), "```python\nimport polars\n```\n\n```python\nx = 1\n```");
 });
+
+const block = (fields: string): string => `before\n\n\`\`\`player\n${fields}\n\`\`\`\n\nafter`;
+const episode = [
+  "type: podcast",
+  "title: an episode",
+  "note: from minute 32",
+  "url: https://open.spotify.com/intl-it/episode/4cOdK2wGLETKBW3PvgPWqT?si=x",
+  "cover: ./episode.jpg",
+].join("\n");
+
+test("a player block becomes a card that says where it opens, wherever it sits", async () => {
+  const page = await html(block(episode));
+  assert.match(page, /^<p>before<\/p>\n<div class="player" data-type="podcast" data-platform="spotify">/);
+  assert.match(page, /<a href="https:\/\/open\.spotify\.com\/episode\/4cOdK2wGLETKBW3PvgPWqT" class="player-card"/);
+  assert.match(page, /<img src="\.\/episode\.jpg" alt="" width="256" height="256">/);
+  assert.match(page, /<b class="player-title">an episode<\/b><span class="player-note">from minute 32<\/span>/);
+  assert.match(page, /<span class="player-go">listen on spotify ↗<\/span>/);
+  assert.match(page, /<\/div>\n<p>after<\/p>$/);
+  assert.doesNotMatch(page, /vinyl|<code/);
+});
+
+test("only the link is needed: music by default, a title from the type and a blank sleeve", async () => {
+  const song = await html(block("url: https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT"));
+  assert.match(song, /data-type="music"/);
+  assert.match(song, /<span class="vinyl" aria-hidden="true"><\/span><span class="blank" aria-hidden="true"><\/span>/);
+  assert.match(song, /<b class="player-title">a song worth a listen<\/b>/);
+  assert.doesNotMatch(song, /player-note|<img/);
+});
+
+test("the card's call to action follows the platform", async () => {
+  const video = await html(block("type: podcast\nurl: https://youtu.be/dQw4w9WgXcQ"));
+  assert.match(video, /data-platform="youtube"/);
+  assert.match(video, /an episode worth a watch.*watch on youtube ↗/);
+});
+
+test("a player block with an unknown field, a bad value or a link no platform takes stops the build", async () => {
+  await assert.rejects(html(block(`${episode}\nby: someone`)), /:3: .*by/);
+  await assert.rejects(html(block(episode.replace("podcast", "song"))), /type: /);
+  await assert.rejects(html(block(episode.replace(/url: .*/, ""))), /url: /);
+  await assert.rejects(
+    html(block(episode.replace(/url: .*/, "url: https://example.com/x"))),
+    /url: a Spotify or YouTube/,
+  );
+  await assert.rejects(html(block("title: [unclosed")), /a player block holds YAML fields/);
+});
+
+test("other code blocks are left alone", async () => {
+  assert.match(await html("```yaml\ntitle: x\n```"), /<figure class="code"/);
+});

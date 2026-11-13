@@ -575,25 +575,33 @@ header.top {
   text-align: left;
 }
 
-/* ---- the song a post ends with: a sleeve with the record peeking out, which slides further out on hover ---- */
-.song {
-  --sleeve: 128px;
+/* ---- player cards: a cover that opens the song or episode on a listening platform, anywhere in a post or as its
+   outro. Music is a sleeve with its record peeking out, sliding further out on hover; a podcast is a stack of
+   episodes. */
+.player {
+  --sleeve: 112px;
+  margin: 32px 0;
+}
+.outro {
   margin: -48px 0 80px;
 }
-.song-k {
+.outro .player {
+  margin: 0;
+}
+.outro-k {
   margin: 0 0 14px;
   font: 500 12px / 1 var(--mono);
   letter-spacing: 0.04em;
   color: var(--muted);
 }
-.song-k::before {
+.outro-k::before {
   content: "♪ ";
   color: var(--accent);
 }
-.song-card {
+.player-card {
   display: flex;
   align-items: center;
-  gap: calc(var(--sleeve) * 0.42 + 22px);
+  gap: 22px;
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 18px;
@@ -601,7 +609,21 @@ header.top {
   text-decoration: none;
   transition: border-color 0.2s;
 }
-.song-card:focus-visible {
+.prose .player-card {
+  text-decoration: none;
+}
+.prose .player-card:hover {
+  color: var(--ink);
+}
+.player[data-type="music"] .player-card {
+  gap: calc(var(--sleeve) * 0.42 + 22px);
+}
+.player[data-type="podcast"] .player-card {
+  /* room for the two episodes stacked behind the cover */
+  padding-top: 22px;
+  gap: 30px;
+}
+.player-card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -611,8 +633,9 @@ header.top {
   width: var(--sleeve);
   aspect-ratio: 1;
 }
-.sleeve img {
+.player .sleeve img {
   position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
@@ -623,6 +646,40 @@ header.top {
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.08),
     0 8px 24px -10px rgba(0, 0, 0, 0.35);
+}
+/* No cover yet: a blank sleeve in the paper's colours, with a ring like the record's, or a blank episode. */
+.sleeve .blank {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background:
+    radial-gradient(circle, transparent 0 22%, var(--accent) 22.5% 24%, transparent 24.5%),
+    repeating-radial-gradient(circle, transparent 0 6px, var(--line) 6px 7px),
+    color-mix(in srgb, var(--accent) 12%, var(--paper));
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 8px 24px -10px rgba(0, 0, 0, 0.35);
+}
+.player[data-type="podcast"] .sleeve .blank {
+  background:
+    radial-gradient(circle at 50% 50%, var(--accent) 0 9%, transparent 9.5%),
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0 17%,
+      color-mix(in srgb, var(--accent) 45%, transparent) 17.5% 19%,
+      transparent 19.5%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0 27%,
+      color-mix(in srgb, var(--accent) 25%, transparent) 27.5% 29%,
+      transparent 29.5%
+    ),
+    color-mix(in srgb, var(--accent) 8%, var(--paper));
 }
 /* Grooves, a label in the accent colour and the spindle hole, in paper so it reads as a hole in both themes. */
 .vinyl {
@@ -639,38 +696,104 @@ header.top {
   transform: translateX(42%) rotate(0deg);
   transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.song-t {
+/* Two earlier episodes peek out above the cover, and fan out on hover. */
+.player[data-type="podcast"] .sleeve::before,
+.player[data-type="podcast"] .sleeve::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.player[data-type="podcast"] .sleeve::before {
+  transform: translate(8px, -8px);
+  background: color-mix(in srgb, var(--accent) 22%, var(--paper));
+}
+.player[data-type="podcast"] .sleeve::after {
+  transform: translate(4px, -4px);
+}
+.player[data-type="podcast"] .sleeve img {
+  border-radius: 6px;
+}
+.player-t {
   display: grid;
   gap: 4px;
   min-width: 0;
+  line-height: 1.35;
 }
-.song-t b {
-  font: 700 22px / 1.15 var(--display);
+.player-k {
+  margin-bottom: 4px;
+  font: 500 11px / 1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: var(--muted);
+}
+.player-k::before {
+  content: "♪ ";
+  color: var(--accent);
+}
+.player[data-type="podcast"] .player-k::before {
+  content: "◉ ";
+}
+.outro .player-k {
+  display: none;
+}
+.player-title {
+  font: 700 21px / 1.15 var(--display);
   letter-spacing: -0.03em;
   overflow-wrap: anywhere;
 }
-.song-t span {
+.player-note {
+  font-size: 15px;
+  font-style: italic;
   color: var(--muted);
 }
-.song-t .song-go {
-  margin-top: 10px;
+/* The platform's own mark before "listen on …", so it's clear where the card leads before clicking. */
+.player-go {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
   font: 500 13px / 1 var(--mono);
   color: var(--accent);
 }
+.player-go::before {
+  content: "";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background: center / contain no-repeat;
+}
+.player[data-platform="youtube"] .player-go::before {
+  /* YouTube's red is part of its mark, so it stays in both themes */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='1' y='4' width='22' height='16' rx='5' fill='%23ff0033'/%3E%3Cpath d='M10 8.5v7l6-3.5z' fill='%23fff'/%3E%3C/svg%3E");
+}
+.player[data-platform="spotify"] .player-go::before {
+  /* Spotify's green is part of its mark, so it stays in both themes */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='12' fill='%231ed760'/%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round'%3E%3Cpath stroke-width='2.2' d='M5.6 8.9c4.2-1.3 9-.9 12.6 1.2'/%3E%3Cpath stroke-width='1.8' d='M6.4 12.4c3.5-1 7.2-.6 10.1 1.1'/%3E%3Cpath stroke-width='1.5' d='M7.1 15.7c2.8-.7 5.6-.4 7.9.9'/%3E%3C/g%3E%3C/svg%3E");
+}
 @media (hover: hover) {
-  .song-card:hover {
+  .player-card:hover {
     border-color: var(--rule);
   }
-  .song-card:hover .vinyl {
+  .player-card:hover .vinyl {
     transform: translateX(56%) rotate(140deg);
+  }
+  .player[data-type="podcast"] .player-card:hover .sleeve::before {
+    transform: translate(14px, -12px) rotate(4deg);
+  }
+  .player[data-type="podcast"] .player-card:hover .sleeve::after {
+    transform: translate(7px, -6px) rotate(2deg);
   }
 }
 @media (max-width: 640px) {
-  .song {
-    --sleeve: 96px;
+  .player {
+    --sleeve: 88px;
   }
-  .song-t b {
-    font-size: 19px;
+  .player-title {
+    font-size: 18px;
   }
 }
 
