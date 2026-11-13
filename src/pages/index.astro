@@ -7,7 +7,7 @@ import { parseLately } from "../lib/lately.ts";
 import { getPosts, markdownOf, readingMinutes, urlOf } from "../lib/posts.ts";
 import { site } from "../site.ts";
 
-// The rotating phrases under the bio, edited as a bullet list in content/lately.md.
+// The rotating sentences after the bio, edited as a bullet list in content/lately.md.
 const lately = parseLately((await getEntry("pages", "lately"))?.body ?? "");
 const all = await getPosts();
 const posts = await Promise.all(

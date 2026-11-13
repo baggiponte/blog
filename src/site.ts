@@ -21,7 +21,7 @@ export const site: Site = {
   description: "product-minded data scientist writing about ai, genai and the engineering around them.",
   bio: {
     lead: "product-minded data scientist",
-    rest: ", using ai and genai for problems that actually pay the bills. these days i'm mostly",
+    rest: ", using ai and genai for problems that actually pay the bills.",
   },
   nav: [
     { label: "writing", href: "/" },
