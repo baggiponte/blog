@@ -1,28 +1,25 @@
 import { z } from "astro/zod";
 
-import { spotifyUrl } from "./spotify.ts";
+import { spotifyLink } from "./spotify.ts";
 
 // A post's index.md frontmatter. Drafts only show in `astro dev`, so the rules readers would notice (a lowercase
 // title, a description) apply once a post is published: a half-written draft never stops the dev server.
 // Plain posts and short tidbits; the editor's "new post" form offers the same two.
 export const formatSchema = z.enum(["post", "tidbits"]);
 
-// The song a post ends with: the card shows the cover and opens the track on Spotify. The cover is an image next to
-// index.md, so a reader's browser never asks Spotify for anything until they click.
+// The song (or podcast episode) a post ends with: the card shows the cover and opens it on Spotify. The cover is an
+// image next to index.md, so a reader's browser never asks Spotify for anything until they click.
 const songSchema = <Cover extends z.ZodType>(cover: Cover) =>
-  z.object({
-    title: z.string().min(1),
-    artist: z.string().min(1),
-    url: z.string().transform((link, context) => {
-      const url = spotifyUrl(link);
-      if (url === undefined) {
-        context.addIssue({ code: "custom", message: "a Spotify track or album link" });
+  z
+    .object({ title: z.string().min(1), artist: z.string().min(1), url: z.string(), cover })
+    .transform((song, context) => {
+      const link = spotifyLink(song.url);
+      if (link === undefined) {
+        context.addIssue({ code: "custom", path: ["url"], message: "a Spotify track, album, episode or show link" });
         return z.NEVER;
       }
-      return url;
-    }),
-    cover,
-  });
+      return { ...song, ...link };
+    });
 
 // `cover` is Astro's image() in the content collection, which resolves "cover.jpg" to an image it can resize; the
 // editor checks frontmatter without Astro, where the path is just a string.
