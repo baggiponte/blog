@@ -52,7 +52,6 @@ const block = (fields: string): string => `before\n\n\`\`\`player\n${fields}\n\`
 const episode = [
   "type: podcast",
   "title: an episode",
-  "by: a show",
   "note: from minute 32",
   "url: https://open.spotify.com/intl-it/episode/4cOdK2wGLETKBW3PvgPWqT?si=x",
   "cover: ./episode.jpg",
@@ -62,26 +61,35 @@ test("a player block becomes a card that says where it opens, wherever it sits",
   const page = await html(block(episode));
   assert.match(page, /^<p>before<\/p>\n<div class="player" data-type="podcast" data-platform="spotify">/);
   assert.match(page, /<a href="https:\/\/open\.spotify\.com\/episode\/4cOdK2wGLETKBW3PvgPWqT" class="player-card"/);
-  assert.match(page, /<b class="player-title">an episode<\/b><span class="player-by">a show<\/span>/);
-  assert.match(
-    page,
-    /<span class="player-note">from minute 32<\/span><span class="player-go">listen on spotify ↗<\/span>/,
-  );
+  assert.match(page, /<img src="\.\/episode\.jpg" alt="" width="256" height="256">/);
+  assert.match(page, /<b class="player-title">an episode<\/b><span class="player-note">from minute 32<\/span>/);
+  assert.match(page, /<span class="player-go">listen on spotify ↗<\/span>/);
   assert.match(page, /<\/div>\n<p>after<\/p>$/);
   assert.doesNotMatch(page, /vinyl|<code/);
 });
 
-test("music gets a record and needs no type, since it's the default", async () => {
-  const song = await html(block(episode.replace("type: podcast\n", "").replace("note: from minute 32\n", "")));
+test("only the link is needed: music by default, a title from the type and a blank sleeve", async () => {
+  const song = await html(block("url: https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT"));
   assert.match(song, /data-type="music"/);
-  assert.match(song, /<span class="vinyl" aria-hidden="true"><\/span>/);
-  assert.doesNotMatch(song, /player-note/);
+  assert.match(song, /<span class="vinyl" aria-hidden="true"><\/span><span class="blank" aria-hidden="true"><\/span>/);
+  assert.match(song, /<b class="player-title">a song worth a listen<\/b>/);
+  assert.doesNotMatch(song, /player-note|<img/);
 });
 
-test("a player block with a missing field, an unknown one or a link no platform takes stops the build", async () => {
-  await assert.rejects(html(block(episode.replace("by: a show\n", ""))), /:3: by: /);
-  await assert.rejects(html(block(`${episode}\nartist: someone`)), /artist/);
-  await assert.rejects(html(block(episode.replace(/url: .*/, "url: https://youtu.be/x"))), /url: a Spotify/);
+test("the card's call to action follows the platform", async () => {
+  const video = await html(block("type: podcast\nurl: https://youtu.be/dQw4w9WgXcQ"));
+  assert.match(video, /data-platform="youtube"/);
+  assert.match(video, /an episode worth a watch.*watch on youtube ↗/);
+});
+
+test("a player block with an unknown field, a bad value or a link no platform takes stops the build", async () => {
+  await assert.rejects(html(block(`${episode}\nby: someone`)), /:3: .*by/);
+  await assert.rejects(html(block(episode.replace("podcast", "song"))), /type: /);
+  await assert.rejects(html(block(episode.replace(/url: .*/, ""))), /url: /);
+  await assert.rejects(
+    html(block(episode.replace(/url: .*/, "url: https://example.com/x"))),
+    /url: a Spotify or YouTube/,
+  );
   await assert.rejects(html(block("title: [unclosed")), /a player block holds YAML fields/);
 });
 

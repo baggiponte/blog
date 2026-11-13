@@ -647,6 +647,40 @@ header.top {
     0 1px 2px rgba(0, 0, 0, 0.08),
     0 8px 24px -10px rgba(0, 0, 0, 0.35);
 }
+/* No cover yet: a blank sleeve in the paper's colours, with a ring like the record's, or a blank episode. */
+.sleeve .blank {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background:
+    radial-gradient(circle, transparent 0 22%, var(--accent) 22.5% 24%, transparent 24.5%),
+    repeating-radial-gradient(circle, transparent 0 6px, var(--line) 6px 7px),
+    color-mix(in srgb, var(--accent) 12%, var(--paper));
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 8px 24px -10px rgba(0, 0, 0, 0.35);
+}
+.player[data-type="podcast"] .sleeve .blank {
+  background:
+    radial-gradient(circle at 50% 50%, var(--accent) 0 9%, transparent 9.5%),
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0 17%,
+      color-mix(in srgb, var(--accent) 45%, transparent) 17.5% 19%,
+      transparent 19.5%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 0 27%,
+      color-mix(in srgb, var(--accent) 25%, transparent) 27.5% 29%,
+      transparent 29.5%
+    ),
+    color-mix(in srgb, var(--accent) 8%, var(--paper));
+}
 /* Grooves, a label in the accent colour and the spindle hole, in paper so it reads as a hole in both themes. */
 .vinyl {
   position: absolute;
@@ -711,12 +745,7 @@ header.top {
   letter-spacing: -0.03em;
   overflow-wrap: anywhere;
 }
-.player-by {
-  color: var(--muted);
-  font-size: 16px;
-}
 .player-note {
-  margin-top: 2px;
   font-size: 15px;
   font-style: italic;
   color: var(--muted);
@@ -736,6 +765,10 @@ header.top {
   width: 16px;
   height: 16px;
   background: center / contain no-repeat;
+}
+.player[data-platform="youtube"] .player-go::before {
+  /* YouTube's red is part of its mark, so it stays in both themes */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='1' y='4' width='22' height='16' rx='5' fill='%23ff0033'/%3E%3Cpath d='M10 8.5v7l6-3.5z' fill='%23fff'/%3E%3C/svg%3E");
 }
 .player[data-platform="spotify"] .player-go::before {
   /* Spotify's green is part of its mark, so it stays in both themes */

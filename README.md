@@ -75,15 +75,16 @@ front matter: `title`, `description`, `date`, `format` (`post` or `tidbits`),
 show up only in `pnpm dev`; a draft may keep a capitalised title or an empty
 description, which a published post may not. Wrap text in `==double equals==` to highlight it.
 
-A `player` code block becomes a card that opens a song or a podcast episode on Spotify, anywhere in a post:
+A `player` code block becomes a card that opens a song or a podcast episode on Spotify or YouTube, anywhere in a
+post. Only `url` is required: without a title or a cover the card fills them in. The editor refuses to save a block
+the build would refuse.
 
 ```player
 type: podcast            # or music, the default
-title: how we use agents
-by: some podcast         # the artist, or the show
+title: how we use agents # optional
 note: from minute 32     # optional
 url: https://open.spotify.com/episode/…
-cover: ./episode.jpg     # next to index.md
+cover: ./episode.jpg     # optional, next to index.md
 ```
 
 `song:` in the front matter takes the same fields and ends the post with one.

@@ -21,15 +21,16 @@ test("every post still needs a title and a date", () => {
   assert.deepEqual(issues({ title: "x", description: "", draft: true }), ["date"]);
 });
 
-test("a song needs a title, who it's by, a cover and a Spotify link, kept without its share id", () => {
-  const song = { title: "song", by: "artist", cover: "cover.jpg" };
+test("a song needs only a link, kept without its share id; the rest has defaults", () => {
   const url = "https://open.spotify.com/intl-it/track/4cOdK2wGLETKBW3PvgPWqT?si=a1b2c3";
-  assert.deepEqual(postSchema.parse({ ...post, song: { ...song, url } }).song, {
-    ...song,
+  assert.deepEqual(postSchema.parse({ ...post, song: { url, cover: "cover.jpg" } }).song, {
     type: "music",
+    title: "a song worth a listen",
+    cover: "cover.jpg",
     platform: "spotify",
+    verb: "listen",
     url: "https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT",
   });
-  assert.deepEqual(issues({ ...post, song: { ...song, url: "https://youtu.be/dQw4w9WgXcQ" } }), ["song.url"]);
-  assert.deepEqual(issues({ ...post, song: { title: "song", url } }), ["song.by", "song.cover"]);
+  assert.deepEqual(issues({ ...post, song: { url: "https://example.com/x" } }), ["song.url"]);
+  assert.deepEqual(issues({ ...post, song: { title: "song" } }), ["song.url"]);
 });

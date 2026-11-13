@@ -61,14 +61,17 @@ const { song } = post.data;
             <a class="player-card" href={song.url} target="_blank" rel="noopener">
               <span class="sleeve">
                 {song.type === "music" && <span class="vinyl" aria-hidden="true" />}
-                <Image src={song.cover} alt="" width={128} height={128} densities={[1, 2]} />
+                {song.cover ? (
+                  <Image src={song.cover} alt="" width={128} height={128} densities={[1, 2]} />
+                ) : (
+                  <span class="blank" aria-hidden="true" />
+                )}
               </span>
               <span class="player-t">
                 <span class="player-k">{song.type}</span>
                 <b class="player-title">{song.title}</b>
-                <span class="player-by">{song.by}</span>
                 {song.note && <span class="player-note">{song.note}</span>}
-                <span class="player-go">listen on {song.platform} ↗</span>
+                <span class="player-go">{song.verb} on {song.platform} ↗</span>
               </span>
             </a>
           </div>
