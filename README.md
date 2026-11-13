@@ -17,12 +17,13 @@ Its build settings live in the Cloudflare dashboard:
 | setting | value |
 | --- | --- |
 | Git repository | `baggiponte/blog`, production branch `main` |
-| Build command | `node scripts/build.ts` |
+| Build command | `pnpm build` |
 | Deploy command | `pnpm run deploy` |
 | Non-production branch builds | off (GitHub CI checks PRs) |
 
 Node and pnpm come from `package.json`. The build runs `astro build` into
-`dist/`, generates permanent redirects for directory URLs, then packages `dist/`
+`dist/`, where two integrations in `src/plugins/` build the Slidev decks and
+write permanent redirects for directory URLs, then packages `dist/`
 as static assets in `.cloudflare/output/`, which `cf deploy --prebuilt` uploads.
 `cf build` is not used directly because it detects Astro and expects the
 Cloudflare adapter, which a fully static site does not need. Roll back by
@@ -160,7 +161,7 @@ Notes:
 ## Talks
 
 The talks catalog is at `/talks/`, and each Slidev deck in `decks/<slug>/` is
-built to `/talks/<slug>/` by `scripts/build.ts`. The decks are kept as imported
+built to `/talks/<slug>/` by the `decks()` integration (`src/plugins/decks/`). The decks are kept as imported
 apart from build fixes. To edit one with hot reload:
 `pnpm exec slidev decks/<slug>/slides.md`.
 
