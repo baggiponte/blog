@@ -431,6 +431,26 @@ dialog button[type="submit"] {
   margin-left: 2px;
   cursor: pointer;
 }
+/* Inserted paragraphs below the line they start on; headings take the live preview's sizes (cm-lp-h*). */
+#source .cm-sg-blocks {
+  display: grid;
+  gap: 22px;
+  margin: 22px 0 0;
+  cursor: pointer;
+}
+/* A block widget sits outside CodeMirror's lines, which pad their text 6px from the left: the same padding here
+   lines the inserted text up with the paragraphs around it. */
+#source .cm-sg-block {
+  background: var(--mark);
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: pre-wrap;
+}
+#source .cm-sg-block.cm-lp-h1,
+#source .cm-sg-block.cm-lp-h2,
+#source .cm-sg-block.cm-lp-h3 {
+  padding-block: 2px;
+}
 #source .cm-sg-active {
   outline: 1.5px solid var(--accent);
   outline-offset: 1px;
@@ -551,6 +571,7 @@ dialog button[type="submit"] {
 .review-change {
   grid-column: 1;
   grid-row: 1;
+  white-space: pre-line;
   overflow-wrap: anywhere;
   color: var(--muted);
 }

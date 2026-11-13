@@ -327,7 +327,8 @@ function suggestionRow(suggestion: Suggestion, lost: boolean): HTMLLIElement {
     { className: "review-change" },
     suggestion.quote.slice(0, start),
     end > start ? element("del", {}, suggestion.quote.slice(start, end)) : "",
-    insert === "" ? "" : element("ins", {}, insert),
+    // One line break per paragraph break: the panel is narrow.
+    insert === "" ? "" : element("ins", {}, insert.replace(/\n\s*\n/g, "\n")),
     suggestion.quote.slice(end),
   );
   const row = element(

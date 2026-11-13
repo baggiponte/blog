@@ -214,24 +214,80 @@ export class ReplacementWidget extends WidgetType {
 
 // Each suggestion struck through where its words change (changeOf), with the new words right after; the rest of the
 // quote reads as it is.
+// New text that starts new paragraphs, as the blocks the editor draws for it: a heading or a paragraph each.
+export type InsertedBlock = { kind: "heading"; level: number; text: string } | { kind: "paragraph"; text: string };
+
+export function blocksOf(text: string): InsertedBlock[] {
+  return text
+    .split(/\n\s*\n/)
+    .map(block => block.replace(/^\n+|\n+$/g, ""))
+    .filter(block => block.trim() !== "")
+    .map(block => {
+      const heading = /^(#{1,6})\s+(.*)$/s.exec(block);
+      return heading?.[1] !== undefined && heading[2] !== undefined
+        ? { kind: "heading", level: heading[1].length, text: heading[2] }
+        : { kind: "paragraph", text: block };
+    });
+}
+
+// Inserted paragraphs, drawn below the line the insertion starts on, each styled as what it will be: a widget inside
+// the line would take that line's style (a heading's size), and its blank lines would show as tall gaps.
+export class InsertedBlocksWidget extends WidgetType {
+  readonly text: string;
+  readonly id: string;
+  readonly active: boolean;
+  constructor(text: string, id: string, active: boolean) {
+    super();
+    this.text = text;
+    this.id = id;
+    this.active = active;
+  }
+  override eq(other: InsertedBlocksWidget): boolean {
+    return other.text === this.text && other.id === this.id && other.active === this.active;
+  }
+  toDOM(): HTMLElement {
+    const dom = document.createElement("div");
+    dom.className = this.active ? "cm-sg-blocks cm-sg-active" : "cm-sg-blocks";
+    dom.dataset.suggestion = this.id;
+    for (const block of blocksOf(this.text)) {
+      const part = document.createElement("div");
+      part.className = block.kind === "heading" ? `cm-sg-block cm-lp-h${block.level}` : "cm-sg-block";
+      part.textContent = block.text;
+      dom.append(part);
+    }
+    return dom;
+  }
+  override ignoreEvent(): boolean {
+    return false;
+  }
+}
+
+// Each suggestion struck through where its words change (changeOf), with the new words right after; the rest of the
+// quote reads as it is. New words that run onto new lines go in a block below the line (InsertedBlocksWidget).
 export function reviewDecorations(state: EditorState): DecorationSet {
   const current = active(state);
   return Decoration.set(
     state.field(reviewField).placed.flatMap(({ suggestion, from }) => {
-      const on = current?.suggestion.id === suggestion.id ? " cm-sg-active" : "";
+      const on = current?.suggestion.id === suggestion.id;
       const { start, end, insert } = changeOf(suggestion.quote, suggestion.replacement);
       const ranges: Range<Decoration>[] = [];
       if (end > start) {
         ranges.push(
           Decoration.mark({
-            class: `cm-sg-old cm-sg-${suggestion.kind}${on}`,
+            class: `cm-sg-old cm-sg-${suggestion.kind}${on ? " cm-sg-active" : ""}`,
             attributes: { "data-suggestion": suggestion.id },
           }).range(from + start, from + end),
         );
       }
-      if (insert !== "") {
-        const widget = new ReplacementWidget(insert, suggestion.id, on !== "");
-        ranges.push(Decoration.widget({ widget, side: 1 }).range(from + end));
+      const at = from + end;
+      const newline = insert.indexOf("\n");
+      const inline = newline === -1 ? insert : insert.slice(0, newline);
+      if (inline !== "") {
+        ranges.push(Decoration.widget({ widget: new ReplacementWidget(inline, suggestion.id, on), side: 1 }).range(at));
+      }
+      if (newline !== -1 && blocksOf(insert.slice(newline)).length > 0) {
+        const widget = new InsertedBlocksWidget(insert.slice(newline), suggestion.id, on);
+        ranges.push(Decoration.widget({ widget, side: 1, block: true }).range(state.doc.lineAt(at).to));
       }
       return ranges;
     }),
@@ -350,7 +406,7 @@ export function review(): Extension {
     // Clicking the replacement puts the cursor on the suggestion, which opens its card.
     EditorView.domEventHandlers({
       mousedown: (event, view) => {
-        const target = event.target instanceof HTMLElement ? event.target.closest(".cm-sg-new") : null;
+        const target = event.target instanceof HTMLElement ? event.target.closest(".cm-sg-new, .cm-sg-blocks") : null;
         if (!(target instanceof HTMLElement) || target.dataset.suggestion === undefined) {
           return false;
         }

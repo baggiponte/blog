@@ -6,6 +6,8 @@ import { EditorState, type TransactionSpec } from "@codemirror/state";
 
 import {
   accept,
+  blocksOf,
+  InsertedBlocksWidget,
   jump,
   load,
   ReplacementWidget,
@@ -112,4 +114,35 @@ test("a reject is undone and redone too", () => {
   assert.deepEqual(open(view), ["typo"]);
   redo(view as Parameters<typeof redo>[0]);
   assert.deepEqual(open(view), []);
+});
+
+test("new paragraphs are split into headings and paragraphs, blank lines dropped", () => {
+  assert.deepEqual(blocksOf("\n\n## vague objectives\n\nMy prompts got longer.\nAnd vaguer.\n\n\nLast week."), [
+    { kind: "heading", level: 2, text: "vague objectives" },
+    { kind: "paragraph", text: "My prompts got longer.\nAnd vaguer." },
+    { kind: "paragraph", text: "Last week." },
+  ]);
+});
+
+test("new paragraphs go in a block below the line, not inside it, so a heading's style doesn't spread to them", () => {
+  const doc = "## what goes wrong\n\nAgents are confident.";
+  const view = editor(doc, [
+    { id: "intro", kind: "clarity", quote: "## what goes wrong", replacement: "## what goes wrong\n\nAn intro." },
+    { id: "word", kind: "style", quote: "Agents are", replacement: "Agents are often\n\nA new paragraph." },
+  ]);
+  const shown: string[] = [];
+  reviewDecorations(view.state).between(0, doc.length, (from, _to, value) => {
+    const widget = value.spec.widget;
+    if (widget instanceof InsertedBlocksWidget) {
+      shown.push(
+        `block@${from}:${blocksOf(widget.text)
+          .map(b => b.text)
+          .join("|")}`,
+      );
+    } else if (widget instanceof ReplacementWidget) {
+      shown.push(`inline@${from}:${widget.text}`);
+    }
+  });
+  // The heading line ends at 18; "Agents are" ends at 30, on a line that ends at 41.
+  assert.deepEqual(shown, ["block@18:An intro.", "inline@30: often", "block@41:A new paragraph."]);
 });
