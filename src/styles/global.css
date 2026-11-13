@@ -575,28 +575,12 @@ header.top {
   text-align: left;
 }
 
-/* ---- song, podcast and video cards: a cover that opens it on Spotify or YouTube, anywhere in a post or as its
-   outro. A song is a sleeve with its record peeking out, sliding further out on hover; a podcast is a stack of
+/* ---- song, podcast and video cards: a cover that opens it on Spotify or YouTube, anywhere in a post. A
+   song is a sleeve with its record peeking out, sliding further out on hover; a podcast is a stack of
    episodes; a video is a screen with a play button. */
 .player {
   --sleeve: 112px;
   margin: 32px 0;
-}
-.outro {
-  margin: -48px 0 80px;
-}
-.outro .player {
-  margin: 0;
-}
-.outro-k {
-  margin: 0 0 14px;
-  font: 500 12px / 1 var(--mono);
-  letter-spacing: 0.04em;
-  color: var(--muted);
-}
-.outro-k::before {
-  content: "♪ ";
-  color: var(--accent);
 }
 /* The picture sits in a slot as wide for every type (a sleeve and its record, a stack of episodes, a screen), so
    titles line up from one card to the next. */
@@ -769,9 +753,6 @@ header.top {
 }
 .player[data-type="podcast"] .player-k::before {
   content: "◉ ";
-}
-.outro .player-k {
-  display: none;
 }
 .player-title {
   font: 700 21px / 1.15 var(--display);

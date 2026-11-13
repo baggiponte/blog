@@ -3,7 +3,7 @@ import { dirname } from "node:path";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
-import { makePostSchema } from "./lib/post-schema.ts";
+import { postSchema } from "./lib/post-schema.ts";
 
 // Every post is a bundle: content/blog/<slug>/index.md holds the metadata (and the body,
 // unless the post is a marimo notebook, whose generated <name>.md is named in `notebook`).
@@ -14,7 +14,7 @@ const blog = defineCollection({
     // "01-groundup-linear-regression/index.md" has the id "01-groundup-linear-regression".
     generateId: ({ entry }) => dirname(entry),
   }),
-  schema: ({ image }) => makePostSchema(image()),
+  schema: postSchema,
 });
 
 // Markdown exported by `just marimo-export`; never edited by hand.

@@ -1,5 +1,4 @@
 import { parseFrontmatter } from "@astrojs/markdown-remark";
-import { z } from "astro/zod";
 import type { Paragraph, PhrasingContent, Root } from "mdast";
 import { visit } from "unist-util-visit";
 
@@ -16,8 +15,7 @@ import { type Card, cardSchema, imageSize, type LinkCard, type MediaCard } from 
 //   site: julia evans                # links only: the host when left out
 //   ```
 //
-// The fields are the frontmatter `song`'s (src/lib/card.ts), checked the same way: a typo stops the build instead
-// of rendering a broken card, and the editor refuses to save it (src/editor/post.ts). Where nothing renders the block
+// The fields are checked by src/lib/card.ts: a typo stops the build instead of rendering a broken card, and the editor refuses to save it (src/editor/post.ts). Where nothing renders the block
 // (the editor, "copy page", GitHub) it reads as YAML.
 export interface Part {
   type: "cardPart";
@@ -35,14 +33,6 @@ interface Source {
   path?: string;
 }
 
-// A picture on the other site would be fetched by every reader's browser, so a block's image is a file.
-const blockSchema = cardSchema(
-  z
-    .string()
-    .min(1)
-    .refine(path => !/^[a-z][a-z\d+.-]*:/i.test(path), "a file next to index.md, not a link"),
-);
-
 const part = (hName: string, className: string, children: PhrasingContent[] = [], aria = false): Part => ({
   type: "cardPart",
   data: { hName, hProperties: { className: [className], ...(aria ? { ariaHidden: "true" } : {}) } },
@@ -59,7 +49,7 @@ export function parseCard(yaml: string, where: string): Card {
   } catch (error) {
     throw new Error(`${where}: a card block holds YAML fields`, { cause: error });
   }
-  const result = blockSchema.safeParse(fields);
+  const result = cardSchema.safeParse(fields);
   if (!result.success) {
     const issues = result.error.issues.map(issue => `${issue.path.join(".") || "block"}: ${issue.message}`);
     throw new Error(`${where}: ${issues.join("; ")}`);

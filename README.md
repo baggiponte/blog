@@ -89,8 +89,6 @@ image: ./git-config.png            # optional, next to index.md
 site: julia evans                  # optional, links only
 ```
 
-`song:` in the front matter takes the same fields and ends the post with a song, podcast or video.
-
 Each line of text is its own paragraph: write one paragraph per line, with no
 blank line needed between them (`src/lib/remark-line-paragraphs.ts`), so don't
 hard-wrap prose.

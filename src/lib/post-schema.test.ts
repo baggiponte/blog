@@ -20,19 +20,3 @@ test("every post still needs a title and a date", () => {
   assert.deepEqual(issues({ ...post, title: "", draft: true }), ["title"]);
   assert.deepEqual(issues({ title: "x", description: "", draft: true }), ["date"]);
 });
-
-test("a song needs only a link, kept without its share id; the rest has defaults", () => {
-  const url = "https://open.spotify.com/intl-it/track/4cOdK2wGLETKBW3PvgPWqT?si=a1b2c3";
-  assert.deepEqual(postSchema.parse({ ...post, song: { url, image: "cover.jpg" } }).song, {
-    type: "song",
-    title: "a song worth a listen",
-    image: "cover.jpg",
-    platform: "spotify",
-    verb: "listen",
-    url: "https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT",
-  });
-  assert.deepEqual(issues({ ...post, song: { url: "https://example.com/x" } }), ["song.url"]);
-  assert.deepEqual(issues({ ...post, song: { title: "song" } }), ["song.url"]);
-  // The outro plays something: a page to read belongs in the post.
-  assert.deepEqual(issues({ ...post, song: { type: "link", url: "https://jvns.ca/" } }), ["song.url"]);
-});
