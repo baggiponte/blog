@@ -3,7 +3,6 @@ title: "how i use agents, november 2026"
 description: "Six key aspects of how my agent workflow has changed in the past few months"
 date: 2026-11-05
 format: post
-draft: true
 ---
 
 The way I work with agents has changed dramatically since the summer, and I think it's finally time to sit down and write about it.
