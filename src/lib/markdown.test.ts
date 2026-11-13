@@ -47,3 +47,24 @@ test("the plain export drops marimo cell attributes and separators", () => {
     '```python {.marimo name="setup"}\nimport polars\n```\n\n<!---->\n\n\n```python {.marimo}\nx = 1\n```';
   assert.equal(plainMarkdown(notebook), "```python\nimport polars\n```\n\n```python\nx = 1\n```");
 });
+
+test("a cover linked to Spotify on its own line becomes a card, a song with a record and a podcast without", async () => {
+  const song = await html(
+    '[![lose yourself](./cover.jpg "eminem")](https://open.spotify.com/intl-it/track/4cOdK2wGLETKBW3PvgPWqT?si=x)',
+  );
+  assert.match(
+    song,
+    /^<div class="spotify" data-kind="song"><a href="https:\/\/open\.spotify\.com\/track\/4cOdK2wGLETKBW3PvgPWqT" class="spotify-card"/,
+  );
+  assert.match(song, /<span class="vinyl" aria-hidden="true"><\/span>/);
+  assert.match(song, /<b class="spotify-title">lose yourself<\/b><span class="spotify-by">eminem<\/span>/);
+  const podcast = await html("[![an episode](./ep.jpg)](https://open.spotify.com/episode/4cOdK2wGLETKBW3PvgPWqT)");
+  assert.match(podcast, /data-kind="podcast"/);
+  assert.doesNotMatch(podcast, /vinyl|spotify-by/);
+});
+
+test("a Spotify cover inside a sentence, or a cover linked elsewhere, stays a linked image", async () => {
+  const inline = await html("listen [![x](./c.jpg)](https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT) now");
+  assert.doesNotMatch(inline, /spotify-card/);
+  assert.doesNotMatch(await html("[![x](./c.jpg)](https://example.com/track/4cOdK2wGLETKBW3PvgPWqT)"), /spotify-card/);
+});
