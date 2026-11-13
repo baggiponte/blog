@@ -1,6 +1,6 @@
 import { z } from "astro/zod";
 
-import { playerSchema } from "./player.ts";
+import { songSchema } from "./card.ts";
 
 // A post's index.md frontmatter. Drafts only show in `astro dev`, so the rules readers would notice (a lowercase
 // title, a description) apply once a post is published: a half-written draft never stops the dev server.
@@ -22,8 +22,8 @@ export const makePostSchema = <Cover extends z.ZodType>(cover: Cover) =>
         .regex(/^[\w-]+\.md$/, "a <name>.md file next to index.md")
         .optional(),
       draft: z.boolean().default(false),
-      // The song (or episode) the post ends with, as a player card.
-      song: playerSchema(cover).optional(),
+      // The song (or episode, or video) the post ends with, as a card.
+      song: songSchema(cover).optional(),
     })
     .superRefine((post, context) => {
       if (post.draft) {

@@ -1,17 +1,17 @@
 import { unified } from "@astrojs/markdown-remark";
 import type { AstroUserConfig } from "astro";
-import { blockKinds } from "./blocks.ts";
+
 import { codeFigure } from "./code-figure.ts";
 import { codeThemes } from "./code-themes.ts";
-import { remarkBlocks } from "./fenced-blocks.ts";
+import { remarkCard } from "./remark-card.ts";
 import { remarkLineParagraphs } from "./remark-line-paragraphs.ts";
 import { remarkMark } from "./remark-mark.ts";
 
 // How posts are rendered: astro.config.ts uses it, and the tests render Markdown with it.
 export const markdown = {
-  // unified() rather than the default Sätteri so `==highlights==`, one paragraph per line and the player and link
-  // cards can be small remark plugins.
-  processor: unified({ remarkPlugins: [remarkLineParagraphs, remarkMark, remarkBlocks(blockKinds)] }),
+  // unified() rather than the default Sätteri so `==highlights==`, one paragraph per line and cards can be small
+  // remark plugins.
+  processor: unified({ remarkPlugins: [remarkLineParagraphs, remarkMark, remarkCard] }),
   shikiConfig: {
     themes: codeThemes,
     defaultColor: false,

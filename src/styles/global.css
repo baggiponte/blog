@@ -575,9 +575,9 @@ header.top {
   text-align: left;
 }
 
-/* ---- player cards: a cover that opens the song or episode on a listening platform, anywhere in a post or as its
-   outro. Music is a sleeve with its record peeking out, sliding further out on hover; a podcast is a stack of
-   episodes. */
+/* ---- song, podcast and video cards: a cover that opens it on Spotify or YouTube, anywhere in a post or as its
+   outro. A song is a sleeve with its record peeking out, sliding further out on hover; a podcast is a stack of
+   episodes; a video is a screen with a play button. */
 .player {
   --sleeve: 112px;
   margin: 32px 0;
@@ -615,7 +615,7 @@ header.top {
 .prose .player-card:hover {
   color: var(--ink);
 }
-.player[data-type="music"] .player-card {
+.player[data-type="song"] .player-card {
   gap: calc(var(--sleeve) * 0.42 + 22px);
 }
 .player[data-type="podcast"] .player-card {
@@ -717,6 +717,42 @@ header.top {
 .player[data-type="podcast"] .sleeve img {
   border-radius: 6px;
 }
+.player[data-type="video"] {
+  --sleeve: 192px;
+}
+.player[data-type="video"] .sleeve {
+  aspect-ratio: 16 / 9;
+}
+.player[data-type="video"] .sleeve img,
+.player[data-type="video"] .sleeve .blank {
+  border-radius: 8px;
+}
+.player[data-type="video"] .sleeve img {
+  height: 100%;
+  object-fit: cover;
+}
+.player[data-type="video"] .sleeve .blank {
+  background: color-mix(in srgb, var(--accent) 16%, var(--paper));
+}
+/* the play button, over the picture or the blank screen */
+.player[data-type="video"] .sleeve::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 50% auto auto 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  background:
+    var(--accent)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 7v10l8-5z' fill='%23fff'/%3E%3C/svg%3E")
+    center / 22px no-repeat;
+  transition: transform 0.2s;
+}
+.player[data-type="video"] .player-k::before {
+  content: "▶ ";
+}
 .player-t {
   display: grid;
   gap: 4px;
@@ -787,10 +823,16 @@ header.top {
   .player[data-type="podcast"] .player-card:hover .sleeve::after {
     transform: translate(7px, -6px) rotate(2deg);
   }
+  .player[data-type="video"] .player-card:hover .sleeve::after {
+    transform: scale(1.12);
+  }
 }
 @media (max-width: 640px) {
   .player {
     --sleeve: 88px;
+  }
+  .player[data-type="video"] {
+    --sleeve: 120px;
   }
   .player-title {
     font-size: 18px;

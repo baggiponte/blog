@@ -1,8 +1,8 @@
 import { parseFrontmatter } from "@astrojs/markdown-remark";
 import { z } from "astro/zod";
-import { blockKinds } from "../lib/blocks.ts";
-import { checkBlocks } from "../lib/fenced-blocks.ts";
+
 import { formatSchema, postSchema } from "../lib/post-schema.ts";
+import { cardBlocks, parseCard } from "../lib/remark-card.ts";
 import { slugify, urlOfDir } from "../lib/slugs.ts";
 import { EditorError } from "./failure.ts";
 
@@ -98,7 +98,7 @@ function frontmatterOf(markdown: string): Record<string, unknown> {
 }
 
 // Refuses an index.md the site couldn't build: the same schema as the content collection (src/content.config.ts),
-// and the same check as the build for every ```player and ```link block, so the editor never writes a file that stops
+// and the same check as the build for every ```card block, so the editor never writes a file that stops
 // `astro dev` or the build. Drafts are let through with a capitalised title or no description, as the schema allows.
 export function checkPost(markdown: string): void {
   const result = postSchema.safeParse(frontmatterOf(markdown));
@@ -106,10 +106,15 @@ export function checkPost(markdown: string): void {
     const issues = result.error.issues.map(issue => `${issue.path.join(".") || "frontmatter"}: ${issue.message}`);
     throw new EditorError(issues.join("; "), { failure: "invalid" });
   }
-  try {
-    checkBlocks(markdown, blockKinds);
-  } catch (error) {
-    throw new EditorError(error instanceof Error ? error.message : String(error), { failure: "invalid", cause: error });
+  for (const block of cardBlocks(markdown)) {
+    try {
+      parseCard(block.yaml, `card block on line ${block.line}`);
+    } catch (error) {
+      throw new EditorError(error instanceof Error ? error.message : String(error), {
+        failure: "invalid",
+        cause: error,
+      });
+    }
   }
 }
 
