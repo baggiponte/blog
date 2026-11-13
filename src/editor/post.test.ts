@@ -63,7 +63,7 @@ test("a post the site couldn't build is refused, with the reason", () => {
   assert.throws(() => checkPost(post('title: "x"\ndescription: "y"\ndraft: true')), { message: /^date: / });
 });
 
-test("a post with a player block the build would refuse is not saved, and says which line", () => {
+test("a post with a player or link block the build would refuse is not saved, and says which line", () => {
   const front = 'title: "a post"\ndescription: "about it"\ndate: 2026-11-10';
   const body = (fields: string) => `${post(front)}one line\n\n\`\`\`player\n${fields}\n\`\`\`\n`;
   checkPost(body("url: https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT"));
@@ -72,6 +72,12 @@ test("a post with a player block the build would refuse is not saved, and says w
     message: /^player block on line \d+: type: /,
   });
   assert.throws(() => checkPost(body("title: no link yet")), { failure: "invalid", message: /url: / });
+  assert.throws(() => checkPost(`${post(front)}\`\`\`link\nurl: nope\n\`\`\`\n`), {
+    failure: "invalid",
+    message: /^link block on line \d+: url: /,
+  });
+  // A block quoted inside another fence is an example, not a block.
+  checkPost(`${post(front)}\`\`\`\`md\n\`\`\`link\nurl: nope\n\`\`\`\n\`\`\`\`\n`);
   // Other code blocks are prose to the editor, whatever they hold.
   checkPost(`${post(front)}\`\`\`yaml\nurl: nope\n\`\`\`\n`);
 });

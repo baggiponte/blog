@@ -96,3 +96,43 @@ test("a player block with an unknown field, a bad value or a link no platform ta
 test("other code blocks are left alone", async () => {
   assert.match(await html("```yaml\ntitle: x\n```"), /<figure class="code"/);
 });
+
+const link = (fields: string): string => `before\n\n\`\`\`link\n${fields}\n\`\`\`\n\nafter`;
+
+test("a link block becomes a card with its title, description, site and picture", async () => {
+  const page = await html(
+    link(
+      [
+        "url: https://jvns.ca/blog/git-config/?utm_source=rss&page=2",
+        "title: popular git config options",
+        "description: the options people set",
+        "site: julia evans",
+        "image: ./git.png",
+      ].join("\n"),
+    ),
+  );
+  assert.match(page, /^<p>before<\/p>\n<div class="link" data-image="">/);
+  assert.match(page, /<a href="https:\/\/jvns\.ca\/blog\/git-config\/\?page=2" class="link-card" target="_blank"/);
+  assert.match(page, /<b class="link-title">popular git config options<\/b><span class="link-desc">the options/);
+  assert.match(page, /<span class="link-name">julia evans<\/span><span class="link-host">jvns\.ca<\/span> ↗/);
+  assert.match(page, /<span class="link-img"><img src="\.\/git\.png" alt="" width="480" height="252"><\/span>/);
+  assert.match(page, /<\/div>\n<p>after<\/p>$/);
+});
+
+test("only the link is needed: the address as title, the host as site, and no picture", async () => {
+  const page = await html(link("url: https://www.example.com/notes/caffè/"));
+  assert.match(page, /<div class="link">/);
+  assert.match(page, /<b class="link-title">example\.com\/notes\/caffè<\/b>/);
+  assert.match(page, /<span class="link-name">example\.com<\/span> ↗/);
+  assert.doesNotMatch(page, /link-desc|link-host|<img/);
+});
+
+test("a link block with an unknown field, no web address or a remote picture stops the build", async () => {
+  await assert.rejects(html(link("url: https://example.com\nauthor: me")), /:3: .*author/);
+  await assert.rejects(html(link("title: no link")), /url: /);
+  await assert.rejects(html(link("url: mailto:me@example.com")), /url: an http or https link/);
+  await assert.rejects(
+    html(link("url: https://example.com\nimage: https://example.com/og.png")),
+    /image: a file next to index\.md/,
+  );
+});

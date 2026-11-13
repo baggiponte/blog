@@ -98,7 +98,7 @@ function frontmatterOf(markdown: string): Record<string, unknown> {
 }
 
 // Refuses an index.md the site couldn't build: the same schema as the content collection (src/content.config.ts),
-// and the same check as the build for every ```player block (and any other card block), so the editor never writes a file that stops
+// and the same check as the build for every ```player and ```link block, so the editor never writes a file that stops
 // `astro dev` or the build. Drafts are let through with a capitalised title or no description, as the schema allows.
 export function checkPost(markdown: string): void {
   const result = postSchema.safeParse(frontmatterOf(markdown));
