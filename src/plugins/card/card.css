@@ -53,7 +53,9 @@
     0 1px 2px rgba(0, 0, 0, 0.08),
     0 8px 24px -10px rgba(0, 0, 0, 0.35);
 }
-/* No cover yet: a blank sleeve in the paper's colours, with a ring like the record's, or a blank episode. */
+/* No cover yet: a small illustration in the same dusk palette for each type, drawn here rather than shipped as
+   files. A song is a sun setting over the sea, a podcast a broadcast rising from the horizon, a video a sunset behind
+   the mountains. Like a real cover, it keeps its colours in both themes. */
 .sleeve .blank {
   position: relative;
   z-index: 1;
@@ -61,31 +63,18 @@
   width: 100%;
   height: 100%;
   border-radius: 6px;
-  border: 1px solid var(--rule);
   background:
-    radial-gradient(circle, transparent 0 22%, var(--accent) 22.5% 24%, transparent 24.5%),
-    repeating-radial-gradient(circle, transparent 0 6px, var(--line) 6px 7px),
-    color-mix(in srgb, var(--accent) 12%, var(--paper));
+    #1c2537
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='xMidYMid slice'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23232c45'/%3E%3Cstop offset='.5' stop-color='%236a4a5c'/%3E%3Cstop offset='1' stop-color='%23e58a5a'/%3E%3C/linearGradient%3E%3C/defs%3E %3Crect width='100' height='68' fill='url(%23s)'/%3E%3Ccircle cx='50' cy='64' r='27' fill='%23f7bd76'/%3E %3Crect y='68' width='100' height='32' fill='%231c2537'/%3E %3Cpath d='M0 75h100M0 82h100M0 89h100M0 96h100' stroke='%2333415c' stroke-width='1.2'/%3E %3Cpath d='M34 72h32M40 79h20M45 86h10' stroke='%23e58a5a' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")
+    center / cover no-repeat;
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.08),
     0 8px 24px -10px rgba(0, 0, 0, 0.35);
 }
 .player[data-type="podcast"] .sleeve .blank {
-  background:
-    radial-gradient(circle at 50% 50%, var(--accent) 0 9%, transparent 9.5%),
-    radial-gradient(
-      circle at 50% 50%,
-      transparent 0 17%,
-      color-mix(in srgb, var(--accent) 45%, transparent) 17.5% 19%,
-      transparent 19.5%
-    ),
-    radial-gradient(
-      circle at 50% 50%,
-      transparent 0 27%,
-      color-mix(in srgb, var(--accent) 25%, transparent) 27.5% 29%,
-      transparent 29.5%
-    ),
-    color-mix(in srgb, var(--accent) 8%, var(--paper));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='xMidYMid slice'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23232c45'/%3E%3Cstop offset='.5' stop-color='%236a4a5c'/%3E%3Cstop offset='1' stop-color='%23e58a5a'/%3E%3C/linearGradient%3E%3C/defs%3E %3Crect width='100' height='70' fill='url(%23s)'/%3E %3Cg fill='none' stroke='%23f7bd76' stroke-linecap='round' stroke-width='2.4'%3E%3Cpath d='M36 62a14 14 0 0 1 28 0' /%3E%3Cpath d='M26 62a24 24 0 0 1 48 0' opacity='.7'/%3E%3Cpath d='M16 62a34 34 0 0 1 68 0' opacity='.45'/%3E%3C/g%3E %3Ccircle cx='50' cy='62' r='6' fill='%23f7bd76'/%3E%3Cpath d='M50 62v8' stroke='%23f7bd76' stroke-width='2.4'/%3E %3Cpath d='M0 70q25-6 50 0t50 0v30H0z' fill='%231c2537'/%3E %3Cpath d='M0 82h100M0 90h100' stroke='%2333415c' stroke-width='1.2'/%3E%3C/svg%3E");
 }
 /* Grooves, a label in the accent colour and the spindle hole, in paper so it reads as a hole in both themes. */
 .vinyl {
@@ -136,7 +125,7 @@
   object-fit: cover;
 }
 .player[data-type="video"] .sleeve .blank {
-  background: color-mix(in srgb, var(--accent) 16%, var(--paper));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' preserveAspectRatio='xMidYMid slice'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23232c45'/%3E%3Cstop offset='.5' stop-color='%236a4a5c'/%3E%3Cstop offset='1' stop-color='%23e58a5a'/%3E%3C/linearGradient%3E%3C/defs%3E %3Crect width='160' height='90' fill='url(%23s)'/%3E%3Ccircle cx='128' cy='46' r='14' fill='%23f7bd76'/%3E %3Cpath d='M0 70l30-26 22 16 26-30 34 34 20-12 28 18v20H0z' fill='%233a3550'/%3E %3Cpath d='M0 78l40-20 30 14 34-18 30 16 26-8v28H0z' fill='%231c2537'/%3E%3C/svg%3E");
 }
 /* the play button, over the picture or the blank screen */
 .player[data-type="video"] .sleeve::after {
