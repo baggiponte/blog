@@ -1,5 +1,12 @@
 @import "./tokens.css";
 
+/* The site's fonts come from Astro's font config (astro.config.ts), which adds preloads and metric-matched fallbacks;
+   tokens.css keeps the Fontsource names for the slides theme and the editor. */
+:root {
+  --sans: var(--font-sans);
+  --display: var(--font-display);
+}
+
 /* layout: text is 60% of the window, never narrower than 560px or wider than 760px */
 :root {
   --col: clamp(560px, 60vw, 760px);
