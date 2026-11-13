@@ -79,13 +79,13 @@ test("a YouTube link is a video unless the block says otherwise, and the call to
   const video = await html(block("url: https://youtu.be/dQw4w9WgXcQ\nimage: ./frame.jpg"));
   assert.match(video, /data-type="video" data-platform="youtube"/);
   assert.match(video, /a video worth a watch.*watch on youtube ↗/);
-  assert.match(video, /<img src="\.\/frame\.jpg" alt="" width="384" height="216">/);
+  assert.match(video, /<img src="\.\/frame\.jpg" alt="" width="320" height="180">/);
   const podcast = await html(block("type: podcast\nurl: https://youtu.be/dQw4w9WgXcQ"));
   assert.match(podcast, /data-type="podcast" data-platform="youtube"/);
   assert.match(podcast, /an episode worth a watch/);
 });
 
-test("any other address is a link card with its title, note, site and picture", async () => {
+test("any other address is a text link card with its title, note and site", async () => {
   const page = await html(
     block(
       [
@@ -93,18 +93,16 @@ test("any other address is a link card with its title, note, site and picture", 
         "title: popular git config options",
         "note: the options people set",
         "site: julia evans",
-        "image: ./git.png",
       ].join("\n"),
     ),
   );
-  assert.match(page, /^<p>before<\/p>\n<div class="link" data-image="">/);
+  assert.match(page, /^<p>before<\/p>\n<div class="link">/);
   assert.match(page, /<a href="https:\/\/jvns\.ca\/blog\/git-config\/\?page=2" class="link-card" target="_blank"/);
   assert.match(page, /<b class="link-title">popular git config options<\/b><span class="link-desc">the options/);
   assert.match(page, /<span class="link-name">julia evans<\/span><span class="link-host">jvns\.ca<\/span> ↗/);
-  assert.match(page, /<span class="link-img"><img src="\.\/git\.png" alt="" width="480" height="252"><\/span>/);
 });
 
-test("a link card needs only its address: the address as title, the host as site, no picture", async () => {
+test("a link card needs only its address: the address as title, the host as site", async () => {
   const page = await html(block("url: https://www.example.com/notes/caffè/"));
   assert.match(page, /<div class="link">/);
   assert.match(page, /<b class="link-title">example\.com\/notes\/caffè<\/b>/);

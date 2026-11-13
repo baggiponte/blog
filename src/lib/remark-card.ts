@@ -12,7 +12,7 @@ import { type Card, cardSchema, imageSize, type LinkCard, type MediaCard } from 
 //   type: link                       # or song, podcast, video; the link decides when left out
 //   title: popular git config options
 //   note: the options people actually set
-//   image: ./git-config.png          # a file next to index.md
+//   image: ./cover.jpg               # songs, podcasts and videos: a file next to index.md
 //   site: julia evans                # links only: the host when left out
 //   ```
 //
@@ -93,7 +93,7 @@ export function cardBlocks(markdown: string): { yaml: string; line: number }[] {
 
 // The image stays a Markdown image, collected and resized by Astro after this plugin runs, at twice its size on
 // the page.
-function image(card: Card): PhrasingContent | undefined {
+function image(card: MediaCard): PhrasingContent | undefined {
   if (card.image === undefined) {
     return undefined;
   }
@@ -129,12 +129,11 @@ function mediaCard(card: MediaCard): Paragraph {
   };
 }
 
-// A page to read: a bookmark with its title, a line about it, who published it and its picture on the right.
+// A page to read: a text bookmark with its title, a line about it and who published it.
 function linkCard(card: LinkCard): Paragraph {
-  const picture = image(card);
   return {
     type: "paragraph",
-    data: { hName: "div", hProperties: { className: ["link"], ...(picture === undefined ? {} : { dataImage: "" }) } },
+    data: { hName: "div", hProperties: { className: ["link"] } },
     children: [
       outbound(card.url, "link-card", [
         part("span", "link-t", [
@@ -147,7 +146,6 @@ function linkCard(card: LinkCard): Paragraph {
             { type: "text", value: " ↗" },
           ]),
         ]),
-        ...(picture === undefined ? [] : [part("span", "link-img", [picture])]),
       ]),
     ],
   };

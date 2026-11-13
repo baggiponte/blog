@@ -2,52 +2,44 @@ import { z } from "astro/zod";
 
 import { listenLink, type MediaType, type Platform } from "./listen.ts";
 
-// A card: something worth opening elsewhere, shown as its title, a line about it and its picture. The same fields
+// A card: something worth opening elsewhere, shown as its title and a line about it. The same fields
 // fill a ```card block anywhere in a post (src/lib/remark-card.ts) and the `song` a post ends with (frontmatter).
 //
-// - link: a page to read, drawn as a bookmark with the site that published it.
+// - link: a page to read, drawn as a text bookmark with the site that published it.
 // - song, podcast, video: something to play on Spotify or YouTube, drawn as a sleeve with its record, a stack of
 //   episodes, or a screen.
 //
 // Only the link is required. Without a type the link decides it: a Spotify track or album is a song, an episode or
 // show a podcast, a YouTube link a video, anything else a link. Without a title the card says what it is, and without
-// an image it draws a blank one (or none, for a link). Every field is written in the post: the build fetches nothing,
+// an image it draws a blank one; a link has no image. Every field is written in the post: the build fetches nothing,
 // and a reader's browser asks the other site for nothing until they click.
 export const cardTypes = ["link", "song", "podcast", "video"] as const;
 export type CardType = (typeof cardTypes)[number];
 
-interface Common<Image> {
+interface Common {
   url: string;
   title: string;
   // Why it's here, where to start, or what the page is about.
   note?: string | undefined;
-  image?: Image | undefined;
 }
-export interface MediaCard<Image = string> extends Common<Image> {
+export interface MediaCard<Image = string> extends Common {
   type: MediaType;
+  image?: Image | undefined;
   platform: string;
   verb: Platform["verb"];
 }
-export interface LinkCard<Image = string> extends Common<Image> {
+export interface LinkCard extends Common {
   type: "link";
   // Who published it ("julia evans"), the host when the block doesn't say.
   site: string;
   host: string;
 }
-export type Card<Image = string> = MediaCard<Image> | LinkCard<Image>;
+export type Card<Image = string> = MediaCard<Image> | LinkCard;
 
-// The picture's size on the page: square for a sleeve or an episode, 16:9 for a video, the 1.91:1 sites draw their
-// previews in for a link. Astro resizes the image to twice this.
-export function imageSize(type: CardType): { width: number; height: number } {
-  switch (type) {
-    case "video":
-      return { width: 192, height: 108 };
-    case "link":
-      return { width: 240, height: 126 };
-    default:
-      return { width: 128, height: 128 };
-  }
-}
+// The picture's size on the page: square for a sleeve or an episode, 16:9 for a video. Astro resizes the image to
+// twice this.
+export const imageSize = (type: MediaType): { width: number; height: number } =>
+  type === "video" ? { width: 160, height: 90 } : { width: 128, height: 128 };
 
 // Tracking parameters a shared link picks up on its way here; the rest of the query is part of the address.
 const tracking = /^(utm_\w+|fbclid|gclid|mc_cid|mc_eid)$/;
@@ -92,13 +84,17 @@ export const cardSchema = <Image extends z.ZodType>(image: Image) =>
       site: z.string().min(1).optional(),
     })
     .transform((card, context): Card<z.output<Image>> => {
-      const { site, ...fields } = card;
+      const { site, image, ...fields } = card;
       const media = listenLink(card.url);
       const type = card.type ?? media?.type ?? "link";
       if (type === "link") {
         const url = canonicalLink(card.url);
         if (url === undefined) {
           context.addIssue({ code: "custom", path: ["url"], message: "an http or https link" });
+          return z.NEVER;
+        }
+        if (image !== undefined) {
+          context.addIssue({ code: "custom", path: ["image"], message: "a link card is text only" });
           return z.NEVER;
         }
         return {
@@ -119,7 +115,7 @@ export const cardSchema = <Image extends z.ZodType>(image: Image) =>
         return z.NEVER;
       }
       const { platform, verb, url } = media;
-      return { ...fields, type, platform, verb, url, title: card.title ?? defaultTitle(type, verb) };
+      return { ...fields, type, platform, verb, url, image, title: card.title ?? defaultTitle(type, verb) };
     });
 
 // The `song` a post ends with: anything to play, not a page to read.
