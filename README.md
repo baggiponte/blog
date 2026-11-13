@@ -74,6 +74,9 @@ front matter: `title`, `description`, `date`, `format` (`post` or `tidbits`),
 `draft` and, for notebook posts, `notebook`. New entries start as drafts, which
 show up only in `pnpm dev`; a draft may keep a capitalised title or an empty
 description, which a published post may not. Wrap text in `==double equals==` to highlight it.
+A line holding only a cover linked to Spotify, `[![title](./cover.jpg "artist or show")](https://open.spotify.com/…)`,
+becomes a card: a record sleeve for a track or album, a stack of episodes for a podcast. Put it anywhere, as often
+as you like; `song:` in the front matter (title, artist, url, cover) ends the post with one.
 Each line of text is its own paragraph: write one paragraph per line, with no
 blank line needed between them (`src/lib/remark-line-paragraphs.ts`), so don't
 hard-wrap prose.

@@ -55,19 +55,22 @@ const { song } = post.data;
     </div>
     {
       song && (
-        <aside class="song" aria-labelledby="song-k">
-          <p class="song-k" id="song-k">on repeat</p>
-          <a class="song-card" href={song.url} target="_blank" rel="noopener">
-            <span class="sleeve">
-              <span class="vinyl" aria-hidden="true" />
-              <Image src={song.cover} alt="" width={128} height={128} densities={[1, 2]} />
-            </span>
-            <span class="song-t">
-              <b>{song.title}</b>
-              <span>{song.artist}</span>
-              <span class="song-go">listen on spotify ↗</span>
-            </span>
-          </a>
+        <aside class="outro" aria-labelledby="outro-k">
+          <p class="outro-k" id="outro-k">on repeat</p>
+          <div class="spotify" data-kind={song.kind}>
+            <a class="spotify-card" href={song.url} target="_blank" rel="noopener">
+              <span class="sleeve">
+                {song.kind === "song" && <span class="vinyl" aria-hidden="true" />}
+                <Image src={song.cover} alt="" width={128} height={128} densities={[1, 2]} />
+              </span>
+              <span class="spotify-t">
+                <span class="spotify-k">{song.kind}</span>
+                <b class="spotify-title">{song.title}</b>
+                <span class="spotify-by">{song.artist}</span>
+                <span class="spotify-go">listen on spotify ↗</span>
+              </span>
+            </a>
+          </div>
         </aside>
       )
     }
