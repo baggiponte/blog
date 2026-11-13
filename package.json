@@ -7,12 +7,12 @@
     "node": ">=22.18.0"
   },
   "scripts": {
-    "build": "node scripts/build.ts",
+    "build": "astro build && CLOUDFLARE_CF_AUTH=true cf-wrangler build",
     "build:slides-theme": "slidev build themes/slides/example/slides.md --out node_modules/.build",
-    "check": "node scripts/build.ts && cf deploy --prebuilt --dry-run",
+    "check": "pnpm build && cf deploy --prebuilt --dry-run",
     "deploy": "cf deploy --prebuilt",
     "dev": "astro dev",
-    "preview": "node scripts/build.ts && astro preview",
+    "preview": "pnpm build && astro preview",
     "test": "playwright test",
     "test:unit": "node --test \"src/**/*.test.ts\"",
     "typecheck": "astro sync && tsc",
