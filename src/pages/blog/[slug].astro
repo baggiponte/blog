@@ -5,6 +5,7 @@ import { render } from "astro:content";
 import type { InferGetStaticPropsType } from "astro";
 
 import Base from "../../layouts/Base.astro";
+import { imageSize } from "../../lib/card.ts";
 import { formatDate } from "../../lib/dates.ts";
 import { bodyEntry, getPostPaths, markdownOf, markdownUrlOf, readingMinutes } from "../../lib/posts.ts";
 
@@ -17,6 +18,7 @@ const minutes = readingMinutes(await markdownOf(post));
 const coffees = Math.max(1, Math.round(minutes / 3));
 const source = markdownUrlOf(post);
 const { song } = post.data;
+const songImage = song && imageSize(song.type);
 ---
 
 <Base title={post.data.title} description={post.data.description}>
@@ -60,9 +62,9 @@ const { song } = post.data;
           <div class="player" data-type={song.type} data-platform={song.platform}>
             <a class="player-card" href={song.url} target="_blank" rel="noopener">
               <span class="sleeve">
-                {song.type === "music" && <span class="vinyl" aria-hidden="true" />}
-                {song.cover ? (
-                  <Image src={song.cover} alt="" width={128} height={128} densities={[1, 2]} />
+                {song.type === "song" && <span class="vinyl" aria-hidden="true" />}
+                {song.image ? (
+                  <Image src={song.image} alt="" {...songImage} densities={[1, 2]} />
                 ) : (
                   <span class="blank" aria-hidden="true" />
                 )}

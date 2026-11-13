@@ -10,11 +10,16 @@ test("a shared Spotify link loses its share id and locale, and is listened to", 
     platform: "spotify",
     verb: "listen",
     url: `https://open.spotify.com/track/${id}`,
+    type: "song",
   });
-  assert.equal(
-    listenLink(`https://open.spotify.com/episode/${id}?si=x`)?.url,
-    `https://open.spotify.com/episode/${id}`,
-  );
+  assert.deepEqual(listenLink(`https://open.spotify.com/episode/${id}?si=x`), {
+    platform: "spotify",
+    verb: "listen",
+    url: `https://open.spotify.com/episode/${id}`,
+    type: "podcast",
+  });
+  assert.equal(listenLink(`https://open.spotify.com/album/${id}`)?.type, "song");
+  assert.equal(listenLink(`https://open.spotify.com/show/${id}`)?.type, "podcast");
 });
 
 test("a YouTube link keeps its video and start time, and is watched", () => {
@@ -22,6 +27,7 @@ test("a YouTube link keeps its video and start time, and is watched", () => {
     platform: "youtube",
     verb: "watch",
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42",
+    type: "video",
   });
   assert.equal(
     listenLink("https://m.youtube.com/watch?v=dQw4w9WgXcQ&list=x")?.url,

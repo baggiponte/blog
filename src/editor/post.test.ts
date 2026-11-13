@@ -63,16 +63,17 @@ test("a post the site couldn't build is refused, with the reason", () => {
   assert.throws(() => checkPost(post('title: "x"\ndescription: "y"\ndraft: true')), { message: /^date: / });
 });
 
-test("a post with a player block the build would refuse is not saved, and says which line", () => {
+test("a post with a card block the build would refuse is not saved, and says which line", () => {
   const front = 'title: "a post"\ndescription: "about it"\ndate: 2026-11-10';
-  const body = (fields: string) => `${post(front)}one line\n\n\`\`\`player\n${fields}\n\`\`\`\n`;
+  const body = (fields: string) => `${post(front)}one line\n\n\`\`\`card\n${fields}\n\`\`\`\n`;
   checkPost(body("url: https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT"));
-  assert.throws(() => checkPost(body("type: song\nurl: https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT")), {
+  assert.throws(() => checkPost(body("type: music\nurl: https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT")), {
     failure: "invalid",
-    message: /^player block on line \d+: type: /,
+    message: /^card block on line \d+: type: /,
   });
   assert.throws(() => checkPost(body("title: no link yet")), { failure: "invalid", message: /url: / });
-  // Other code blocks are prose to the editor, whatever they hold.
+  // A block quoted inside a longer fence is an example, and other code blocks are prose, whatever they hold.
+  checkPost(`${post(front)}\`\`\`\`md\n\`\`\`card\nurl: nope\n\`\`\`\n\`\`\`\`\n`);
   checkPost(`${post(front)}\`\`\`yaml\nurl: nope\n\`\`\`\n`);
 });
 

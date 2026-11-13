@@ -3,15 +3,15 @@ import type { AstroUserConfig } from "astro";
 
 import { codeFigure } from "./code-figure.ts";
 import { codeThemes } from "./code-themes.ts";
+import { remarkCard } from "./remark-card.ts";
 import { remarkLineParagraphs } from "./remark-line-paragraphs.ts";
 import { remarkMark } from "./remark-mark.ts";
-import { remarkPlayer } from "./remark-player.ts";
 
 // How posts are rendered: astro.config.ts uses it, and the tests render Markdown with it.
 export const markdown = {
-  // unified() rather than the default Sätteri so `==highlights==`, one paragraph per line and player cards can be
-  // small remark plugins.
-  processor: unified({ remarkPlugins: [remarkLineParagraphs, remarkMark, remarkPlayer] }),
+  // unified() rather than the default Sätteri so `==highlights==`, one paragraph per line and cards can be small
+  // remark plugins.
+  processor: unified({ remarkPlugins: [remarkLineParagraphs, remarkMark, remarkCard] }),
   shikiConfig: {
     themes: codeThemes,
     defaultColor: false,

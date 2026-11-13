@@ -75,19 +75,21 @@ front matter: `title`, `description`, `date`, `format` (`post` or `tidbits`),
 show up only in `pnpm dev`; a draft may keep a capitalised title or an empty
 description, which a published post may not. Wrap text in `==double equals==` to highlight it.
 
-A `player` code block becomes a card that opens a song or a podcast episode on Spotify or YouTube, anywhere in a
-post. Only `url` is required: without a title or a cover the card fills them in. The editor refuses to save a block
-the build would refuse.
+A `card` code block becomes a card, anywhere in a post: a bookmark for a page to read, or a song, podcast or video
+that opens on Spotify or YouTube. Only `url` is required: the link decides the type (a Spotify track is a song, an
+episode a podcast, a YouTube link a video, anything else a link), and without a title or an image the card fills them
+in. The build never fetches anything. The editor refuses to save a block the build would refuse.
 
-```player
-type: podcast            # or music, the default
-title: how we use agents # optional
-note: from minute 32     # optional
-url: https://open.spotify.com/episode/…
-cover: ./episode.jpg     # optional, next to index.md
+```card
+url: https://jvns.ca/blog/2024/02/16/popular-git-config-options/
+type: link                         # optional: link, song, podcast or video
+title: popular git config options  # optional
+note: the options people set       # optional
+image: ./git-config.png            # optional, next to index.md
+site: julia evans                  # optional, links only
 ```
 
-`song:` in the front matter takes the same fields and ends the post with one.
+`song:` in the front matter takes the same fields and ends the post with a song, podcast or video.
 
 Each line of text is its own paragraph: write one paragraph per line, with no
 blank line needed between them (`src/lib/remark-line-paragraphs.ts`), so don't
