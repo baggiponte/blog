@@ -101,3 +101,11 @@ for (const { slug, count } of decks) {
     expect(errors).toEqual([]);
   });
 }
+
+test("the map shows before the page's script runs, so nothing below it jumps", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto("/talks/");
+  await expect(page.locator(".talks > .map")).toBeVisible();
+  await context.close();
+});

@@ -12,7 +12,8 @@ const views = renderViews(await loadCatalog(root, await listDecks(root)));
 ---
 
 <Base title="talks" description="slides, code and recordings from luca baggi's talks.">
-  <div class="talks">
+  {/* Starts on the map, the default view, so the page has its full height before talks.ts runs: otherwise every view stays hidden until then and the footer jumps down. */}
+  <div class="talks" data-view="map">
     <header>
       <h1>talks</h1>
       <p>slides, code and recordings from the times i got on stage.</p>
