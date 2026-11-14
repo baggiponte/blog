@@ -94,3 +94,14 @@ test("every response carries the security headers", async ({ request }) => {
     expect(headers["strict-transport-security"], path).toBe("max-age=31536000");
   }
 });
+
+test("hashed build files are cached for a year and pages are checked again on every visit", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/");
+  const stylesheet = await page.locator('link[rel="stylesheet"][href^="/_astro/"]').first().getAttribute("href");
+  expect(stylesheet).not.toBeNull();
+  expect((await request.get(stylesheet ?? "")).headers()["cache-control"]).toBe("public, max-age=31536000, immutable");
+  expect((await request.get("/")).headers()["cache-control"] ?? "").not.toContain("immutable");
+});
