@@ -69,15 +69,31 @@ test("a directory without its slash redirects permanently, and unknown posts are
   expect((await request.get("/blog/not-a-post/")).status()).toBe(404);
 });
 
-test("tabs read luca baggi's blog, after the page's own title", async ({ page, request }) => {
-  const [post] = await searchIndex(request);
-  if (post === undefined) {
-    throw new Error("no published posts");
+// Every page the sitemap lists, the way a reader gets there: it loads, says whose blog it is, has content, runs its
+// scripts without errors, and links only to pages that exist, at their final address.
+test("every page in the sitemap loads cleanly and links only to pages that exist", async ({ page, request }) => {
+  const locs = async (path: string): Promise<string[]> =>
+    [...(await (await request.get(path)).text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+      ([, loc]) => new URL(loc ?? "").pathname,
+    );
+  const pages = (await Promise.all((await locs("/sitemap-index.xml")).map(locs))).flat();
+  expect(pages).toContain("/");
+
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(`${page.url()}: ${error.message}`));
+  const links = new Set<string>();
+  for (const path of pages) {
+    expect((await page.goto(path))?.status(), path).toBe(200);
+    await expect(page, path).toHaveTitle(/(^| · )luca baggi's blog$/);
+    await expect(page.locator("main"), path).not.toBeEmpty();
+    for (const href of await page.locator('a[href^="/"]').evaluateAll(as => as.map(a => a.getAttribute("href")))) {
+      links.add(new URL(href ?? "", page.url()).pathname);
+    }
   }
-  await page.goto("/");
-  await expect(page).toHaveTitle("luca baggi's blog");
-  await page.goto(post.url);
-  await expect(page).toHaveTitle(`${post.title} · luca baggi's blog`);
+  expect(errors).toEqual([]);
+  for (const link of links) {
+    expect((await request.get(link, { maxRedirects: 0 })).status(), link).toBe(200);
+  }
 });
 
 test("the drafting editor only exists in astro dev, never on the built site", async ({ request }) => {
