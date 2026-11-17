@@ -10,6 +10,7 @@ import {
   imageType,
   isBundleDir,
   isConflict,
+  isNotebook,
   numbered,
   type PostSummary,
   summarize,
@@ -115,6 +116,10 @@ export function fileStore(blogDir: string): PostStore {
     const path = join(blogDir, dir, "index.md");
     if (!(await exists(path))) {
       throw new EditorError(`no post in content/blog/${dir}`, { failure: "missing" });
+    }
+    // The sidebar already leaves notebooks out; this keeps a request by folder name from reaching one either.
+    if (isNotebook(await readFile(path, "utf8"))) {
+      throw new EditorError(`content/blog/${dir} is a notebook post: edit its .py in marimo`, { failure: "missing" });
     }
     return path;
   };
