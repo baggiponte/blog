@@ -60,6 +60,18 @@ test("only existing posts are read or written", async () => {
   await assert.rejects(store.write(dir("missing"), "x"), { failure: "missing" });
 });
 
+test("a notebook post is never read or written, nor its images or suggestions", async () => {
+  const notebook = post("title: notebook\nnotebook: nb.md");
+  const root = await blog({ nb: notebook });
+  const store = fileStore(root);
+  await assert.rejects(store.read(dir("nb")), { failure: "missing" });
+  await assert.rejects(store.write(dir("nb"), "overwritten"), { failure: "missing" });
+  await assert.rejects(store.addImage(dir("nb"), "a.png", new Uint8Array([1])), { failure: "missing" });
+  await assert.rejects(store.writeSuggestions(dir("nb"), []), { failure: "missing" });
+  assert.equal(await readFile(join(root, "nb", "index.md"), "utf8"), notebook);
+  assert.deepEqual(await readdir(join(root, "nb")), ["index.md"]);
+});
+
 test("a new post can't take an existing folder", async () => {
   const root = await blog({});
   const store = fileStore(root);

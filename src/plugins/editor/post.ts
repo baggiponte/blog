@@ -126,19 +126,28 @@ function dateText(date: unknown): string {
   return typeof date === "string" ? date : "";
 }
 
-// The sidebar row for a bundle, or undefined for a notebook post, which is written in marimo and not here.
+// A notebook post is written in marimo (its .py) and exported to Markdown, so the editor never reads or writes it.
+export function isNotebook(markdown: string): boolean {
+  try {
+    return frontmatterOf(markdown).notebook !== undefined;
+  } catch {
+    return false;
+  }
+}
+
+// The sidebar row for a bundle, or undefined for a notebook post (isNotebook).
 // A post whose frontmatter is broken (hand-edited outside the editor) still gets a row, so it can be opened and fixed.
 export function summarize(dir: BundleDir, markdown: string): PostSummary | undefined {
+  if (isNotebook(markdown)) {
+    return undefined;
+  }
   let data: Record<string, unknown> = {};
   try {
     data = frontmatterOf(markdown);
   } catch {
     // Listed under its folder name.
   }
-  const { notebook, title, date, draft } = data;
-  if (notebook !== undefined) {
-    return undefined;
-  }
+  const { title, date, draft } = data;
   return {
     dir,
     title: typeof title === "string" && title !== "" ? title : dir,
