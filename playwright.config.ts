@@ -20,7 +20,10 @@ export default defineConfig({
   projects: [
     { name: "site", testIgnore: "editor.spec.ts", use: { baseURL: destination || local } },
     // A deployed site has no editor.
-    ...(destination ? [] : [{ name: "editor", testMatch: "editor.spec.ts", use: { baseURL: dev } }]),
+    // One at a time: the editor tests write real files through one dev server, and side by side they race it.
+    ...(destination
+      ? []
+      : [{ name: "editor", testMatch: "editor.spec.ts", fullyParallel: false, use: { baseURL: dev } }]),
   ],
   ...(destination
     ? {}

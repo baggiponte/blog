@@ -1,4 +1,4 @@
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 
 import { expect, type Page, test } from "@playwright/test";
 
@@ -6,11 +6,12 @@ import { expect, type Page, test } from "@playwright/test";
 const blogDir = new URL("../content/blog/", import.meta.url);
 const indexOf = (dir: string): URL => new URL(`${dir}/index.md`, blogDir);
 
-let dir: string | undefined;
+let dirs: string[] = [];
 test.afterEach(async () => {
-  if (dir !== undefined) {
+  for (const dir of dirs) {
     await rm(new URL(`${dir}/`, blogDir), { recursive: true, force: true });
   }
+  dirs = [];
 });
 
 async function newPost(page: Page, title: string): Promise<string> {
@@ -19,7 +20,8 @@ async function newPost(page: Page, title: string): Promise<string> {
   await page.getByLabel("title").fill(title);
   await page.getByLabel("description").fill("written by the editor tests");
   await page.getByRole("button", { name: "create" }).click();
-  dir = title.toLowerCase().replaceAll(" ", "-");
+  const dir = title.toLowerCase().replaceAll(" ", "-");
+  dirs.push(dir);
   await expect(page).toHaveURL(new RegExp(`#${dir}$`));
   return dir;
 }
@@ -90,4 +92,39 @@ test("Claude's suggestions show on the text, and accepting or rejecting one upda
   await expect.poll(() => readFile(indexOf(post), "utf8")).toContain("they were here and teh end");
   // None left: the file goes away.
   await expect.poll(() => readFile(suggestionsOf, "utf8").catch(() => "gone")).toBe("gone");
+});
+
+test("a pasted image is saved next to index.md and linked in the post", async ({ page }) => {
+  const post = await newPost(page, `editor images ${Date.now()}`);
+  await page.locator(".cm-content").press("ControlOrMeta+End");
+  // What the browser hands the page when a screenshot is pasted.
+  await page.locator(".cm-content").evaluate(content => {
+    const data = new DataTransfer();
+    data.items.add(new File([new Uint8Array([137, 80, 78, 71])], "Screenshot 1.PNG", { type: "image/png" }));
+    content.dispatchEvent(new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true }));
+  });
+  await expect(status(page)).toHaveText("saved");
+  await expect.poll(() => readFile(indexOf(post), "utf8")).toContain("![](./screenshot-1.png)");
+  expect(await readFile(new URL(`${post}/screenshot-1.png`, blogDir))).toHaveLength(4);
+});
+
+test("the sidebar lists the drafts and opens the post clicked", async ({ page }) => {
+  // One post already on disk, then one made in the editor, which opens it.
+  const older = `editor sidebar ${Date.now()}`;
+  const olderDir = older.replaceAll(" ", "-");
+  dirs.push(olderDir);
+  await mkdir(new URL(`${olderDir}/`, blogDir));
+  await writeFile(
+    indexOf(olderDir),
+    `---\ntitle: "${older}"\ndescription: "written by the editor tests"\ndate: 2026-01-01\ndraft: true\n---\n\nthe older post\n`,
+  );
+  await newPost(page, `${older} newer`);
+
+  const sidebar = page.getByRole("complementary", { name: "posts" });
+  const row = sidebar.getByRole("link", { name: new RegExp(older) }).filter({ hasNotText: "newer" });
+  await expect(row).toContainText("draft");
+  await row.click();
+  await expect(page).toHaveURL(new RegExp(`#${olderDir}$`));
+  await expect(page.locator(".cm-content")).toContainText("the older post");
+  await expect(row).toHaveAttribute("aria-current", "page");
 });
