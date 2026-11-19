@@ -204,10 +204,12 @@ const view = new EditorView({
       if (before !== after || update.selectionSet) {
         renderReview(after);
       }
-      if (before !== after) {
-        if (idsOf(before) !== idsOf(after)) {
-          scheduleSuggestionsSave();
-        }
+      // Only an accept, a reject or an undo of one is saved. Loading what's on disk isn't: writing it straight back
+      // would make every editor tab open on the post a writer, and the save of the tab you're working in would then
+      // fail as a conflict and lose your choices.
+      const loading = update.transactions.some(tr => tr.effects.some(effect => effect.is(load)));
+      if (before !== after && !loading && idsOf(before) !== idsOf(after)) {
+        scheduleSuggestionsSave();
       }
       if (update.docChanged && current !== undefined) {
         clearTimeout(timer);

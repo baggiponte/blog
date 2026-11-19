@@ -94,6 +94,28 @@ test("Claude's suggestions show on the text, and accepting or rejecting one upda
   await expect.poll(() => readFile(suggestionsOf, "utf8").catch(() => "gone")).toBe("gone");
 });
 
+test("opening a post's suggestions never writes them back", async ({ page }) => {
+  const post = await newPost(page, `editor reads suggestions ${Date.now()}`);
+  await writeFile(indexOf(post), `${await readFile(indexOf(post), "utf8")}they was here\n`);
+  const suggestionsOf = new URL(`${post}/suggestions.json`, blogDir);
+  const written = JSON.stringify({
+    suggestions: [{ id: "a", kind: "grammar", quote: "they was here", replacement: "they were here" }],
+  });
+  await writeFile(suggestionsOf, written);
+  const saves: string[] = [];
+  page.on("request", request => {
+    if (request.method() === "PUT" && request.url().endsWith("/suggestions")) {
+      saves.push(request.url());
+    }
+  });
+  await page.evaluate(() => dispatchEvent(new Event("focus")));
+  await expect(page.locator(".cm-sg-old")).toHaveText(["was"]);
+  // Longer than the editor waits before saving a change to the suggestions.
+  await page.waitForTimeout(1000);
+  expect(saves).toEqual([]);
+  expect(await readFile(suggestionsOf, "utf8")).toBe(written);
+});
+
 test("a pasted image is saved next to index.md and linked in the post", async ({ page }) => {
   const post = await newPost(page, `editor images ${Date.now()}`);
   await page.locator(".cm-content").press("ControlOrMeta+End");
