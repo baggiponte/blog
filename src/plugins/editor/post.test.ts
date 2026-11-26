@@ -50,6 +50,16 @@ test("a new post is a draft in a folder named after its title", () => {
   checkPost(markdown);
 });
 
+test("a new notebook post names its export, and a bad export name is refused", () => {
+  const input = { title: "a notebook", description: "", format: "post", notebook: "analysis.md" } as const;
+  const markdown = newPostMarkdown(input, new Date("2026-05-05T10:00:00Z"));
+  assert.match(markdown, /\nformat: post\nnotebook: analysis\.md\ndraft: true\n/);
+  checkPost(markdown);
+  assert.throws(() => checkPost(newPostMarkdown({ ...input, notebook: "../x.md" }, new Date())), {
+    failure: "invalid",
+  });
+});
+
 test("a post the site couldn't build is refused, with the reason", () => {
   checkPost(post('title: "a post"\ndescription: "about it"\ndate: 2026-11-10'));
   assert.throws(() => checkPost(post('title: "unclosed\ndate: 2026-11-10')), {
