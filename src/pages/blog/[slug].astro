@@ -5,7 +5,7 @@ import type { InferGetStaticPropsType } from "astro";
 
 import Base from "../../layouts/Base.astro";
 import { formatDate } from "../../lib/dates.ts";
-import { bodyEntry, getPostPaths, markdownOf, markdownUrlOf, readingMinutes } from "../../lib/posts.ts";
+import { bodyEntry, getPostPaths, markdownOf, markdownUrlOf, previewUrlOf, readingMinutes } from "../../lib/posts.ts";
 
 export const getStaticPaths = getPostPaths;
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
@@ -17,7 +17,7 @@ const coffees = Math.max(1, Math.round(minutes / 3));
 const source = markdownUrlOf(post);
 ---
 
-<Base title={post.data.title} description={post.data.description}>
+<Base title={post.data.title} description={post.data.description} image={previewUrlOf(post)}>
   <article class="post">
     <header class="post-h">
       <div class="crumb"><a href="/">writing</a> / {post.data.format === "tidbits" ? "tidbits" : "posts"}</div>

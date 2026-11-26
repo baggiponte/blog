@@ -10,6 +10,8 @@ type Body = Post | CollectionEntry<"notebooks">;
 export const slugOf = (post: Post): string => slugOfDir(post.id);
 export const urlOf = (post: Post): string => `/blog/${slugOf(post)}/`;
 export const markdownUrlOf = (post: Post): string => `/blog/${slugOf(post)}.md`;
+// The link preview src/pages/blog/[slug].png.ts draws.
+export const previewUrlOf = (post: Post): string => `/blog/${slugOf(post)}.png`;
 
 // Newest first; drafts only show in `astro dev`.
 export async function getPosts(): Promise<Post[]> {

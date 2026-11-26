@@ -162,3 +162,18 @@ test("hashed build files are cached for a year and pages are checked again on ev
   expect((await request.get(stylesheet ?? "")).headers()["cache-control"]).toBe("public, max-age=31536000, immutable");
   expect((await request.get("/")).headers()["cache-control"] ?? "").not.toContain("immutable");
 });
+
+test("every post's link preview is a card-sized PNG the site serves", async ({ page, request }) => {
+  for (const post of await searchIndex(request)) {
+    await page.goto(post.url);
+    const image = await page.locator('meta[property="og:image"]').getAttribute("content");
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+    if (image === null) {
+      throw new Error(`${post.url} has no og:image`);
+    }
+    // og:image points at the live site, so fetch its path from the server under test.
+    const response = await request.get(new URL(image).pathname);
+    expect(response.ok(), image).toBe(true);
+    expect(response.headers()["content-type"]).toBe("image/png");
+  }
+});

@@ -4,14 +4,17 @@ import { Font } from "astro:assets";
 import "../styles/global.css";
 import "../plugins/card/card.css";
 
+import { height, width } from "../plugins/preview/preview.ts";
 import { site } from "../site.ts";
 
 interface Props {
   title?: string;
   description?: string;
+  // A link preview image for this page, as a path on the site.
+  image?: string;
 }
 
-const { title, description = site.description } = Astro.props;
+const { title, description = site.description, image } = Astro.props;
 const pageTitle = title ? `${title} · ${site.title}` : site.title;
 const path = Astro.url.pathname;
 // The nav tab for the current section: "writing" covers the home page and every post.
@@ -34,6 +37,18 @@ const active = (href: string): boolean => (href === "/" ? path === "/" || path.s
     <meta property="og:title" content={title ?? site.title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    {
+      image && (
+        <>
+          <meta property="og:image" content={new URL(image, Astro.site)} />
+          <meta property="og:image:width" content={String(width)} />
+          <meta property="og:image:height" content={String(height)} />
+          <meta property="og:image:alt" content={title ?? site.title} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:image" content={new URL(image, Astro.site)} />
+        </>
+      )
+    }
     <!-- Light by default; a saved choice wins. Runs before paint to avoid a flash. -->
     <script is:inline>
       try {
