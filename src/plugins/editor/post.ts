@@ -72,14 +72,19 @@ export function dirForTitle(title: string): BundleDir {
   return dir as BundleDir;
 }
 
-// The index.md `just new` writes, with the title and description already filled in.
-export function newPostMarkdown({ title, description, format }: NewPost, date: Date): string {
+// The index.md the "new post" button, `just new` and `just notebook` write, with the title and description already
+// filled in. A notebook post names its marimo export, "<name>.md", which becomes the body.
+export function newPostMarkdown(
+  { title, description, format, notebook }: NewPost & { notebook?: string | undefined },
+  date: Date,
+): string {
   return [
     "---",
     `title: ${JSON.stringify(title.toLowerCase())}`,
     `description: ${JSON.stringify(description)}`,
     `date: ${date.toISOString().slice(0, 10)}`,
     `format: ${format}`,
+    ...(notebook === undefined ? [] : [`notebook: ${notebook}`]),
     "draft: true",
     "---",
     "",
