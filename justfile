@@ -13,13 +13,26 @@ serve:
 update:
     uvx --from prek=={{ prek }} prek autoupdate
 
-# Create a new blog post
-new slug:
-    just _bundle "{{ slug }}" post && nvim "content/blog/{{ slug }}/index.md"
+# Create a draft post from its title (`just new my first post`) and open it in the editor
+[positional-arguments]
+new +title:
+    just _draft post "$@"
 
-# Create a new tidbits entry
-tidbit slug:
-    just _bundle "{{ slug }}" tidbits && nvim "content/blog/{{ slug }}/index.md"
+# Create a draft tidbits entry from its title and open it in the editor
+[positional-arguments]
+tidbit +title:
+    just _draft tidbits "$@"
+
+# Write a hand-written draft like the editor's "new post" button, then start astro dev on it at /editor/
+[positional-arguments]
+[private]
+_draft format +title:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    dir=$(node scripts/new-post.ts "$@")
+    echo "content/blog/$dir/index.md is ready; opening /editor/#$dir"
+    pnpm dev --open "/editor/#$dir"
 
 # Create a notebook post and open it in a sandbox; marimo writes the PEP 723 header
 notebook slug name:
