@@ -65,10 +65,14 @@ just update
 ## Writing
 
 ```bash
-just new <slug>              # long post
-just tidbit <slug>           # tidbits entry
+just new <title>             # long post, opened in the editor
+just tidbit <title>          # tidbits entry, opened in the editor
 just notebook <slug> <name>  # marimo notebook post
 ```
+
+`just new` and `just tidbit` take the title as you'd write it (`just new perché
+il café è buono`), name the folder after it (`perche-il-cafe-e-buono`), then
+start `astro dev` and open the new draft at `/editor/#<folder>`.
 
 Each entry is a bundle under `content/blog/<slug>/` whose `index.md` holds the
 front matter: `title`, `description`, `date`, `format` (`post` or `tidbits`),
