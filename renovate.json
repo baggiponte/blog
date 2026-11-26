@@ -17,7 +17,7 @@
     {
       "customType": "regex",
       "fileMatch": ["^justfile$"],
-      "matchStrings": ["(?<depName>marimo|prek) := \"(?<currentValue>[^\"]+)\""],
+      "matchStrings": ["(?<depName>marimo) := \"(?<currentValue>[^\"]+)\""],
       "datasourceTemplate": "pypi"
     },
     {

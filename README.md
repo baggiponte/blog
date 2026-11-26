@@ -2,10 +2,8 @@
 
 ## Preview
 
-With [just](https://github.com/casey/just)
-
 ```bash
-just serve
+pnpm dev
 ```
 
 ## Deploy
@@ -56,23 +54,28 @@ deletion and force pushes.
 
 ## Update
 
-With [Just](https://github.com/casey/just)
+Renovate bumps the dependencies; update the pre-commit hooks with
 
 ```bash
-just update
+uvx --from prek==0.5.7 prek autoupdate
 ```
 
 ## Writing
 
+The [just](https://github.com/casey/just) recipes create content; everything
+else is a `pnpm` script.
+
 ```bash
 just new <title>             # long post, opened in the editor
 just tidbit <title>          # tidbits entry, opened in the editor
-just notebook <slug> <name>  # marimo notebook post
+just notebook <name> <title> # marimo notebook post, opened in marimo
 ```
 
 `just new` and `just tidbit` take the title as you'd write it (`just new perché
 il café è buono`), name the folder after it (`perche-il-cafe-e-buono`), then
 start `astro dev` and open the new draft at `/editor/#<folder>`.
+`just notebook analysis una prova` writes the same draft with
+`notebook: analysis.md` and opens `analysis.py` in a marimo sandbox.
 
 Each entry is a bundle under `content/blog/<slug>/` whose `index.md` holds the
 front matter: `title`, `description`, `date`, `format` (`post` or `tidbits`),
@@ -102,7 +105,7 @@ page button uses.
 
 ### Editor
 
-`pnpm dev` (or `just serve`) also serves a drafting editor at
+`pnpm dev` also serves a drafting editor at
 <http://localhost:4321/editor/>. It edits the post's `index.md` in one pane with
 a live preview: away from the cursor the Markdown syntax hides and the text
 reads like the post (headings, emphasis, `==highlights==`, links, images
@@ -187,7 +190,7 @@ themes (`src/lib/code-themes.ts`) as the site, so a palette change reaches both.
 Start a deck with `just talk <slug>`, then list it in `talks.json`. Layouts:
 `cover` (`event`, `date`, and a QR code in the `::aside::` slot), `section`
 (`kicker`), `code`, plus Slidev's built-in ones; `footer: false` drops the
-brand and slide number from a slide. `just slides-theme` opens the theme's
+brand and slide number from a slide. `pnpm dev:slides-theme` opens the theme's
 example deck with hot reload.
 
 The talks used to live in `baggiponte/talks` at `talks.baggiponte.com`; their

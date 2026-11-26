@@ -1,17 +1,9 @@
+# Recipes that create content. Running the site (dev, build, tests, slides theme) lives in package.json's scripts.
+
 # Pinned so local exports, the pre-commit hook and CI write identical Markdown
 marimo := "0.25.2"
-prek := "0.5.7"
 
 set quiet
-
-# Run marimo notebook export hook, then launch the astro dev server (drafts included)
-serve:
-    uvx --from prek=={{ prek }} prek run marimo-export-notebooks
-    pnpm dev
-
-# Update pre-commit hooks (Renovate handles the rest)
-update:
-    uvx --from prek=={{ prek }} prek autoupdate
 
 # Create a draft post from its title (`just new my first post`) and open it in the editor
 [positional-arguments]
@@ -34,34 +26,15 @@ _draft format +title:
     echo "content/blog/$dir/index.md is ready; opening /editor/#$dir"
     pnpm dev --open "/editor/#$dir"
 
-# Create a notebook post and open it in a sandbox; marimo writes the PEP 723 header
-notebook slug name:
-    just _bundle "{{ slug }}" post "{{ name }}.md"
-    uvx marimo=={{ marimo }} edit --sandbox "content/blog/{{ slug }}/{{ name }}.py"
-
-# Write a draft bundle's index.md; the body is the notebook export when one is given
-[private]
-_bundle slug format notebook="":
+# Create a draft notebook post (`just notebook analysis my title`) and open it in marimo, which writes the PEP 723 header
+[positional-arguments]
+notebook name +title:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    dir="content/blog/{{ slug }}"
-    if [ -e "$dir" ]; then
-      echo "$dir already exists"
-      exit 1
-    fi
-
-    mkdir -p "$dir"
-    {
-      echo "---"
-      echo "title: \"{{ replace(slug, '-', ' ') }}\""
-      echo "description: \"\""
-      echo "date: $(date +%Y-%m-%d)"
-      echo "format: {{ format }}"
-      if [ -n "{{ notebook }}" ]; then echo "notebook: {{ notebook }}"; fi
-      echo "draft: true"
-      echo "---"
-    } > "$dir/index.md"
+    shift
+    dir=$(node scripts/new-post.ts --notebook "{{ name }}.md" post "$@")
+    uvx marimo=={{ marimo }} edit --sandbox "content/blog/$dir/{{ name }}.py"
 
 # Start a deck on the slides theme; list it in content/talks/talks.json before building
 talk slug:
@@ -87,10 +60,6 @@ talk slug:
       echo "# {{ replace(slug, '-', ' ') }}"
     } > "$dir/slides.md"
     pnpm exec slidev "$dir/slides.md"
-
-# Open the slides theme's example deck with hot reload
-slides-theme:
-    pnpm exec slidev themes/slides/example/slides.md
 
 # Export marimo notebooks to Markdown in-place; defaults to all blog notebooks
 marimo-export *notebooks:

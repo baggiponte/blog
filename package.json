@@ -12,6 +12,7 @@
     "check": "pnpm build && cf deploy --prebuilt --dry-run",
     "deploy": "cf deploy --prebuilt",
     "dev": "astro dev",
+    "dev:slides-theme": "slidev themes/slides/example/slides.md",
     "preview": "pnpm build && astro preview",
     "test": "playwright test",
     "test:unit": "node --test \"src/**/*.test.ts\"",
